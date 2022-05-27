@@ -1,0 +1,62 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": ".",
+  "dependencies": {
+    "@data-ui/sparkline": "0.0.84",
+    "@data-ui/theme": "0.0.84",
+    "@jiaminghi/data-view-react": "^1.2.5",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@wojtekmaj/react-daterange-picker": "^3.4.0",
+    "axios": "^0.21.1",
+    "bootstrap": "^5.1.0",
+    "echarts": "^5.3.1",
+    "echarts-for-react": "^3.0.2",
+    "file-saver": "^2.0.5",
+    "jquery": "^3.6.0",
+    "mdbreact": "^5.1.0",
+    "react-awesome-calendar": "^1.0.14",
+    "react-csv": "^2.0.3",
+    "react-datepicker": "^4.2.1",
+    "react-datetime-picker": "^3.4.0",
+    "react-google-charts": "^3.0.15",
+    "react-grid-heatmap": "^1.0.1",
+    "react-lottie": "^1.2.3",
+    "react-router-dom": "^5.2.1",
+    "react-scripts": "4.0.3",
+    "uuid": "^8.3.2",
+    "web-vitals": "^1.0.1"
+  },
+  "scripts": {
+    "start": "(set PORT=7008 || export PORT=7008) && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "proxy": "http://localhost:5000",
+  "proxy1": "http://202.59.9.164:5000/:5000",
+  "devDependencies": {
+    "react-app-rewired": "^2.1.8"
+  }
+}

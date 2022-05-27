@@ -1,0 +1,66 @@
+<html>
+  <head>
+
+    <!-- General Settings -->
+    <meta charset="utf-8">
+    <meta http-equiv="content-language" content="en-us">
+    <base href="{global.baseUrl}" />
+
+    <!-- Meta Tags -->
+    <title>{head.title} | {global.appName}</title>
+    <meta name="description" content="{head.description}">
+
+    <!-- Static Assets -->
+    <link rel="stylesheet" type="text/css" href="../public/app.css" />
+    <link type="image/x-icon" rel="icon" href="../favicon.ico">
+    <script type="text/javascript" charset="utf-8" src="../public/app.js"></script>
+
+    <!-- ECharts -->
+    <!-- including ECharts file -->
+    <!-- script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.common.min.js"></script --> 
+    <script src="../public//src//echarts.min.js"></script>
+
+    <!-- MapBox -->
+    <!-- <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' /> -->
+    <script src='https://api.mapbox.com/mapbox.js/v3.2.1/mapbox.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/v3.2.1/mapbox.css' rel='stylesheet' />
+
+    <!-- Table Sort -->
+
+    <!-- Scedule -->
+    <link rel="stylesheet" href="../public/styles.css" />
+    <link rel="stylesheet" href="../public/src/calendarjs.css" />
+    <script src="../public/src/calendarjs.js"></script>
+
+    <!-- Sparkline -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+
+    <!-- Chart.js -->
+    <!-- script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    
+  </head>
+  <body class="{body.class}">
+    <!-- Page Wrapper -->
+    <div class="wrapper">
+      <!-- Header -->
+      <div class="header">
+        <!-- Logo -->
+        <a class="logo" href="/"><img src="public/logo.png" alt="Logo" /></a>
+        <!-- Navigation -->
+        <ul class="menu">
+          <li class="loggedIn"><a href="/">IOT<br>LIST</a></li>
+          <li class="loggedIn"><a href="/view/cardView">IOT<br>CARD</a></li>
+          <li class="loggedIn"><a href="/view/systemView">IOT<br>SYSTEM</a></li>
+          <li class="loggedOut"><a href="/account/create">Signup</a></li>
+          <li class="loggedOut"><a href="/session/create">Login</a></li>
+          <li class="loggedIn"><a href="/schedules/all">GIS<br>MAP</a></li>
+          <li class="loggedIn loggedInAdmin"><a href="/checks/all">Dashboard</a></li>
+          <!-- li class="loggedIn"><a href="/account/edit">Account Settings</a></li> -->
+          <li class="loggedIn"><a href="#" id="logoutButton">Logout</a></li>
+        </ul>
+        <div class="clear"></div>
+      </div>
+      <!-- Page-Specific Content -->
+      <div class="content">

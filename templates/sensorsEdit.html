@@ -1,0 +1,169 @@
+<h1><a class="backButton" href="/">Back</a>  Sensor Details</h1>
+<hr />
+<h2>Edit Sensor</h2>
+<div class="formWrapper">
+  <form id="sensorsEdit1" action="/api/sensors" method="PUT">
+
+    <input type="hidden" name="_method" value="PUT"/>
+    <div class="formError"></div>
+    <div class="formSuccess">Your Changes Have Been Saved</div>
+    <input class="hiddenIdInput"  type="hidden" name="uid" />
+
+    <div class="loggedInAdmin">
+      <div class="inputWrapper">
+          <div class="inputLabel">SENSOR GUID
+            <input class="disabled displayInput" type="text" disabled name="displayId"/>
+          </div>
+      </div>
+
+      <div class="inputWrapper">
+          <div class="inputLabel">DATA TRANSFER UNIT ID (001-255)<input class="displayInput displayDTUIDInput" type="text" disabled name="dtuId" /></div>
+      </div>
+
+      <div class="inputWrapper">
+          <div class="inputLabel">SENSOR ID (001-255)<input class="displayInput displaySENSORIDInput" type="text" disabled name="sensorId" /></div>
+      </div>
+
+      <div class="input Wrapper">
+        <div class="inputLabel">DEVICE RATINGS (MIN)<input class="displayInput" type="text" name="ratingMIN" /></div>
+        <div class="inputLabel">DEVICE RATINGS (MAX)<input class="displayInput" type="text" name="ratingMAX" /></div>
+      </div>
+      
+      <div class="inputWrapper">
+        <div class="inputLabel">Sensor Type
+        <select class="displaysensortypeInput displayInput" name="sensortype">
+          <option value="WI-SENSOR RH SENSOR (LORA)" selected>WI-SENSOR RH SENSOR (LORA)</option>
+          <option value="HONEYWELL FIRE-SMOKE DETECTR SENSOR (LORA)">HONEYWELL FIRE-SMOKE DETECTOR (LORA)</option>
+          <option value="RH SENSOR (485)">RH SENSOR (485)</option>
+          <option value="POWER METER SENSOR (485)">POWER METER (485)</option>
+          <option value="ADC CONVERTOR (485)">ANALOG DIGITAL CONVERTOR (485)</option>
+          <option value="WATER LEAK SENSOR (485)">WATER LEAK DETECTOR (485)</option>
+          <option value="PIR SENSOR (485)">PROXIMITY INFRA-RED SENSOR (485)</option>
+          <option value="AIR FLOW VELOCITY SENSOR (485)">AIRFLOW VELOCITY SENSOR (485)</option>
+          <option value="AIR FLOW RH SENSOR (485)">AIRFLOW RH SENSOR (485)</option>
+          <option value="WATER TEMPERATURE (485)">WATER TEMPERATURE (485)</option>
+          <option value="WATER PRESSURE (485)">WATER PRESSURE (485)</option>
+          <option value="GPIO 1 (DTU)">GPIO 1 (485)</option>
+          <option value="GPIO 2 (DTU)">GPIO 2 (485)</option>
+          <option value="GPIO 3 (DTU)">GPIO 3 (485)</option>
+          <option value="GPIO 4 (DTU)">GPIO 4 (485)</option>
+          <option value="GPIO 5 (DTU)">GPIO 5 (485)</option>
+        </select>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">SENSOR NAME<input class="displayInput displaySENSORNAMEInput" type="text" name="sensorname" placeholder="" /></div>
+    </div>
+
+    <div class="loggedInAdmin">
+      <div style="display: flex;">
+        <div class="inputLabel">FEATURE</div>
+        <div class="displayInput" style='border:2px solid blue; padding:10px; display:block;'>
+          <input type="checkbox" class="multiselect featuresInput" id='active' name="features" value="ACTIVE"><label for="active">ACTIVE</label>
+          <input type="checkbox" class="multiselect featuresInput" id='heartbeat' name="features" value="HEARTBEAT"><label for="heartbeat">HEARTBEAT</label>
+          <input type="checkbox" class="multiselect featuresInput" id='alert' name="features" disabled value="ALERT"><label for="alert">ALERT</label>
+          <input type="checkbox" class="multiselect featuresInput" id='analytics' name="features" disabled value="ANALYTICS"><label for="analytics">ANALYTICS</label>
+        </div>
+        <div class="inputLabel">NOTIFICATION</div>
+        <div class="displayInput" style='border:2px solid blue; padding:10px; display:block'>
+            <input type="checkbox" class="multiselect notificationsInput" id='email' name="notification" value="EMAIL"><label for="email">EMAIL</label>
+            <input type="checkbox" class="multiselect notificationsInput" id='whatsapp' name="notification" value="WHATSAPP" ><label for="whatsapp">WHATS APP</label>
+            <input type="checkbox" class="multiselect notificationsInput" id='telegram' name="notification" value="TELEGRAM"><label for="telegram">TELEGRAM</label>
+            <input type="checkbox" class="multiselect notificationsInput" id='sms' name="notification" value="SMS"><label for="sms">SMS</label>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    
+    <div class="inputWrapper displayInput" style='border:2px solid blue; padding:10px 20px; display:flex'>
+      <div style="width:100px; text-align: center; padding: 5px; margin-left: auto;">
+        <input class="displayLabelInput1" type="text" name="label1" placeholder="" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput1" type="text" name="lowerlimit1" placeholder="" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput1" type="text" name="upperlimit1" placeholder="" />
+        <hr>
+        <input type="checkbox" class="multiselect alertInput" name="alert" value="ALERT1">ALERT
+      </div>
+      <div style="width:100px; text-align: center; padding: 5px 5px; margin-right: auto;">
+        <input class="displayLabelInput2" type="text" name="label2" placeholder="" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput2" type="text" name="lowerlimit2" placeholder="" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput2" type="text" name="upperlimit2" placeholder="" />
+        <hr>
+        <input type="checkbox" class="multiselect alertInput" name="alert" value="ALERT2">ALERT
+      </div>
+      <div style="width:100px; text-align: center; padding: 5px 5px; display: none;">
+        <input class="displayLabelInput3" type="text" name="label3" placeholder="" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput3" type="text" name="lowerlimit3" placeholder="" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput3" type="text" name="upperlimit3" placeholder="" />
+        <hr>
+        <input type="checkbox" class="multiselect alertInput" name="alert" value="ALERT3">ALERT
+      </div>
+      <div style="width:100px; text-align: center; padding: 5px; display:none;">
+        <input class="displayLabelInput4" type="text" name="label4" placeholder="" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput4" type="text" name="lowerlimit4" placeholder="" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput4" type="text" name="upperlimit4" placeholder="" />
+        <hr>
+        <input type="checkbox" class="multiselect alertInput" name="alert" value="ALERT4">ALERT
+      </div>
+    </div>
+    <br>
+
+    <div class="loggedInAdmin">
+      <div class="inputWrapper">
+        <div class="inputLabel">SCANNING INTERVAL
+        <select class="intval displayscantimeInput" name="interval">
+          <option value="1">1 minute</option>
+          <option value="3">3 minutes</option>
+          <option value="5">5 minutes</option>
+          <option value="10">10 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="20">20 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="inputWrapper ctaWrapper">
+      <button type="submit" class="cta green">Save Changes</button>
+    </div>
+
+  </form>
+</div>
+
+<div class="loggedInAdmin">
+
+  <hr />
+  <h2>Delete The Check</h2>
+  <div class="formWrapper">
+    <form id="sensorsEdit2" action="/api/sensors" method="DELETE">
+
+      <input type="hidden" name="_method" value="DELETE"/>
+      <div class="formError"></div>
+      <div class="warning">Warning: This action cannot be undone. Dont click this button on accident!</div>
+      <input class="hiddenIdInput" type="hidden" name="uid" />
+      <div class="inputWrapper ctaWrapper">
+        <button type="submit" class="cta red">Delete Sensor</button>
+      </div>
+      
+    </form>
+
+  </div>
+
+</div>

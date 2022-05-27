@@ -1,0 +1,48 @@
+@import "styles";
+
+div.expired {
+    opacity: $event-expired-opacity;
+}
+
+div.all-day {
+    background-color: $event-color-all-day !important;
+}
+
+div.event,
+div.event-no-hover {
+    @include word-wrap-with-new-lines;
+    border-radius: $border-view-radius;
+    background-color: $event-color;
+    padding: $spacing;
+    color: $light-color;
+    margin-bottom: $spacing;
+    margin-left: $spacing;
+    margin-right: $spacing;
+    border-left: $event-left-border;
+
+    @include div-label-spacing;
+
+    div.title {
+        font-weight: 900;
+    }
+    
+    div.date,
+    div.description,
+    div.location,
+    div.repeats {
+        font-size: smaller;
+        font-weight: 300;
+    }
+}
+
+div.event:hover {
+    @include opacity-hover-effect;
+}
+
+div.event:active {
+    @include opacity-active-effect;
+}
+
+&:last-child {
+    margin-bottom: 0;
+}

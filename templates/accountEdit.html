@@ -1,0 +1,133 @@
+<h1><a class="backButton" href="/checks/all">Back</a>  Account Settings</h1>
+<hr />
+<h2>Edit your account details</h2>
+<input class="hiddenPhoneNumberInput"  type="hidden" name="phone" />
+<div class="formWrapper">
+  <form id="accountsSelect" action="/account/edit" method="EDIT">
+    <div class="inputWrapper">
+      <div class="inputLabel">USER ACCOUNT
+        <input class="hiddenPhoneNumberInput"  type="hidden" name="phone" />
+        <select class="displayaccountInput" id="userAccount" onchange="val()" name="accounts">
+      </div>
+      </select>
+    </div>
+  </form>
+</div>
+
+<div class="formWrapper">
+  <form id="accountEdit1" action="/api/users" method="PUT">
+    <input type="hidden" name="_method" value="PUT"/>
+    <input class="hiddenPhoneNumberInput"  type="hidden" name="phone" />
+    <input class="hiddenSelectPhoneNumberInput"  type="hidden" name="Selphone" />
+    <div class="formError"></div>
+    <div class="formSuccess">Your Changes Have Been Saved</div>
+    <div class="inputWrapper">
+      <div class="inputLabel">Phone Number
+        <input class="disabled displayPhoneInput" type="text" name="displayPhone" disabled />
+      </div>
+      <div class="inputLabel">First Name
+        <input class="firstNameInput" type="text" name="firstName" placeholder="John" />
+      </div>
+      <div class="inputLabel">Last Name
+        <input class="lastNameInput" type="text" name="lastName" placeholder="Smith" />
+      </div>
+    </div>
+    <div class="inputWrapper ctaWrapper">
+      <button type="submit" class="cta green">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<hr />
+
+<h2>Change Your Password</h2>
+<div class="formWrapper">
+  <form id="accountEdit2" action="/api/users" method="PUT">
+    <input type="hidden" name="_method" value="PUT"/>
+    <input class="hiddenPhoneNumberInput"  type="hidden" name="phone" />
+    <input class="hiddenSelectPhoneNumberInput" type="hidden" name="Selphone" />
+    <div class="formError"></div>
+    <div class="formSuccess">Your New Password Has Been Saved</div>
+    <div class="inputWrapper">
+      <div class="inputLabel">Choose a New Password
+        <input type="password" name="password" placeholder="Make it a good one!" />
+      </div>
+    </div>
+    <div class="inputWrapper ctaWrapper">
+      <button type="submit" class="cta green">Save Password</button>
+    </div>
+  </form>
+</div>
+
+<hr/>
+
+<h2>ASSIGNED SENSORS</h2>
+<div class="formSensorTypeSelection">
+  <form id="accountEdit3" action="/api/users" method="PUT">
+    <input type="hidden" name="_method" value="PUT"/>
+    <div class="formError"></div>
+    <div class="formSuccess">Your Changes Have Been Saved</div>
+    <input class="hiddenPhoneNumberInput"  type="hidden" name="phone" />
+    <input class="hiddenSelectPhoneNumberInput"  type="hidden" name="Selphone" />
+    
+    <div class="inputWrapper">
+      <div class="inputLabel">SENSORS (LORA & 485 OPEN SOURCE SENSORS)</div>
+      <div class="checkboxGroup"  id="userSensors"></div>
+    </div>
+
+    <div class="inputWrapper ctaWrapper">
+      <button type="submit" class="cta blue">ASSIGN SENSOR</button>
+    </div>
+  </form>
+</div>
+<hr />
+
+<h2>Delete Your Account</h2>
+<div class="formWrapper">
+  <form id="accountEdit4" action="/api/users" method="DELETE">
+    <input type="hidden" name="_method" value="DELETE"/>
+    <input class="hiddenPhoneNumberInput"  type="hidden" name="phone" />
+    <input class="hiddenSelectPhoneNumberInput" type="hidden" name="Selphone" />
+    <div class="formError"></div>
+    <div class="warning">Warning: This action cannot be undone. Dont click this button on accident!</div>
+    <div class="inputWrapper ctaWrapper">
+      <button type="submit" class="cta red">Delete Account</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function val() {
+      userAccount = document.getElementById("userAccount").value;
+      // Fetch the user data
+      var queryStringObject = {
+        'phone': document.querySelectorAll("input.hiddenPhoneNumberInput")[0].value,
+        'SelAccount': userAccount
+      };
+      app.client.request(undefined,'api/users','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+        if(statusCode == 200){
+          // Put the data into the forms as values where needed
+          document.querySelector("#accountEdit1 .firstNameInput").value = responsePayload.firstName;
+          document.querySelector("#accountEdit1 .lastNameInput").value = responsePayload.lastName;
+          document.querySelector("#accountEdit1 .displayPhoneInput").value = responsePayload.phone;
+          // Put the hidden phone field into both forms
+          var hiddenPhoneInputs = document.querySelectorAll("input.hiddenSelectPhoneNumberInput");
+          for(var i = 0; i < hiddenPhoneInputs.length; i++){
+              hiddenPhoneInputs[i].value = responsePayload.phone;
+          }
+          // Check Sensors Assigned to the Selected User 
+          var sensorsCheckboxes = document.querySelectorAll("#accountEdit3 input.userSensors");
+          for(var i = 0; i < sensorsCheckboxes.length; i++){
+            if(responsePayload.sensors.indexOf(sensorsCheckboxes[i].value) > -1){
+              sensorsCheckboxes[i].checked = true;
+            } else {
+              sensorsCheckboxes[i].checked = false;
+            }
+          }
+        } else {
+          // If the request comes back as something other than 200, log the user our (on the assumption that the api is temporarily down or the users token is bad)
+          // app.logUserOut();
+        }
+      });
+  }
+</script>

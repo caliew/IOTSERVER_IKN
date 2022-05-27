@@ -1,0 +1,65 @@
+<h1>
+<a class="backButton" href="/checks/all">Back</a>  Create A System</h1>
+<hr />
+
+<h1>SYSTEMS</h1>
+<div class="formWrapper">
+  <form id="sensorsCreate" action="/api/systems" method="POST">
+    <div class="formError"></div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">NAME OF SYSTEM</div>
+      <input type="text" name="systemname" placeholder="" />
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">TYPE OF SYSTEM</div>
+      <select class="selection" name="systemtype">
+        <option value="CHILLER">CHILLER</option>
+        <option value="HEATEX">HEAT EXCHANGER</option>
+        <option value="WCPU">WATER COOL UNITS</option>
+        <option value="CT">COOLING TOWER</option>
+        <option value="AHU">AIR HANDLING UNIT</option>
+      </select>
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">TYPE OF SENSOR</div>
+      <select class="selection" name="sensortype">
+        <option value="WTR_TEMP">WATER TEMPERATURE SENSOR</option>
+        <option value="WTR_PRES">WATER PRESSURE SENSOR</option>
+        <option value="PWR_MTR">ELECTRIC POWER METER</option>
+        <option value="AIR_VEL">AIR FLOW VELOCITY SENSOR</option>
+        <option value="AIR_RH">AIR FLOW RH SENSOR</option>
+        <option value="AIR_PRES">GAS PRESSURE SENSOR</option>
+        <option value="ENV_RH">ENVIRONMENT RH SENSOR</option>
+      </select>
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">SENSOR NAME</div>
+      <select class="selection" name="sensorname">
+        <option value="100_01">CHW - CHILLER A (RETURN) WTR TEMP</option>
+        <option value="100_02">CHW - CHILLER A (RETURN) WTR PRESS</option>
+        <option value="100_03">CHW - CHILLER A (SUPPLIES) WTR TEMP</option>
+        <option value="100_04">CHW - CHILLER A (SUPPLIES) WTR PRESS</option>
+        <option value="101_01">CWT - CHILLER A (RETURN) WTR TEMP</option>
+        <option value="101_02">CWT - CHILLER A (RETURN) WTR PRESS</option>
+        <option value="101_03">CWT - CHILLER A (SUPPLIES) WTR TEMP</option>
+        <option value="101_04">CWT - CHILLER A (SUPPLIES) WTR PRESS</option>        
+        <option value="102_01">CHW - CHILLER B (RETURN) WTR TEMP</option>
+        <option value="102_02">CHW - CHILLER B (RETURN) WTR PRESS</option>
+        <option value="102_03">CHW - CHILLER B (SUPPLIES) WTR TEMP</option>
+        <option value="102_04">CHW - CHILLER B (SUPPLIES) WTR PRESS</option>
+        <option value="103_01">CWT - CHILLER B (RETURN) WTR TEMP</option>
+        <option value="103_02">CWT - CHILLER B (RETURN) WTR PRESS</option>
+        <option value="103_03">CWT - CHILLER B (SUPPLIES) WTR TEMP</option>
+        <option value="103_04">CWT - CHILLER B (SUPPLIES) WTR PRESS</option>
+      </select>
+    </div>
+
+    <div class="inputWrapper ctaWrapper">
+      <button type="submit" class="cta green">Create System</button>
+    </div>
+  </form>
+</div>

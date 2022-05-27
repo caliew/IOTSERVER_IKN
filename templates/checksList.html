@@ -1,0 +1,68 @@
+<div id='loading'><img src="../public/icons/Spinner-2.gif" style="display: block;"></div>
+
+<table id="gatewayListTable" style="text-align: center;">
+  <tr>
+    <th>GATEWAY ID</th>
+    <th>SOCKET ADDRESS</th>
+    <th>TIME STAMP</th>
+    <th>STATUS</th>
+  </tr>
+</table>
+
+<div id="createCheckCTA" class="ctaWrapper">
+  <a class="cta blue"   href="checks/create">Create a Check</a>
+  <a class="cta green"  href="systems/create">Create a System</a>
+  <a class="cta green"  href="sensors/create">Create a Sensor</a>
+  <a class="cta red"    href="account/edit">Account Settings</a>
+  <a class="cta black"  href="/checks/all">TIMER SETTINGS</a>
+</div>
+
+<div><br></div>
+
+<table id="checksListTable" style="text-align: center;">
+  <tr>
+    <th>Method</th>
+    <th>Protocol</th>
+    <th>URL</th>
+    <th>State</th>
+    <th>Details</th>
+  </tr>
+  <tr id="noChecksMessage">
+    <td colspan="5">You have no checks, please create one!</td>
+  </tr>
+</table>
+
+<div><br></div>
+
+<table id="sensorsListTable" class="table table-sortable" style="text-align: center;">
+  <thead>
+    <tr>
+      <th>SN</th>
+      <th>DTU ID</th>
+      <th>Sensor ID</th>
+      <th>Sensor Type</th>
+      <th>Sensor Name</th>
+      <th>Channel</th>
+      <th>Ratings<br>(MIN/MAX)</th>
+      <th>Lower Limit</th>
+      <th>Upper Limit</th>
+      <th>INT</th>
+      <th>LAST CHECK IN</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+</table>
+
+<div><br></div>
+
+<table id="timerPacketSenderTable">
+  <tr>
+    <th>TIMER</th>
+    <th>INTERVALS</th>
+    <th>Sensor IDs</th>
+    <th>STATUS</th>
+  </tr>
+</table>
+
+<link rel='stylesheet' type="text/css" href="../public/src/tablesort.css" />
+<script src="../public/src/tablesort.js"></script>

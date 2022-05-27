@@ -1,0 +1,112 @@
+<h1>
+<a class="backButton" href="/checks/all">Back</a>  Create A Sensor</h1>
+<hr />
+
+<div class="formWrapper">
+  <form id="sensorsCreate" action="/api/sensors" method="POST">
+    <div class="formError"></div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">DATA TRANSFER UNIT ID (001-255)</div>
+      <input type="text" name="dtuid" placeholder="000" />
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">SENSOR ID (001-255)</div>
+      <input type="text" name="sensorid" placeholder="000" />
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">Sensor Type</div>
+      <select class= "sensortype" name="sensortype">
+      </select>
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">SENSOR NAME</div>
+      <input type="text" name="sensorname" placeholder="" />
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">FEATURE</div>
+      <div class="displayInput" style='border:2px solid blue; padding:10px 2px 10px 2px; display:flex;'>
+        <input type="checkbox" class="multiselect" name="features" value="ACTIVE" >ACTIVE
+        <input type="checkbox" class="multiselect" name="features" value="HEARTBEAT" >HEARTBEAT
+        <input type="checkbox" class="multiselect" name="features" value="ALERT">ALERT
+        <input type="checkbox" class="multiselect" name="features" value="ANALYTICS">ANALYTICS
+      </div>
+      <div class="inputLabel">NOTIFICATION</div>
+      <div class="displayInput" style='border:2px solid blue; padding:10px 0px 10px 0px; display:flex;'>
+        <input type="checkbox" class="multiselect" name="notification" value="EMAIL" >EMAIL
+        <input type="checkbox" class="multiselect" name="notification" value="WHATSAPP" > WHAT'S APP
+        <input type="checkbox" class="multiselect" name="notification" value="TELEGRAM"> TELEGRAM
+        <input type="checkbox" class="multiselect" name="notification" value="SMS">SMS TEXT
+      </div>
+    </div>
+
+    <div class="inputWrapper" style='border:1px solid blue; padding:10px 20px; display:flex'>
+      <div style="width:100px; text-align: center; padding: 5px; margin-left: auto;">
+        <div class="inputLabel">CHANNEL1</div>
+        <input class="displayLabelInput1" type="text" name="label1" placeholder="CHANNEL1" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput" type="text" name="lowerlimit1" placeholder="-1" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput" type="text" name="upperlimit1" placeholder="-1" />
+        <hr>
+        <input type="checkbox" class="multiselect featuresInput" name="alert" value="ALERT1">ALERT
+      </div>
+      <div style="width:100px; text-align: center; padding: 5px 5px;">
+        <div class="inputLabel">CHANNEL2</div>
+        <input class="displayLabelInput2" type="text" name="label2" placeholder="CHANNEL2" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput" type="text" name="lowerlimit2" placeholder="-1" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput" type="text" name="upperlimit2" placeholder="-1" />
+        <hr>
+        <input type="checkbox" class="multiselect featuresInput" name="alert" value="ALERT2">ALERT
+      </div>
+      <div style="width:100px; text-align: center; padding: 5px 5px;">
+        <div class="inputLabel">CHANNEL3</div>
+        <input class="displayLabelInput3" type="text" name="label3" placeholder="CHANNEL3" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput" type="text" name="lowerlimit3" placeholder="-1" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput" type="text" name="upperlimit3" placeholder="-1" />
+        <hr>
+        <input type="checkbox" class="multiselect featuresInput" name="alert" value="ALERT3">ALERT
+      </div>
+      <div style="width:100px; text-align: center; padding: 5px; margin-right: auto;">
+        <div class="inputLabel">CHANNEL4</div>
+        <input class="displayLabelInput4" type="text" name="label4" placeholder="CHANNEL4" />
+        <hr>
+        <div class="inputLabel">LOWER LIMIT</div>
+        <input class="displayLowerLimitInput" type="text" name="lowerlimit4" placeholder="-1" />
+        <div class="inputLabel">UPPER LIMIT</div>
+        <input class="displayUpperLimitInput" type="text" name="upperlimit4" placeholder="-1" />
+        <hr>
+        <input type="checkbox" class="multiselect featuresInput" name="alert" value="ALERT4">ALERT
+      </div>
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputLabel">SCANNING INTERVAL</div>
+      <select class="intval" name="interval">
+        <option value="1">1 minute</option>
+        <option value="3">3 minutes</option>
+        <option value="5">5 minutes</option>
+        <option value="10">10 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="20">20 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="60">60 minutes</option>
+      </select>
+    </div>
+
+    <div class="inputWrapper ctaWrapper">
+      <button type="submit" class="cta green">Create Sensor</button>
+    </div>
+  </form>
+</div>
