@@ -505,9 +505,9 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 				</g>
 				<g transform="translate(320,0)" >
 						<text x="5" y="-5" font-family="Tahoma" fill="black" font-size="1.25em" >LEGENDS : HUMIDITY </text>
-						<rect x="0" y="0"  font-family="Tahoma" width="50" height="20" fill='red' /><text x="55" y="20" fill="black" font-size="1.25em" >DANGER &gt;60% </text>
-						<rect x="0" y="20" font-family="Tahoma" width="50" height="20" fill='yellow'/><text x="55" y="40" fill="black" font-size="1.25em" >WARNING &gt;40% &lt;60% </text>
-						<rect x="0" y="40" font-family="Tahoma" width="50" height="20" fill='green' /><text x="55" y="60" fill="black" font-size="1.25em" >NORMAL &lt;40% </text>
+						<rect x="0" y="0"  font-family="Tahoma" width="50" height="20" fill='red' /><text x="55" y="20" fill="black" font-size="1.25em" >DANGER &gt;75% </text>
+						<rect x="0" y="20" font-family="Tahoma" width="50" height="20" fill='yellow'/><text x="55" y="40" fill="black" font-size="1.25em" >WARNING &gt;50% &lt;75% </text>
+						<rect x="0" y="40" font-family="Tahoma" width="50" height="20" fill='green' /><text x="55" y="60" fill="black" font-size="1.25em" >NORMAL &lt;50% </text>
 				</g>
 			</>
 		)
@@ -705,7 +705,7 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	const getHumidityColor2 = (index) => {
 		let _Data = getWiSensor(index);
 		let _RH = Number(_Data['RH']);
-		let _color = _RH < 40 ? 'green' : _RH < 60 ? 'yellow' : 'red';
+		let _color = _RH < 50 ? 'green' : _RH < 75 ? 'yellow' : 'red';
 		return _color;
 	}
 	// -------------------------

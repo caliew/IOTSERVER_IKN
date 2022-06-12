@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useContext, Fragment } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
-import { MDBTable,MDBTableBody,MDBRow,MDBCard, MDBCardTitle,MDBContainer, MDBCol  } from 'mdbreact';
+import { MDBTable,MDBTableBody,MDBRow,MDBCard, MDBCardTitle,MDBCol  } from 'mdbreact';
 
 import Thermometer from './Thermometer'
-import TDKFloorPlan from './TDKFloorPlan';
-
-import SparklinePlots from '../data-ui/SparklinePlots';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -33,11 +30,11 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
     const [wiSensors, setWiSensor] = useState([]);
     const [sensorLabels, setSensorLabels] = useState([]);
     const [tempData, setTempData] = useState([]);
-    const [humdData, setHUmdData] = useState([]);
-		const [plotDatas, setPlotDatas] = useState([]);
+    const [toggleListing,setToggleListing] = useState(true);
+    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleSparkline,setToggleSparkline] = useState(false);
 		// --------------------------------------------
     const sensorContext = useContext(SensorContext);
-    const [showHide, setShowHide] = useState(true);
     const { sensors, getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
@@ -83,9 +80,59 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
 			setTempData(_tempDatas.sort(compareByName));
     }
     const getWISENSORSList = () => {
-      let _wiSensorsList = wiSensors.map( (sensor,index) => { return (<SensorList companyName={userCompanyName} sensor={sensor} index={index} />)}) 
+      let _wiSensorsList = wiSensors.map( (sensor,index) => { return (<SensorList companyName={userCompanyName} 
+          sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)}) 
       if (wiSensors.length === 0) _wiSensorsList = <h5>.. NO SENSOR DATA AVAILABLE ..</h5>
       return _wiSensorsList;
+    }
+    // ----
+    function ToggleListing(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesListing'
+            checked={toggleListing}
+            onChange={()=>setToggleListing(!toggleListing)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesListing'>
+            <h5>{title} (LISTING)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleGauges(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesGauges'
+            checked={toggleGauge}
+            onChange={()=>setToggleGauge(!toggleGauge)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesGauges'>
+            <h5>{title} (GAUGE)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSparkline(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesSparkline'
+            checked={toggleSparkline}
+            onChange={()=>setToggleSparkline(!toggleSparkline)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesSparkline'>
+            <h5>SHOW SPARKLINE</h5>
+          </label>
+        </div>  
+      )
     }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
@@ -93,26 +140,25 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
     // --------------------------------------------
     return (
       <MDBRow center>
-
-        {/* <MDBCard className="px-4 py-4 m-2" style={{width:`${MDBRowWidth()}px`}}> */}
-            {/* width="700" height="534"  */}
-            {/* { showHide && getFloorPlan() } */}
-        {/* </MDBCard> */}
-
-				<MDBCard className="p-3 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>ENV. TEMPERATURE, RH & ABS</MDBCardTitle>
-          <MDBTable striped small>
-            <MDBTableBody>
-            {
-                wiSensors === null ? <h4>LOADING</h4> : getWISENSORSList()
-            }
-            </MDBTableBody>
-          </MDBTable>
+				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+          <MDBCardTitle>{ToggleListing('ENV. TEMPERATURE, RH & ABS')}</MDBCardTitle>
+          <MDBCardTitle>{ToggleSparkline('ENV. TEMPERATURE, RH & ABS')}</MDBCardTitle>
+          {
+            toggleListing && (
+              <MDBTable striped small>
+                <MDBTableBody>
+                {
+                    wiSensors === null ? <h4>LOADING</h4> : getWISENSORSList()
+                }
+                </MDBTableBody>
+              </MDBTable>
+            )
+          }
         </MDBCard>
 
-        <MDBCard className="p-5 m-2" style={{ width: "40rem" }}>
-
-          { showHide && sensorLabels && tempData && 
+        <MDBCard className="p-4 m-2" style={{ width: "40rem"}}>
+          <MDBCardTitle>{ToggleGauges('ENV. TEMPERATURE, RH & ABS')}</MDBCardTitle>
+          { sensorLabels && tempData && toggleGauge &&
               getThemrmometer( 
                   { title : 'ENVIRONMENTS', 
                   sensors : sensorLabels, 
@@ -205,42 +251,20 @@ const getSensorTemperature = (prop) => {
   }
   return TempReading;
 }
-const getWiSensorHeatMapTag = (_wiSensor,index) => {
-  // -----
-  // console.log(getSensorLocation("B0-68-61-5E-F9-72"))
-  // console.log(getSensorLocation("B0-2F-E0-3F-DC-9B"))
-  // console.log(getSensorLocation("B0-F6-BF-85-9E-13"))
-  // console.log(getSensorLocation("B0-B6-C7-46-4D-53"))
-  // -----
-  let colors = ['yellow','blue','green','orange']
-  return (
-    <Fragment>
-      <g transform={getSensorLocation(_wiSensor.sensorId)} >
-        <circle cx="0" cy="0" r="40" fill="green" filter="url(#heatMap)" />
-        <circle cx="0" cy="0" r="20" fill={colors[index]} filter="url(#heatMap)" />
-        {/* <circle cx="0" cy="0" r="15" fill="yellow" filter="url(#heatMap)" /> */}
-        <circle cx="0" cy="0" r="1" fill="red" filter="url(#heatMap)" />
-        <text x="0" y="0" font-size='1.2rem' fill="white">{getSensorTemperature(_wiSensor.sensorId)}</text>
-      </g>
-    </Fragment>
-  )
-}
 const getThemrmometer = (data) => {
   return (
     // <div className="d-flex row p-4 justify-content-center">
-    <MDBRow>
-
+    <MDBRow className="p-2 m-2">
         {
           data.data.sort().map( (_data,index) => (
             <MDBCol md="3">
             {/* <div className="d-flex flex-column px-4 align-items-center " > */}
                 <Thermometer reverseGradient='true' theme="dark" value={_data.temperature} max="35" steps="1" format="°C" size="small" height="100" />
-                <p>{_data.name}</p>
+                <h6>{_data.name}</h6>
             {/* </div> */}
             </MDBCol>
           ))
         }
-
      {/* </div> */}
     </ MDBRow>
 

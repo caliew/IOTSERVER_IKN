@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom'
 import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from './components/layout/Navbar'
 import Alert from './components/layout/Alerts'

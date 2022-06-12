@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.toggleLabel {
+  font-family: 'Tahoma';
+  font-size: 12px;
+}
+.ENVLabel {
+  font-family: 'Tahoma';
+  font-size: 10px;
+}

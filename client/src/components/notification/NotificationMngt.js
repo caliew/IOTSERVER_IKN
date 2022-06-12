@@ -1,14 +1,11 @@
 import React, { useContext,useEffect,useState } from 'react';
 import { MDBContainer,MDBRow,MDBCardGroup,MDBCardBody,MDBCard,MDBCardText,MDBJumbotron,MDBIcon } from 'mdbreact';
 import AuthContext from '../../context/auth/authContext';
-import AlertContext from '../../context/alert/alertContext';
 
 const NotificationMngt = () => {
 	//	-----------------
-  const alertContext = useContext(AlertContext);
-  const { setAlert } = alertContext;
   const authContext = useContext(AuthContext);
-  const { getAllUsers, user, users, companies, updateUser, updateCompany, clearErrors, isAuthenticated } = authContext;
+  const { user, users, companies, updateUser, updateCompany } = authContext;
 	//	-----------------
   useEffect(() => {
   },[])

@@ -3,24 +3,7 @@ import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
 import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBCardTitle, MDBCardText } from 'mdbreact';
 
-import SparklinePlots from '../data-ui/SparklinePlots';
-
 import Chart from "react-google-charts";
-import Thermometer from './Thermometer'
-
-import { 
-  CTW_A_TEMP1,CTW_A_TEMP2,CTW_A_FLOWRATE,CTW_A_ELECTPWR, 
-  CTW_B_TEMP1,CTW_B_TEMP2,CTW_B_FLOWRATE,CTW_B_ELECTPWR,
-  WCPU_A_TEMP1, WCPU_A_TEMP2, WCPU_A_FLOWRATE, WCPU_A_ELECTPWR,
-  WCPU_B_TEMP1, WCPU_B_TEMP2, WCPU_B_FLOWRATE, WCPU_B_ELECTPWR,
-  AHU_A_TEMP1,AHU_A_TEMP2,AHU_A_FLOWRATE,AHU_A_ELECTPWR,
-  AHU_B_TEMP1,AHU_B_TEMP2,AHU_B_FLOWRATE,AHU_B_ELECTPWR, 
-  CHILLER_A_CH_TEMP1, CHILLER_A_CH_TEMP2, CHILLER_A_CH_FLOWRATE,
-  CHILLER_A_CW_TEMP1, CHILLER_A_CW_TEMP2, CHILLER_A_CW_FLOWRATE,
-  CHILLER_B_CH_TEMP1, CHILLER_B_CH_TEMP2, CHILLER_B_CH_FLOWRATE,
-  CHILLER_B_CW_TEMP1, CHILLER_B_CW_TEMP2, CHILLER_B_CW_FLOWRATE,
-  CHILLER_A_ELECTPWR, CHILLER_B_ELECTPWR
-} from '../types';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -32,9 +15,10 @@ import {
 function AIRCompSysModule({ model, color, systemComponent, handleComponetSelection, title, type }) {
     // -----------
     const [airFlowSensors, setAFSensor] = useState([]);
-    const [sensorLabels, setSensorLabels] = useState([]);
     const [airPressData, setAPressData] = useState([]);
-		const [plotDatas, setPlotDatas] = useState([]);
+    const [toggleListing,setToggleListing] = useState(true);
+    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleSparkline,setToggleSparkline] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
     const [showHide, setShowHide] = useState(true);
@@ -79,36 +63,80 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
         // -------------------------
     }
     // --------------
-    const componentNames = {
-        sysCHILLER : 'CHILLER',
-        sysAHU : 'AHU',
-        sysWCPU : 'WCPU',
-        sysCTW : "CTW",
-        pumpCHILLER : "CH PUMP",
-        pumpCTW : "CTW PUMP",
-        pumpAHU : "AHU PUMP"
+    function ToggleListing(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesListing'
+            checked={toggleListing}
+            onChange={()=>setToggleListing(!toggleListing)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesListing'>
+            <h5>{title} (LISTING)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleGauges(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesGauges'
+            checked={toggleGauge}
+            onChange={()=>setToggleGauge(!toggleGauge)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesGauges'>
+            <h5>{title} (GAUGE)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSparkline(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesSparkline'
+            checked={toggleSparkline}
+            onChange={()=>setToggleSparkline(!toggleSparkline)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesSparkline'>
+            <h5>SHOW SPARKLINE</h5>
+          </label>
+        </div>  
+      )
     }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
-
 			<MDBRow center>
-
-				<MDBCard className="p-3 m-2"style={{ width: "40rem" }}>
-					<MDBCardTitle>AIR COMPRESSOR</MDBCardTitle>
-					<MDBTable striped small>
-						<MDBTableBody>
-						{
-								airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} />)})
-						}
-						</MDBTableBody>
-					</MDBTable>
-				</MDBCard>
+				<MDBCard className="p-4 m-2"style={{ width: "40rem" }}>
+          <MDBCardTitle>{ToggleListing(title='AIR COMPRESSOR')}</MDBCardTitle>
+            <MDBCardTitle>{ToggleSparkline('AIR COMPRESSOR')}</MDBCardTitle>
+          {
+            toggleListing && (
+              <MDBTable striped small>
+                <MDBTableBody>
+                {
+                    airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} 
+                      index={index} toggleSparkline={toggleSparkline}/>)})
+                }
+                </MDBTableBody>
+              </MDBTable>
+            )
+          }
+        </MDBCard>
 
 				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          { showHide && getDialGauge( { 
+          <MDBCardTitle>{ToggleGauges(title='AIR COMPRESSOR')}</MDBCardTitle>
+          { showHide && toggleGauge && getDialGauge( { 
               title : 'PRESSURE',
               data : airPressData, 
               redFrom: 90, redTo: 100, yellowFrom: 75, yellowTo: 90, minorTicks: 5})}            
@@ -135,7 +163,7 @@ function compareByName(a, b) {
 // -------------
 const getDialGauge = ({data}) => {
   return (
-    <MDBRow>
+    <MDBRow className="p-2 m-2">
       {/* <div className="d-flex row p-4 justify-content-center"> */}
       {
         data.sort().map( (sensor,index) => {

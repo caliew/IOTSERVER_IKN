@@ -97,7 +97,7 @@ const sensorData = (sensor) => {
 // -----------------------
 const renderLabel = d => d.toFixed(1);
 // ------------
-const SensorList = ({companyName,sensor,index}) => {
+const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 	// -------------------
 	const getDTUID = (dtuId) => `DTU ID:${dtuId}`;
 	// ------------------
@@ -174,7 +174,8 @@ const SensorList = ({companyName,sensor,index}) => {
 					<MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/>
 				</td>
 				<td>
-					{ companyName !== "IKN" && getSparkLine(sensor) }
+					{/* { companyName !== "IKN" && getSparkLine(sensor) } */}
+					{ toggleSparkline && getSparkLine(sensor) }
 				</td>
 			</tr>
 		)

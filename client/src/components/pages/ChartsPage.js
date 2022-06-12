@@ -1,6 +1,6 @@
 import React, { useContext,useState,useEffect,useRef } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
-import { MDBCol,MDBCard,MDBBtn,MDBInput,MDBRow,MDBBox } from 'mdbreact';
+import { MDBContainer, MDBTable,MDBTableHead,MDBTableBody,MDBCol,MDBCard,MDBBtn,MDBInput,MDBRow,MDBBox } from 'mdbreact';
 import ReactEcharts from "echarts-for-react";
 import { CSVDownload,CSVLink } from 'react-csv';
 import AlertContext from '../../context/alert/alertContext';
@@ -746,6 +746,67 @@ const ChartsPage = () => {
 		}
 		// ---------
 	}
+	const getPWRMETER = (RCV_BYTES) => {
+		let _HEXStr = RCV_BYTES[0] + RCV_BYTES[1];
+		let _HEXInt = parseInt(_HEXStr,16) * 0.01;
+		let _reading = Number(_HEXInt);
+		return _reading.toFixed(0);
+	}
+	const getWeekOfYear = (_dateTime) => {
+		let currentdate = new Date();
+		let oneJan = new Date(currentdate.getFullYear(),0,1);
+		let numberOfDays = Math.floor((_dateTime - oneJan) / (24 * 60 * 60 * 1000));
+		let weekOfYear = _dateTime ? Math.ceil(( _dateTime.getDay() + numberOfDays) / 7) : -1 ;
+		return weekOfYear;
+	}
+	const getPWRMTRSTATS = () => {
+		let sensorDataArr = [];
+		plotPWRMTRSensors.map((item, i) => {
+			let sensorName = item.name;
+			let sensordata = item.logsdata;
+			let weekPWRReading = {};
+			let _min = 999999;
+			let _max = null;
+			// -----------
+			sensordata.map( _data => {
+				let _dateTime = new Date(_data.TIMESTAMP)
+				let _weekOfYear = getWeekOfYear(_dateTime)
+				let _PWRREADING = getPWRMETER(_data.RCV_BYTES);
+				if (_min > _PWRREADING) _min = _PWRREADING;
+				if (_max < _PWRREADING) _max = _PWRREADING;
+				weekPWRReading[_weekOfYear] = { DATE:_dateTime , READING:_PWRREADING };
+			})
+			let obj = {
+				name:sensorName,
+				sensordata,
+				weekPWRReading,
+				_min, _max
+			}
+			sensorDataArr.push(obj);
+		})
+		console.log(sensorDataArr);
+		return ( 
+		<MDBTable>
+			<MDBTableHead><td >NAME</td><th>WEEK</th><th>MIN (KWh)</th><th>MAX (kWh)</th><th>kWhr</th></MDBTableHead>
+				<MDBTableBody>
+					{
+						sensorDataArr.map((item, i) => {
+							let keys = Object.keys(item.weekPWRReading);
+							return (
+								<tr>
+									<td>{item.name}</td>
+									<td>{keys[0]}</td>
+									<td>{item._min}</td>
+									<td>{item._max}</td>
+									<td>{item._max - item._min}</td>
+								</tr>
+								)
+							})
+					}
+				</MDBTableBody>
+		</MDBTable>
+		)
+	}
 	const checkState = (sensor) => {
 		let _found1 = plotRHSensors.find( el => (el.dtuId === sensor.dtuId && el.sensorId === sensor.sensorId))
 		let _found2 = plotVELSensors.find( el => (el.dtuId === sensor.dtuId && el.sensorId === sensor.sensorId))
@@ -1010,195 +1071,197 @@ const ChartsPage = () => {
 	// RENDER
 	// ------
   return(
-    <main style={{ marginTop: '2rem' }}>
+    <MDBContainer size="lg" style={{ marginTop: '2rem'}}>
 			
-			<MDBCol md="9" className="mb-r">
-			</MDBCol>
-      <div className="d-flex flex-row justify-content-center flex-wrap" >
-	      <DateRangePicker onChange={onDateChangePicker} value={dateRange} />
-				<MDBBtn  color={dateRange[0] !== null ? keys.length > 0 ? 'success': ( _loadMode === 0 ? 'secondary' : 'danger') : 'primary'} size="lg" onClick={()=>loadChartData()}>{getLOADINGTEXT()}</MDBBtn >
-				<MDBBtn  color='default' size="lg" onClick={()=>setSelection(null)}>CLEAR SELECTION</MDBBtn >
-			</div>
-      <div className="d-flex flex-row justify-content-center flex-wrap" >
-      {
-        keys.length > 0 && keys.map((_key,index) => {
-          return (
-            <MDBCard color='primary' className='p-2 m-2 align-items-center justify-content-center' center style={{width:'150px'}} onClick={()=>HandleSelection(`${_key}`)}>
-              <div className="d-flex flex-column justify-content-center" >
-							<span>{_key}</span>
-              </div>
-            </MDBCard>
-          )
-        })
-      }
-      </div>
-
       <MDBRow center>
-
-			<MDBCard className="p-2 m-2" style={{ width: "20rem" }}>
-
+				<MDBCol md="12" className="mb-r">
+					<DateRangePicker onChange={onDateChangePicker} value={dateRange} />
+					<MDBBtn  color={dateRange[0] !== null ? keys.length > 0 ? 'success': ( _loadMode === 0 ? 'secondary' : 'danger') : 'primary'} size="lg" onClick={()=>loadChartData()}>{getLOADINGTEXT()}</MDBBtn >
+					<MDBBtn  color='default' size="lg" onClick={()=>setSelection(null)}>CLEAR SELECTION</MDBBtn >
+				</MDBCol>				
+			</MDBRow>
       <MDBRow center>
-				{ selection && <div style={{color:'black',textDecorationLine:'underline',textAlign:'left',paddingTop:'5px'}}>SENSOR TYPE = {key}</div> }
-				<div className='p-1'>
 				{
-					selection && selection.map((_sensor,index) => {
-						// ---------------------------
-						let _id = `${_sensor.dtuId}-${_sensor.sensorId}`;
-						let _label = _sensor.name;
-						// ----------------------------
-						return(
-							<div class="custom-control custom-checkbox">
-        				<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
-								<label class="custom-control-label" for={_id}>{_label}</label>
-							</div>
+					keys.length > 0 && keys.map((_key,index) => {
+						return (
+							<MDBCard color='primary' className='p-2 m-2 align-items-center justify-content-center' center style={{width:'150px'}} onClick={()=>HandleSelection(`${_key}`)}>
+								<div className="d-flex flex-column justify-content-center" >
+								<span>{_key}</span>
+								</div>
+							</MDBCard>
 						)
 					})
 				}
-				</div>
+			</MDBRow>
+      <div className="d-flex flex-row justify-content-center flex-wrap" >
+      </div>
+
+      <MDBRow center>
+				<MDBCol size='3'>
+					<MDBCard className="p-2 m-2" >
+						<MDBRow center>
+							{ selection && <h5 style={{color:'black',textDecorationLine:'underline',textAlign:'left',paddingTop:'5px'}}>{key}</h5> }
+							<MDBCol size='11'>
+							{
+								selection && selection.map((_sensor,index) => {
+									// ---------------------------
+									let _id = `${_sensor.dtuId}-${_sensor.sensorId}`;
+									let _label = _sensor.name;
+									// ----------------------------
+									return(
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
+											<label class="custom-control-label" for={_id}>{_label}</label>
+										</div>
+									)
+								})
+							}
+							</MDBCol>
+						</MDBRow>
+						<MDBRow center>
+							<MDBBtn  color='warning' size="lg" >SENSOR SELECTED</MDBBtn >
+							<MDBCol size='11'>
+								{ plotRHSensors && (<div style={{color:'blue',paddingTop:'5px'}}>TEMPERATURE SENSOR</div>) }
+								{ 
+									plotRHSensors && plotRHSensors.map((_sensor,index) => {
+										// ---------------------------
+										let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
+										let _label = _sensor.name;
+										// ----------------------------
+										return(
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
+												<label class="custom-control-label" for={_id}>{_label}</label>
+											</div>
+										)
+									}) 
+								}
+								{ plotVELSensors && (<div style={{color:'blue',paddingTop:'5px'}}>AIR FLOW SENSOR</div>) }
+								{ 
+									plotVELSensors && plotVELSensors.map((_sensor,index) => {
+										// ---------------------------
+										let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
+										let _label = _sensor.name;
+										// ----------------------------
+										return(
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
+												<label class="custom-control-label" for={_id}>{_label}</label>
+											</div>
+										)
+									}) 
+								}
+								{ plotPRESSSensors && (<div style={{color:'blue',paddingTop:'5px'}}>PRESSURE SENSOR</div>) }
+								{ 
+									plotPRESSSensors && plotPRESSSensors.map((_sensor,index) => {
+										// ---------------------------
+										let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
+										let _label = _sensor.name;
+										// ----------------------------
+										return(
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
+												<label class="custom-control-label" for={_id}>{_label}</label>
+											</div>
+										)
+									}) 
+								}
+								{ plotPWRMTRSensors && (<div style={{color:'blue',paddingTop:'5px'}}>POWER METER</div>) }
+								{ 
+									plotPWRMTRSensors && plotPWRMTRSensors.map((_sensor,index) => {
+										// ---------------------------
+										let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
+										let _label = _sensor.name;
+										// ----------------------------
+										return(
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
+												<label class="custom-control-label" for={_id}>{_label}</label>
+											</div>
+										)
+									}) 
+								}
+							</MDBCol>
+						</MDBRow>
+						<MDBRow center>
+							<MDBBtn  color='black' size="lg" onClick={()=>HandleDownload()}>
+								Export HISTORIES DATA TO CSV
+								{fileName1 && <div><CSVLink {...csvReport1} ref={linkRef} onClick={()=>HandleDownload()}>POWER METERS</CSVLink></div>}
+								{fileName2 && <div><CSVLink {...csvReport2} ref={linkRef} onClick={()=>HandleDownload()}>PH SENSORS</CSVLink></div>}
+								{fileName3 && <div><CSVLink {...csvReport3} ref={linkRef} onClick={()=>HandleDownload()}>PRESSURE SENSOR</CSVLink></div>}
+								{fileName4 && <div><CSVLink {...csvReport4} ref={linkRef} onClick={()=>HandleDownload()}>AIRFLOW SENSOR</CSVLink></div>}
+							</MDBBtn >
+						</MDBRow>
+					</MDBCard>
+				</MDBCol>				
+
+				<MDBCol size='9'>
+					<MDBCard className="p-3 m-2">
+						{ plotRHSensors.length > 0 && (
+							<MDBBox display="flex" >
+								<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(1,e.target.value)}}></MDBInput>
+								<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(2,e.target.value)}}></MDBInput>
+							</MDBBox >
+							)}
+						{ plotRHSensors.length > 0 && (
+								<ReactEcharts
+									option={getOptionRHA({title:'TEMPERATURE C'})}
+									style={{ height: "500px", width: "100%" }}
+								/>				
+						)}
+						{ plotRHSensors.length > 0 && (
+							<MDBBox display="flex" >
+								<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(3,e.target.value)}}/>
+								<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(4,e.target.value)}}/>
+							</MDBBox >)}
+						{ plotRHSensors.length > 0 && (
+								<ReactEcharts
+									option={getOptionRHB({title:'HUMIDITY %'})}
+									style={{ height: "500px", width: "100%" }}
+								/>				
+						)}
+						{ plotVELSensors.length > 0 && (
+							<MDBBox display="flex" >
+								<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(5,e.target.value)}}/>
+								<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(6,e.target.value)}}/>
+							</MDBBox >)}
+						{ plotVELSensors.length > 0 && (
+								<ReactEcharts
+									option={getOptionVEL({title:'VELOCITY'})}
+									style={{ height: "500px", width: "100%" }}
+								/>				
+						)}
+						{ plotPRESSSensors.length > 0 && (
+							<MDBBox display="flex" >
+								<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(7,e.target.value)}}/>
+								<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(8,e.target.value)}}/>
+							</MDBBox >)}
+						{ plotPRESSSensors.length > 0 && (
+								<ReactEcharts
+									option={getOptionPRESS({title:'PRESSURE(BAR)'})}
+									style={{ height: "500px", width: "100%" }}
+								/>				
+						)}
+						{ plotPWRMTRSensors.length > 0 && (<MDBBox display="flex" ><MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(5,e.target.value)}}/><MDBInput label="BAND MIN" outline/></MDBBox >)}
+						{ plotPWRMTRSensors.length > 0 && (
+								<ReactEcharts
+									option={getOptionPWRMTRTOTAL({title:'TOTAL POWER CONSUMPTION (KWH)'})}
+									style={{ height: "500px", width: "100%" }}
+								/>				
+						)}
+						{ plotPWRMTRSensors.length > 0 && (<MDBBox display="flex" ><MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(6,e.target.value)}}/><MDBInput label="BAND MIN" outline/></MDBBox >)}
+						{ plotPWRMTRSensors.length > 0 && (
+								<ReactEcharts
+									option={getOptionPWRMTRRATE({title:'RATE POWER CONSUMPTION (KWH)/HOUR'})}
+									style={{ height: "500px", width: "100%" }}
+								/>				
+						)}
+						{ plotPWRMTRSensors.length > 0 && getPWRMTRSTATS()}
+					</MDBCard>
+				</MDBCol>
 			</MDBRow>
 
-			<MDBRow center>
-				<MDBBtn  color='warning' size="lg" >SENSOR SELECTED</MDBBtn >
-				<div className='p-2'>
-					{ plotRHSensors && (<div style={{color:'blue',paddingTop:'5px'}}>TEMPERATURE SENSOR</div>) }
-					{ 
-						plotRHSensors && plotRHSensors.map((_sensor,index) => {
-							// ---------------------------
-							let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
-							let _label = _sensor.name;
-							// ----------------------------
-							return(
-								<div class="custom-control custom-checkbox">
-									<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
-									<label class="custom-control-label" for={_id}>{_label}</label>
-								</div>
-							)
-						}) 
-					}
-					{ plotVELSensors && (<div style={{color:'blue',paddingTop:'5px'}}>AIR FLOW SENSOR</div>) }
-					{ 
-						plotVELSensors && plotVELSensors.map((_sensor,index) => {
-							// ---------------------------
-							let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
-							let _label = _sensor.name;
-							// ----------------------------
-							return(
-								<div class="custom-control custom-checkbox">
-									<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
-									<label class="custom-control-label" for={_id}>{_label}</label>
-								</div>
-							)
-						}) 
-					}
-					{ plotPRESSSensors && (<div style={{color:'blue',paddingTop:'5px'}}>PRESSURE SENSOR</div>) }
-					{ 
-						plotPRESSSensors && plotPRESSSensors.map((_sensor,index) => {
-							// ---------------------------
-							let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
-							let _label = _sensor.name;
-							// ----------------------------
-							return(
-								<div class="custom-control custom-checkbox">
-									<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
-									<label class="custom-control-label" for={_id}>{_label}</label>
-								</div>
-							)
-						}) 
-					}
-					{ plotPWRMTRSensors && (<div style={{color:'blue',paddingTop:'5px'}}>POWER METER</div>) }
-					{ 
-						plotPWRMTRSensors && plotPWRMTRSensors.map((_sensor,index) => {
-							// ---------------------------
-							let _id = `P-${_sensor.dtuId}-${_sensor.sensorId}`;
-							let _label = _sensor.name;
-							// ----------------------------
-							return(
-								<div class="custom-control custom-checkbox">
-									<input type="checkbox" checked={checkState(_sensor)} class="custom-control-input" id={_id} onClick={()=>SelectedSensor(_sensor)}></input>
-									<label class="custom-control-label" for={_id}>{_label}</label>
-								</div>
-							)
-						}) 
-					}
-				</div>
-			</MDBRow>
-			<MDBRow center>
-				<MDBBtn  color='black' size="lg" onClick={()=>HandleDownload()}>
-					Export HISTORIES DATA TO CSV
-					{fileName1 && <div><CSVLink {...csvReport1} ref={linkRef} onClick={()=>HandleDownload()}>POWER METERS</CSVLink></div>}
-					{fileName2 && <div><CSVLink {...csvReport2} ref={linkRef} onClick={()=>HandleDownload()}>PH SENSORS</CSVLink></div>}
-					{fileName3 && <div><CSVLink {...csvReport3} ref={linkRef} onClick={()=>HandleDownload()}>PRESSURE SENSOR</CSVLink></div>}
-					{fileName4 && <div><CSVLink {...csvReport4} ref={linkRef} onClick={()=>HandleDownload()}>AIRFLOW SENSOR</CSVLink></div>}
-				</MDBBtn >
-			</MDBRow>
-
-			</MDBCard>
-
-			<MDBCard className="p-3 m-2" style={{ width: "60rem" }}>
-				{ plotRHSensors.length > 0 && (
-					<MDBBox display="flex" >
-						<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(1,e.target.value)}}></MDBInput>
-						<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(2,e.target.value)}}></MDBInput>
-					</MDBBox >
-					)}
-				{ plotRHSensors.length > 0 && (
-						<ReactEcharts
-							option={getOptionRHA({title:'TEMPERATURE C'})}
-							style={{ height: "500px", width: "100%" }}
-						/>				
-				)}
-				{ plotRHSensors.length > 0 && (
-					<MDBBox display="flex" >
-						<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(3,e.target.value)}}/>
-						<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(4,e.target.value)}}/>
-					</MDBBox >)}
-				{ plotRHSensors.length > 0 && (
-						<ReactEcharts
-							option={getOptionRHB({title:'HUMIDITY %'})}
-							style={{ height: "500px", width: "100%" }}
-						/>				
-				)}
-				{ plotVELSensors.length > 0 && (
-					<MDBBox display="flex" >
-						<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(5,e.target.value)}}/>
-						<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(6,e.target.value)}}/>
-					</MDBBox >)}
-				{ plotVELSensors.length > 0 && (
-						<ReactEcharts
-							option={getOptionVEL({title:'VELOCITY'})}
-							style={{ height: "500px", width: "100%" }}
-						/>				
-				)}
-				{ plotPRESSSensors.length > 0 && (
-					<MDBBox display="flex" >
-						<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(7,e.target.value)}}/>
-						<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(8,e.target.value)}}/>
-					</MDBBox >)}
-				{ plotPRESSSensors.length > 0 && (
-						<ReactEcharts
-							option={getOptionPRESS({title:'PRESSURE(BAR)'})}
-							style={{ height: "500px", width: "100%" }}
-						/>				
-				)}
-				{ plotPWRMTRSensors.length > 0 && (<MDBBox display="flex" ><MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(5,e.target.value)}}/><MDBInput label="BAND MIN" outline/></MDBBox >)}
-				{ plotPWRMTRSensors.length > 0 && (
-						<ReactEcharts
-							option={getOptionPWRMTRTOTAL({title:'TOTAL POWER CONSUMPTION (KWH)'})}
-							style={{ height: "500px", width: "100%" }}
-						/>				
-				)}
-				{ plotPWRMTRSensors.length > 0 && (<MDBBox display="flex" ><MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(6,e.target.value)}}/><MDBInput label="BAND MIN" outline/></MDBBox >)}
-				{ plotPWRMTRSensors.length > 0 && (
-						<ReactEcharts
-							option={getOptionPWRMTRRATE({title:'RATE POWER CONSUMPTION (KWH)/HOUR'})}
-							style={{ height: "500px", width: "100%" }}
-						/>				
-				)}
-			</MDBCard>
-
-			</MDBRow>
-
-		</main>
+		</MDBContainer>
   )
 }
 

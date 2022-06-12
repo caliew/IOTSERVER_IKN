@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
-import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBCardTitle, MDBCardText } from 'mdbreact';
+import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBInput ,MDBCardTitle } from 'mdbreact';
 import axios from 'axios';
+import Toggle from '../control/toggle';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -15,17 +16,25 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     // -----------
     const [pwrMeters, setPWRMeter] = useState([]);
     const [rawdata,setData] = useState(null);
-    // ------------
+    const [statsData,setStatsData] = useState(null);
+    const [weekDays,setWeekDay] = useState(null);
+    const [toggle,setToggle] = useState(false);
+    const [toggleListing,setToggleListing] = useState(true);
+    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleSparkline,setToggleSparkline] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
-    const { sensors,  getSensors } = sensorContext;
+    const { sensors,  getSensors, plotSensorMap } = sensorContext;
     // --------------
+    useEffect(()=>{
+      RELOADRAWDARA();
+      LOADSTATS();
+    },[])
     useEffect(()=>{
         // ---------
         if (sensors === null) getSensors(30,null,null);
         // ------------------
         abstactELECTPWRMTR();
-        RELOADRAWDARA();
         // -------------
     },[sensors])
     // ---------------------------
@@ -47,7 +56,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
             // ---------------------
             let _dataObj = {
               ...sensor,
-              name : getName(sensor)
+              name : getName(sensor.dtuid,sensor.sensorid)
             }
             _PWRMeters.push(sensor);
             // --------------------
@@ -94,11 +103,31 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       return num;
     }
     // -------------------------  
+    const LOADSTATS = () => {
+      try {
+        axios.get('api/sensors/statsdata',{}).then(res => {
+          setStatsData(res.data);
+          let WeeksDays = [];
+          Object.entries(res.data).map(([index, data]) => {
+            let keys = Object.keys(data);
+            keys.forEach(key => {
+              if ( !WeeksDays.includes(key) && key.includes('WK')) WeeksDays.push(key);
+            })
+          })
+          setWeekDay(WeeksDays);
+        }).then(res => {
+        }).catch( err => {
+
+        })
+      } catch (err) {
+
+      }
+    }
     const RELOADRAWDARA = () => {
       try {
         // --------------------------------
         axios.get('/api/sensors/rawsensordata', { } ).then (res => {
-          console.log('....GET API/SENSORS/RAWSENSORDATA....')
+          // --------
           let DataMap = [];
           if (res.data) {
             Object.keys(res.data).forEach(key => {
@@ -117,6 +146,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           // --------------
         }).catch ( err => {
         })
+        // ------
       } catch (err) {
       }
       // ---------
@@ -181,45 +211,152 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       // -------------------
       return DataArr;
     };
+    function getRowsWeekDay() {
+      return (
+        <>
+          <tr>
+            <td>NAME</td><td>DTU ID</td><td>SENSOR ID</td>
+            {weekDays.map(wk => {
+              return (<td>${wk}</td>)
+            })}
+          </tr>
+          {Object.entries(statsData).map((data) => {
+            let _data = data[1]
+            return (
+            <tr>
+              <td>{getName(_data.DTUID,_data.SENSORID)}</td>
+              <td>{_data['DTUID']}</td><td>{_data['SENSORID']}</td>
+              {weekDays.map(wk => {
+                return (<td>{_data[`${wk}`]}</td>)
+              })}
+            </tr>)
+          })}
+        </>
+      )
+    }
     // ----------
-    function getName(_sensor) {
+    function getName(_dtuID,_sensorID) {
       // --------------------
-      let sensorFound = pwrMeters.find(sensor => sensor.dtuId == _sensor.dtuid && sensor.sensorId == _sensor.sensorid);
+      let sensorFound = pwrMeters.find(sensor => sensor.dtuId == _dtuID && sensor.sensorId == _sensorID);
       return sensorFound ? sensorFound.name : "";
+    }
+    // -----
+    function ToggleListing(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesListing'
+            checked={toggleListing}
+            onChange={()=>setToggleListing(!toggleListing)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesListing'>
+            <h5>{title} (LISTING)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleGauges(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesGauges'
+            checked={toggleGauge}
+            onChange={()=>setToggleGauge(!toggleGauge)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesGauges'>
+            <h5>{title} (GAUGE)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitches'
+            checked={toggle}
+            onChange={()=>setToggle(!toggle)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSparkline(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesSparkline'
+            checked={toggleSparkline}
+            onChange={()=>setToggleSparkline(!toggleSparkline)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesSparkline'>
+            <h5>SHOW SPARKLINE</h5>
+          </label>
+        </div>  
+      )
     }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
+      <>
 			<MDBRow center>
+        <MDBCard className="p-4 m-2"style={{ width: "50rem" }}>
+          <MDBCardTitle>{ ToggleButton('STATISTICS') }</MDBCardTitle>
+          {
+            toggle && (
+            <MDBTable striped small>
+              <MDBTableBody>
+                { weekDays && getRowsWeekDay() }
+              </MDBTableBody>
+            </MDBTable>
+            )
+          }
+        </MDBCard>
+      </MDBRow>
 
-				<MDBCard className="p-3 m-2"style={{ width: "40rem" }}>
-					<MDBCardTitle>ELECTRICAL POWER METER</MDBCardTitle>
-					<MDBTable striped small>
-						<MDBTableBody>
-						{
-								pwrMeters && pwrMeters.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} />)})
-						}
-						</MDBTableBody>
-					</MDBTable>
+			<MDBRow center>
+				<MDBCard className="p-4 m-2"style={{ width: "40rem" }}>
+          <MDBCardTitle>{ToggleListing('ELECTRICAL POWER METER')}</MDBCardTitle>
+          <MDBCardTitle>{ToggleSparkline('ELECTRICAL POWER METER')}</MDBCardTitle>
+          {
+            toggleListing && (
+              <MDBTable striped small>
+                <MDBTableBody>
+                {
+                    pwrMeters && pwrMeters.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})
+                }
+                </MDBTableBody>
+              </MDBTable>
+            )
+          }
 				</MDBCard>
 
-				<MDBCard className="p-2 m-2" style={{ width: "46rem" }}>
-          <MDBRow>
-            { pwrMeters && rawdata && rawdata.map((sensor,index) => {
+				<MDBCard className="p-4 m-2" style={{ width: "46rem" }}>
+          <MDBCardTitle>{ToggleGauges('ELECTRICAL POWER METER')}</MDBCardTitle>
+          <MDBRow center>
+            { toggleGauge && pwrMeters && rawdata && rawdata.map((sensor,index) => {
                 return (
-                  <MDBCol md="4">
-                    { drawPWRMETER(sensor,getName(sensor)) }
+                  <MDBCol size='4'>
+                    { drawPWRMETER(sensor,getName(sensor.dtuid,sensor.sensorid)) }
                   </MDBCol>
                 )              
             }) }
           </MDBRow>
 				</MDBCard>
-            
-
-
 			</MDBRow>
+      </>
     )
 }
 // -------------
@@ -260,6 +397,7 @@ function drawPWRMETER(sensor,name) {
   let _TITLE = name ? name : '';
   let ElectEnergy = Number(sensor.energy.split(' ')[0]).toFixed(0);
   // ------------
+  console.log(sensor,name);
   let CurrentA = sensor.current.split(' ').length > 1 ? sensor.current.split(' ')[0].split('=')[1] : '';
   let CurrentB = sensor.current.split(' ').length > 1 ? sensor.current.split(' ')[1].split('=')[1] : '';
   let CurrentC = sensor.current.split(' ').length > 1 ? sensor.current.split(' ')[2].split('=')[1] : '';

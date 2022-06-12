@@ -116,6 +116,31 @@ router.get('/nipponglass', auth, async(req,res) => {
   // res.status(200).send(data);
 })
 
+
+// @route     GET api/sensors/statsdata
+// @desc      Get all sensors
+// @access    Private
+router.get('/statsdata', auth, async (req, res) => {
+  // -------------------------------------
+  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
+  //  ------------------------------------
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  // ------
+  _data.list('stats',function(err,files) {
+    // ---------------
+    let objData = [];
+    Object.entries(files).map(([index, file]) => {
+      _data.read('stats',file,function(err,data) {
+        objData.push(data);
+        if (objData.length == files.length) {
+          // console.log(objData)
+          res.status(200).send(objData)
+        }
+      })
+    })
+  })
+});
+
 // @route     GET api/sensors/rawsensordata
 // @desc      Get all sensors
 // @access    Private

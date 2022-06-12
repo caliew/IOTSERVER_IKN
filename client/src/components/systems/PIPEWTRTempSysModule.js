@@ -35,8 +35,9 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
     const [airFlowSensors, setAFSensor] = useState([]);
     const [sensorLabels, setSensorLabels] = useState([]);
     const [airFlowData, setAFlowData] = useState([]);
-		const [plotDatas, setPlotDatas] = useState([]);
-    const [showHide, setShowHide] = useState(true);
+    const [toggleListing,setToggleListing] = useState(true);
+    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleSparkline,setToggleSparkline] = useState(false);
 		// --------------------------
     const sensorContext = useContext(SensorContext);
     const { sensors, getSensors } = sensorContext;
@@ -76,32 +77,80 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
         setAFSensor(_AFSensors.sort(compareByName));
         setSensorLabels(_sLabels);
         setAFlowData(_airflowDatas.sort(compareByName));
-				setPlotDatas(_plotDatas);
     }
-    const handleShowHide = () => { 
-        setShowHide(!showHide);
-        if (handleComponetSelection !== null) handleComponetSelection('AIRRH'); 
+    // ----
+    function ToggleListing(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesListing'
+            checked={toggleListing}
+            onChange={()=>setToggleListing(!toggleListing)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesListing'>
+            <h5>{title} (LISTING)</h5>
+          </label>
+        </div>  
+      )
     }
-    // --------------------------------------------
+    function ToggleGauges(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesGauges'
+            checked={toggleGauge}
+            onChange={()=>setToggleGauge(!toggleGauge)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesGauges'>
+            <h5>{title} (GAUGE)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSparkline(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesSparkline'
+            checked={toggleSparkline}
+            onChange={()=>setToggleSparkline(!toggleSparkline)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesSparkline'>
+            <h5>SHOW SPARKLINE</h5>
+          </label>
+        </div>  
+      )
+    }    // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
 			<MDBRow center>
-
-				<MDBCard className="p-3 m-2" style={{ width: "40rem" }}>
-					<MDBCardTitle>WATER PIPE TEMPERATURE</MDBCardTitle>
-					<MDBTable striped small>
-						<MDBTableBody>
-						{
-							airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} />)})
-						}
-						</MDBTableBody>
-					</MDBTable>
+				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+          <MDBCardTitle>{ToggleListing('WATER PIPE TEMPERATURE')}</MDBCardTitle>
+          <MDBCardTitle>{ToggleSparkline('WATER PIPE TEMPERATURE')}</MDBCardTitle>
+          {
+            toggleListing && (
+              <MDBTable striped small>
+                <MDBTableBody>
+                {
+                  airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})
+                }
+                </MDBTableBody>
+              </MDBTable>
+            )
+          }
 				</MDBCard>
 
-        <MDBCard className="p-5 m-2" style={{ width: "40rem" }}>
-						{ showHide && sensorLabels && airFlowData && getThemrmometer( { 
+        <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+          <MDBCardTitle>{ToggleGauges('WATER PIPE TEMPERATURE')}</MDBCardTitle>
+					{ toggleGauge && sensorLabels && airFlowData && getThemrmometer( { 
 							title : 'AIR TEMP', 
 							sensors : sensorLabels, 
 							data : airFlowData, 
@@ -129,7 +178,7 @@ function compareByName(a, b) {
 function getThemrmometer(data) {
   return (
     // <div className="d-flex flex-row align-items-center justify-content-center" >
-    <MDBRow>
+    <MDBRow className="p-2 m-2">
 
       {data.data.sort().map((_data, index) => (
         <MDBCol md="3">

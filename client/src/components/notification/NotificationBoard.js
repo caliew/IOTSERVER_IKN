@@ -108,7 +108,7 @@ const Notification = () => {
 		<MDBContainer style={{width: "auto",position: "relative",marginTop: '2rem'}} >
 			<MDBJumbotron className="p-4">
 
-	      <h3>NOTIFICATION MANAGEMENT</h3>
+	      <h4>NOTIFICATION MANAGEMENT</h4>
 
 				<MDBListGroup className="my-1 mx-1" >
 					{
