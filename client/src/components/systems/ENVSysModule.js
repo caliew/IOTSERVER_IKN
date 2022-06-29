@@ -141,8 +141,10 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
     return (
       <MDBRow center>
 				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleListing('ENV. TEMPERATURE, RH & ABS')}</MDBCardTitle>
-          <MDBCardTitle>{ToggleSparkline('ENV. TEMPERATURE, RH & ABS')}</MDBCardTitle>
+				  <div className='d-flex'>
+            {ToggleListing('ENV. TEMP. RH & ABS')}&nbsp;&nbsp;&nbsp;
+            {ToggleSparkline('ENV. TEMP. RH & ABS')}
+          </div>
           {
             toggleListing && (
               <MDBTable striped small>
@@ -157,7 +159,7 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
         </MDBCard>
 
         <MDBCard className="p-4 m-2" style={{ width: "40rem"}}>
-          <MDBCardTitle>{ToggleGauges('ENV. TEMPERATURE, RH & ABS')}</MDBCardTitle>
+          <MDBCardTitle>{ToggleGauges('ENV. TEMP. RH & ABS')}</MDBCardTitle>
           { sensorLabels && tempData && toggleGauge &&
               getThemrmometer( 
                   { title : 'ENVIRONMENTS', 
@@ -254,7 +256,7 @@ const getSensorTemperature = (prop) => {
 const getThemrmometer = (data) => {
   return (
     // <div className="d-flex row p-4 justify-content-center">
-    <MDBRow className="p-2 m-2">
+    <MDBRow center className="p-2 m-2  text-center">
         {
           data.data.sort().map( (_data,index) => (
             <MDBCol md="3">

@@ -18,7 +18,9 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     const [rawdata,setData] = useState(null);
     const [statsData,setStatsData] = useState(null);
     const [weekDays,setWeekDay] = useState(null);
-    const [toggle,setToggle] = useState(false);
+    const [yearMonths,setYearMonth] = useState(null);
+    const [toggleSTATS,setToggleSTATS] = useState(false);
+    const [toggleSTATSWEEK,setToggleSTATSWEEK] = useState(true);
     const [toggleListing,setToggleListing] = useState(true);
     const [toggleGauge,setToggleGauge] = useState(true);
     const [toggleSparkline,setToggleSparkline] = useState(false);
@@ -105,16 +107,27 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     // -------------------------  
     const LOADSTATS = () => {
       try {
-        axios.get('api/sensors/statsdata',{}).then(res => {
+        axios.get('api/sensors/statsPWRMTRdata',{}).then(res => {
+          // ---------------------
           setStatsData(res.data);
           let WeeksDays = [];
+          let YearsMonths = [];
+          // ----------------
           Object.entries(res.data).map(([index, data]) => {
+            // ---------------
             let keys = Object.keys(data);
-            keys.forEach(key => {
-              if ( !WeeksDays.includes(key) && key.includes('WK')) WeeksDays.push(key);
-            })
+            // ---------------
+            if (data['SENSORTYPE'] === "PWRMTR(485)") {
+              // ---------
+              keys.forEach(key => {
+                if ( !WeeksDays.includes(key) && key.includes('WK')) WeeksDays.push(key);
+                if ( !YearsMonths.includes(key) && key.includes('MNTH')) YearsMonths.push(key);
+              })
+            }
           })
           setWeekDay(WeeksDays);
+          setYearMonth(YearsMonths);
+          // ---------
         }).then(res => {
         }).catch( err => {
 
@@ -212,24 +225,49 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       return DataArr;
     };
     function getRowsWeekDay() {
+      // ------
       return (
         <>
-          <tr>
-            <td>NAME</td><td>DTU ID</td><td>SENSOR ID</td>
-            {weekDays.map(wk => {
-              return (<td>${wk}</td>)
-            })}
+          <tr className='text-center align-middle'>
+            <td>NAME</td><td>DTU ID</td><td>SENSOR ID</td><td>TYPES</td>
+            { toggleSTATSWEEK ? weekDays.map((wk,index) => {
+                // -----
+                return (<td>{wk}</td>)
+                // ------
+              }) : yearMonths.map((mth,index) => {
+                // -----
+                if (index < yearMonths.length) return (<td>{mth.substring(5)}</td>)
+                // ------
+              }) 
+            }
           </tr>
-          {Object.entries(statsData).map((data) => {
-            let _data = data[1]
-            return (
-            <tr>
-              <td>{getName(_data.DTUID,_data.SENSORID)}</td>
-              <td>{_data['DTUID']}</td><td>{_data['SENSORID']}</td>
-              {weekDays.map(wk => {
-                return (<td>{_data[`${wk}`]}</td>)
-              })}
-            </tr>)
+          {
+            Object.entries(statsData).map((data) => {
+              // -------
+              let _data = data[1]
+              // ------
+              if ( _data['SENSORTYPE'] === 'PWRMTR(485)') {
+                return (
+                  <tr className='text-center align-middle'>
+                    <td>{_data['SENSORNAME']}</td>
+                    <td>{_data['DTUID']}</td><td>{_data['SENSORID']}</td>
+                    <td>TOTAL<br/>NETT</td>
+                    { toggleSTATSWEEK ? weekDays.map((wk,index) => {
+                        // -------------
+                        let _READING0 = _data[weekDays[index+1]] || 0;
+                        let _READING = _data[weekDays[index]] || 0;
+                        return (<td>{_READING}<br/>{_READING-_READING0}</td>)
+                        // ------------
+                      }) : yearMonths.map((mth,index) => {
+                        // -----
+                        let _READING0 = _data[yearMonths[index+1]]|| 0;
+                        let _READING = _data[yearMonths[index]]|| 0;
+                        return (<td>{_READING}<br/>{_READING-_READING0}</td>)
+                        // ------
+                      }) 
+                    }
+                  </tr>)
+              }
           })}
         </>
       )
@@ -273,21 +311,55 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
         </div>  
       )
     }
-    function ToggleButton(title) {
+    // -----
+    function ToggleSTATSButton(title) {
       return (
         <div className='custom-control custom-switch'>
           <input
             type='checkbox'
             className='custom-control-input'
-            id='customSwitches'
-            checked={toggle}
-            onChange={()=>setToggle(!toggle)}
+            id='customSTATSSwitches'
+            checked={toggleSTATS}
+            onChange={()=>setToggleSTATS(!toggleSTATS)}
           />
-          <label className='custom-control-label' htmlFor='customSwitches'>
+          <label className='custom-control-label' htmlFor='customSTATSSwitches'>
             <h5>{title}</h5>
           </label>
         </div>  
       )
+    }
+    function ToggleSTATSWEEKButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSWEEKSwitches'
+            checked={toggleSTATSWEEK}
+            onChange={()=>setToggleSTATSWEEK(!toggleSTATSWEEK)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSWEEKSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSTATSMONMTHButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSWEEKSwitches'
+            checked={!toggleSTATSWEEK}
+            onChange={()=>setToggleSTATSWEEK(!toggleSTATSWEEK)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSWEEKSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+
     }
     function ToggleSparkline(title) {
       return (
@@ -313,9 +385,13 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       <>
 			<MDBRow center>
         <MDBCard className="p-4 m-2"style={{ width: "50rem" }}>
-          <MDBCardTitle>{ ToggleButton('STATISTICS') }</MDBCardTitle>
+				  <div className='d-flex'>
+            { ToggleSTATSButton('ELECTRICITY CONSUMPTION (Kwh)') }&nbsp;&nbsp;&nbsp;
+            { toggleSTATS && ToggleSTATSWEEKButton('BY WEEK') }&nbsp;&nbsp;&nbsp;
+            { toggleSTATS && ToggleSTATSMONMTHButton('BY MONTH') }
+          </div>
           {
-            toggle && (
+            toggleSTATS && (
             <MDBTable striped small>
               <MDBTableBody>
                 { weekDays && getRowsWeekDay() }
@@ -328,8 +404,10 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
 
 			<MDBRow center>
 				<MDBCard className="p-4 m-2"style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleListing('ELECTRICAL POWER METER')}</MDBCardTitle>
-          <MDBCardTitle>{ToggleSparkline('ELECTRICAL POWER METER')}</MDBCardTitle>
+				  <div className='d-flex'>
+            {ToggleListing('ELECTRICAL POWER METER')}&nbsp;&nbsp;&nbsp;
+            {ToggleSparkline('ELECTRICAL POWER METER')}
+          </div>
           {
             toggleListing && (
               <MDBTable striped small>
@@ -397,7 +475,6 @@ function drawPWRMETER(sensor,name) {
   let _TITLE = name ? name : '';
   let ElectEnergy = Number(sensor.energy.split(' ')[0]).toFixed(0);
   // ------------
-  console.log(sensor,name);
   let CurrentA = sensor.current.split(' ').length > 1 ? sensor.current.split(' ')[0].split('=')[1] : '';
   let CurrentB = sensor.current.split(' ').length > 1 ? sensor.current.split(' ')[1].split('=')[1] : '';
   let CurrentC = sensor.current.split(' ').length > 1 ? sensor.current.split(' ')[2].split('=')[1] : '';

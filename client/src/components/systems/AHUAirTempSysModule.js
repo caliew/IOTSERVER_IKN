@@ -113,8 +113,10 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
     return (
 			<MDBRow center>
 				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleListing('HVAC DUCT TEMPERATURE')}</MDBCardTitle>
-          <MDBCardTitle>{ToggleSparkline('HVAC DUCT TEMPERATURE')}</MDBCardTitle>
+				  <div className='d-flex'>
+            {ToggleListing('HVAC DUCT TEMP.')}&nbsp;&nbsp;&nbsp;
+            {ToggleSparkline('HVAC DUCT TEMP.')}
+          </div>
           {
             toggleListing && (
               <MDBTable striped small>
@@ -129,7 +131,7 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
 				</MDBCard>
 
         <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleGauges('HVAC DUCT TEMPERATURE')}</MDBCardTitle>
+          <MDBCardTitle>{ToggleGauges('HVAC DUCT TEMP.')}</MDBCardTitle>
           { sensorLabels && airFlowData && toggleGauge && getThemrmometer( { 
             title : 'AIR TEMP', 
             sensors : sensorLabels, 
@@ -158,7 +160,7 @@ function compareByName(a, b) {
 function getThemrmometer(data) {
   return (
     // <div className="d-flex flex-row align-items-center justify-content-center" >
-    <MDBRow className="p-4 m-2">
+    <MDBRow center className="p-4 m-2  text-center">
       {data.data.sort().map((_data, index) => (
         <MDBCol md="3">
           {/* <div className="d-flex flex-column px-4 align-items-center " > */}

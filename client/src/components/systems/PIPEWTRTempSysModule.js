@@ -133,8 +133,10 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
     return (
 			<MDBRow center>
 				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleListing('WATER PIPE TEMPERATURE')}</MDBCardTitle>
-          <MDBCardTitle>{ToggleSparkline('WATER PIPE TEMPERATURE')}</MDBCardTitle>
+				  <div className='d-flex'>
+            {ToggleListing('WATER PIPE TEMP.')}&nbsp;&nbsp;&nbsp;
+            {ToggleSparkline('WATER PIPE TEMP.')}
+          </div>
           {
             toggleListing && (
               <MDBTable striped small>
@@ -149,7 +151,7 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
 				</MDBCard>
 
         <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleGauges('WATER PIPE TEMPERATURE')}</MDBCardTitle>
+          <MDBCardTitle>{ToggleGauges('WATER PIPE TEMP.')}</MDBCardTitle>
 					{ toggleGauge && sensorLabels && airFlowData && getThemrmometer( { 
 							title : 'AIR TEMP', 
 							sensors : sensorLabels, 
@@ -178,7 +180,7 @@ function compareByName(a, b) {
 function getThemrmometer(data) {
   return (
     // <div className="d-flex flex-row align-items-center justify-content-center" >
-    <MDBRow className="p-2 m-2">
+    <MDBRow center className="p-2 m-2  text-center">
 
       {data.data.sort().map((_data, index) => (
         <MDBCol md="3">

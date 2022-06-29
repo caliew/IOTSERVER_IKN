@@ -111,8 +111,10 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
     return (
 			<MDBRow center>
 					<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-            <MDBCardTitle>{ToggleListing('AHU DUCT AIRFLOW')}</MDBCardTitle>
-            <MDBCardTitle>{ToggleSparkline('AHU DUCT AIRFLOW')}</MDBCardTitle>
+  				  <div className='d-flex'>
+              {ToggleListing('AHU DUCT AIRFLOW')}&nbsp;&nbsp;&nbsp;
+              {ToggleSparkline('AHU DUCT AIRFLOW')}
+            </div>
             {
               toggleListing && (
                 <MDBTable striped small>
@@ -142,7 +144,7 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
 // -------------
 const getDialGauge = ({data}) => {
   return (
-    <MDBRow className="p-2 m-2">
+    <MDBRow center className="p-2 m-2 text-center">
 			{
 				data.map( (sensor,index) => {
 					let _gauge = [];

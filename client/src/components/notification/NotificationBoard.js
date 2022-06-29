@@ -1,13 +1,15 @@
 import React, { useState,useEffect,useContext } from 'react';
 import NotificationContext from '../../context/notification/notificationContext';
 import SensorContext from '../../context/sensor/sensorContext';
-import { MDBContainer,MDBListGroup,MDBListGroupItem,MDBBadge,MDBJumbotron } from 'mdbreact';
+import { MDBContainer,MDBListGroup,MDBListGroupItem,MDBBadge,MDBJumbotron,MDBCardTitle,MDBRow } from 'mdbreact';
 
 const Notification = () => {
 	// ---------------------------
   const notificationContext = useContext(NotificationContext);	
   const { notifications } = notificationContext;
-	const [userNotifications,setNotifications] = useState(null)
+	const [userNotifications,setNotifications] = useState(null);
+	const [toggleListing,setToggleListing] = useState(true); 
+	const [toggleTODAYListing,setToggleTODAYListing] = useState(true); 
 	// const [userNotificationsMap,setNotificationsMap] = useState(null)
 	// const [userSensors,setUserSensors] = useState([]);
 	// ---------------------------------------------
@@ -86,33 +88,77 @@ const Notification = () => {
 		if (reading < limit) strAlert = ` ${name} [${sensorId}] ... ${reading}C < ${limit}C` 
 		return strAlert;
 	}
+	const isToday = (someDate) => {
+		const today = new Date()
+		return someDate.getDate() == today.getDate() &&
+			someDate.getMonth() == today.getMonth() &&
+			someDate.getFullYear() == today.getFullYear()
+	}	
 	const getALERTEVENTS = () => {
 		// ----------
+		if (userNotifications.length === 0) return <h5>.. SEARCHING ALERT MESSAGES ...</h5>
 		let _alertDatas = userNotifications.map((note) => {
+			// ------
 			let color = note.type;
-			return (
-				<h6 className="my-0">
-					<MDBListGroupItem color={color}>{getTimeDateLabel(note.date)}<span>&nbsp;&nbsp;&nbsp;</span>
-						<MDBBadge color={color}>{color.toUpperCase()}</MDBBadge> &nbsp;&nbsp;
-						<i class="far fa-bell" />{note.Flag} &nbsp;&nbsp;
-						{getAlertText(note.name,note.sensorId,note.reading,note.limit)}
-					</MDBListGroupItem>
-				</h6>
-			)
+			let dateTime = new Date(note.date);
+			let flag = toggleTODAYListing ? isToday(dateTime) : true;
+			if (flag) {
+				return (
+					<h6 className="my-0">
+						<MDBListGroupItem color={color}>{getTimeDateLabel(note.date)}<span>&nbsp;&nbsp;&nbsp;</span>
+							<MDBBadge color={color}>{color.toUpperCase()}</MDBBadge> &nbsp;&nbsp;
+							<i class="far fa-bell" />{note.Flag} &nbsp;&nbsp;
+							{getAlertText(note.name,note.sensorId,note.reading,note.limit)}
+						</MDBListGroupItem>
+					</h6>
+				);
+			} 
 		});
-		if (userNotifications.length === 0) _alertDatas = <h5>.. SEARCHING ALERT MESSAGES ...</h5>
 		return _alertDatas;
+	}
+	function ToggleListing(title) {
+		return (
+			<div className='custom-control custom-switch'>
+				<input
+					type='checkbox'
+					className='custom-control-input'
+					id='customSwitchesNotificationListing'
+					checked={toggleListing}
+					onChange={()=>setToggleListing(!toggleListing)}
+				/>
+				<label className='custom-control-label' htmlFor='customSwitchesNotificationListing'>
+					<h5>{title} (LISTING CURRENT MONTH)</h5>
+				</label>
+			</div>  
+		)
+	}
+	function ToggleTODAYListing(title) {
+		return (
+			<div className='custom-control custom-switch'>
+				<input
+					type='checkbox'
+					className='custom-control-input'
+					id='customSwitchesTODAYNotificationListing'
+					checked={toggleTODAYListing}
+					onChange={()=>setToggleTODAYListing(!toggleTODAYListing)}
+				/>
+				<label className='custom-control-label' htmlFor='customSwitchesTODAYNotificationListing'>
+					<h5>{title}</h5>
+				</label>
+			</div>  
+		)
 	}
 	// --------
 	return (
 		<MDBContainer style={{width: "auto",position: "relative",marginTop: '2rem'}} >
 			<MDBJumbotron className="p-4">
-
-	      <h4>NOTIFICATION MANAGEMENT</h4>
-
+				<div className='d-flex'>
+					<div>{ ToggleListing('NOTIFICATION BOARD')}</div>&nbsp;&nbsp;&nbsp;&nbsp;
+					<div>{ toggleListing && ToggleTODAYListing('TODAY ONLY ')}</div>
+				</div>
 				<MDBListGroup className="my-1 mx-1" >
 					{
-						userNotifications === null ?  <h5>.. DATA LOADING ..</h5> : getALERTEVENTS()
+						userNotifications === null ?  <h5>.. DATA LOADING ..</h5> : (toggleListing && getALERTEVENTS())
 					}
 				</MDBListGroup>
 			</MDBJumbotron>

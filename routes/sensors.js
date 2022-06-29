@@ -34,16 +34,16 @@ router.get('/', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..1..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  // console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
   try {
     // ----------
     const user = await User.findById(req.query.id).select('-password');
     let companyname = user.companyname;
-    let userType = user.usertype;
     // -------------
     const sensors = await Sensor.find({dtuId : {$gte:-1}}).sort({
       date: -1,
     });
+    // console.log(`.. <${'SENSORS.JS'.yellow}> ..TOTAL SENSORS=<${sensors.length}>`)
     //  --------------------
     //  ABSTRACT SENSOR DATA
     //  --------------------
@@ -58,22 +58,16 @@ router.get('/', auth, async (req, res) => {
     sensors.forEach( (sensor,_index)  => {
       // -----------------
       let nIndex = (user.name === 'superuser') ? 99 : sensor.company.indexOf(companyname);
-      // -------------------------
       let key = sensor.dtuId === '-1' ? `${sensor.sensorId}` : `${sensor.dtuId}-${sensor.sensorId}`
-      let _CHK = (key === 'B0-BC-82-C4-C4-41') ? true : false;
-      // _CHK && console.log(`.. <${'SENSORS.JS'.magenta}> ..2..${key.yellow} [${_CHK}]`);   // B0-BC-82-C4-C4-41
-      // _CHK && console.log(`.. <${'SENSORS.JS'.magenta}> ..3..<${nCOUNT}>...${user.name}/${companyname}/${nIndex}`)
       // -------------------------------------------------
       _logs.read(key,totalLines,date0,date1,false,function(err,sensorData) {
+        // -------
         nCOUNT ++;
         sensor['logsdata'] = sensorData;
         // -----------------------------
         if (nIndex > -1) updatedSensors.push(sensor);
-        // _CHK && console.log(`.. <${'SENSORS.JS'.magenta}> ..7..POST=><${nCOUNT}>|<${updatedSensors.length}>`);
         // -------------------------
         if ( nCOUNT === sensors.length) {
-          // console.log(`.. <${'SENSORS.JS'.red}> .. ..${updatedSensors.length}|${nCOUNT}|${sensors.length}..`);
-          let _FOUND = updatedSensors.find(_sensor => sensor.sensorId === 'B0-BC-82-C4-C4-41');
           res.status(200).json(updatedSensors);
         }
       })
@@ -120,7 +114,7 @@ router.get('/nipponglass', auth, async(req,res) => {
 // @route     GET api/sensors/statsdata
 // @desc      Get all sensors
 // @access    Private
-router.get('/statsdata', auth, async (req, res) => {
+router.get('/statsPWRMTRdata', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
@@ -129,17 +123,68 @@ router.get('/statsdata', auth, async (req, res) => {
   _data.list('stats',function(err,files) {
     // ---------------
     let objData = [];
+    let nINVALID = 0;
+    // --------------
     Object.entries(files).map(([index, file]) => {
+      // --------
+      if (file.includes('STAT')) {
+        // -------
+        _data.read('stats',file,function(err,data) {
+          // ----------------
+          objData.push(data);
+          // ----------------
+          if (objData.length == files.length-nINVALID) {
+            // ------
+            res.status(200).send(objData)
+            // -------
+          }
+        })
+        // -----
+      } else {
+        nINVALID += 1;
+      }
+    })
+  })
+});
+
+router.get('/statsDAYData', auth, async (req, res) => {
+  // -------------------------------------
+  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
+  //  ------------------------------------
+  // console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
+  const user = await User.findById(req.query.id).select('-password');
+  let companyname = user.companyname;
+  // console.log(`.. <${'SENSORS.JS'.yellow}>.. COMPANY NAME=<${companyname}>`)
+    // ------
+  _data.list('stats',function(err,files) {
+    // ---------------
+    let objData = [];
+    let nINVALID = 0;
+    // --------
+    Object.entries(files).map(([index, file]) => {
+      // ------
       _data.read('stats',file,function(err,data) {
-        objData.push(data);
-        if (objData.length == files.length) {
-          // console.log(objData)
-          res.status(200).send(objData)
+        // ------
+        if (file.includes('STAT')) {
+          // ----------------
+          objData.push(data);
+          // --------
+          if (objData.length == files.length-1) {
+            // ----------
+            // FILTER SENSOR IS BELONG TO THE USER COMPANY GROUP..
+            // console.log(objData);
+            res.status(200).send(objData);
+            // -------
+          }
+        } else {
+          nVALID += 1;
         }
       })
     })
   })
+  // -----
 });
+
 
 // @route     GET api/sensors/rawsensordata
 // @desc      Get all sensors

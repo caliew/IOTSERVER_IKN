@@ -595,7 +595,10 @@ const ChartsPage = () => {
 		let _DATEIME0;
 			// -------------------------
 		sensor.logsdata && sensor.logsdata.map( (_data,index) => {
-			// -------------------
+			// -----------
+			let _dateTime = new Date(_data.TIMESTAMP);
+			let _timeDIFF = (index==0) ? 0 : diff_hours(_DATEIME0,_dateTime)
+			// -----------
 			switch (sensor.type) {
 				case "WTRPRS(485)":
 					_reading = `0x${_data.RCV_BYTES[0]}${_data.RCV_BYTES[1]}`;
@@ -616,16 +619,15 @@ const ChartsPage = () => {
 					let _HEXStr = _data.RCV_BYTES[0] + _data.RCV_BYTES[1];
 					let _HEXInt = parseInt(_HEXStr,16) * 0.01;
 					let _reading1 = Number(_HEXInt);
-					let _dateTime = new Date(_data.TIMESTAMP);
 					if (index === 0) {
 						_reading = null;					
 					} else {
 						_reading = _reading0 - _reading1;
-						_reading = _reading /(diff_hours(_DATEIME0,_dateTime));
+						// _reading = _reading /(diff_hours(_DATEIME0,_dateTime));
+						_reading = _reading / _timeDIFF;
 						_reading = _reading.toFixed(2);
 					}
 					_reading0 = _reading1;
-					_DATEIME0 = _dateTime;
 					_reading = nIndex === 0 ? _reading1 : _reading;
 					break;
 				case "WISENSOR":
@@ -635,7 +637,11 @@ const ChartsPage = () => {
 					break;
 			}
 			// ----------------------
-			let _dateTime = formatDate(new Date(_data.TIMESTAMP));
+			_DATEIME0 = _dateTime;
+			if (Math.abs(_timeDIFF) > 2.50) { 
+				console.log(index,_reading,_dateTime.toTimeString(),_timeDIFF);
+				dataArray.push([_dateTime,null]);
+			}
 			if (_reading !== null && _reading  !== -999) {
 				 dataArray.push([_dateTime,_reading]);
 			}

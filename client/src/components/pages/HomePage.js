@@ -48,7 +48,7 @@ const HomePage = () => {
 			// SET TIMER
 			// ---------
 			if (mTimer === null) {
-				const _mTimer = setInterval(handleTimer, 1000*60*1);
+				const _mTimer = setInterval(handleTimer, 1000*60*5);
 				addTimer(_mTimer);
 			}
 		}
@@ -67,9 +67,11 @@ const HomePage = () => {
   }
 	// -----
 	return (
-    <main size="sm" style={{ marginTop: '2rem' }}>
+    <main className='clearfix"' style={{ marginTop: '2rem' }}>
 			<NotificationBoard />
-			<OverView />
+
+			{ user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && <OverView /> }
+
 			<MDBContainer className="my-3">
 					<MDBCardGroup >
 

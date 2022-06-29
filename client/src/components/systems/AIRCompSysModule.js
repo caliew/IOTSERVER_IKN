@@ -118,8 +118,10 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
     return (
 			<MDBRow center>
 				<MDBCard className="p-4 m-2"style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleListing(title='AIR COMPRESSOR')}</MDBCardTitle>
-            <MDBCardTitle>{ToggleSparkline('AIR COMPRESSOR')}</MDBCardTitle>
+				  <div className='d-flex'>
+            {ToggleListing(title='AIR COMPRESSOR')}&nbsp;&nbsp;&nbsp;
+            {ToggleSparkline('AIR COMPRESSOR')}
+          </div>
           {
             toggleListing && (
               <MDBTable striped small>
@@ -163,7 +165,7 @@ function compareByName(a, b) {
 // -------------
 const getDialGauge = ({data}) => {
   return (
-    <MDBRow className="p-2 m-2">
+    <MDBRow center className="p-2 m-2">
       {/* <div className="d-flex row p-4 justify-content-center"> */}
       {
         data.sort().map( (sensor,index) => {
@@ -172,7 +174,7 @@ const getDialGauge = ({data}) => {
           _gauge.push(['Label', 'Value'])
 					_gauge.push(_data);
           return(
-            <MDBCol md="3">
+            <MDBCol md="3" className='text-center'>
               {/* <div className="d-flex flex-column px-4 align-items-center " > */}
                 <Chart width={120} height={120} chartType="Gauge"
                                 loader={<div>Loading Chart</div>}
