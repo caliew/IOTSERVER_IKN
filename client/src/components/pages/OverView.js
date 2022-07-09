@@ -32,6 +32,16 @@ const OverView = () => {
           };
           return map; },{}
         );
+        let _dtuIDSensors = res.data.reduce((map,sensor) => {
+          if (map[sensor.DTUID] === undefined) {
+            map[sensor.DTUID] = [];
+            map[sensor.DTUID].push(sensor);
+          } else {
+            map[sensor.DTUID].push(sensor); 
+          };
+          return map; },{}
+        );
+        console.log(_dtuIDSensors);
         // -------------------
         setStatsData(_mapSensorType);
         let ObjKEYS = Object.keys(_mapSensorType);
@@ -76,10 +86,10 @@ const OverView = () => {
           <td className='text-center align-middle' rowspan="2">SENSOR TYPES</td>
           <td colspan="24">TOTAL SENSORS CONNECTED/DISCONNECTED WITHIN HOUR OF THE DAY</td>
         </tr>
-        <tr>
+        <tr><td ></td>
           {
             _arrHours.map((elm,index) => {
-              return <td style={{backgroundColor:'LightGray',border:'1px solid black',lineHeight:'0.8em'}} className='text-center align-middle'>{elm}</td>
+              return <td style={{backgroundColor:'LightGray',border:'1px solid black',lineHeight:'0.65em'}} className='text-center align-middle'>{elm}</td>
             })
           }
         </tr>
@@ -153,20 +163,22 @@ const OverView = () => {
       <>
       <tr>
         <td className='text-center align-middle' rowspan="2">{key}<br/>TOTAL SENSORS={ObjSensors.length}</td>
+        <td style={{lineHeight:'0.6em',width:'5px'}} className='text-center align-middle border bg-success text-white'>ONLINE</td>
         {
           _arrHours.map((elm,index)=>{
             return (
-            <td style={{backgroundColor:'SpringGreen',lineHeight:'0.8em'}} className='text-center align-middle'>
+            <td style={{lineHeight:'0.6em'}} className='text-center align-middle bg-success text-white'>
               <a href="#" data-toggle="tooltip" data-placement="top" title={getText(ObjHourActiveSensors[elm])}>{ObjHourCount[elm]}</a>              
             </td>)
           })
         }
       </tr>
       <tr>
+        <td style={{lineHeight:'0.6em',width:'5px'}} className='text-center align-middle border bg-warning'>OFFLINE</td>
         {
           _arrHours.map((elm,index)=>{
             return (
-            <td style={{backgroundColor:'yellow',border:'1px solid black',lineHeight:'0.8em'}} className='text-center align-middle'>
+            <td style={{lineHeight:'0.6em'}} className='text-center align-middle border lh-1 bg-warning'>
               <a href="#" data-toggle="tooltip" data-placement="top" title={getText(ObjHourMissingSensors[elm])} style={{color:'black'}}>
                 {ObjHourMissingSensors[elm].length}
               </a>
@@ -180,7 +192,8 @@ const OverView = () => {
   function getText(elem) {
     let _TEXT = '';
     elem && elem.forEach( (elm,index) => {
-      _TEXT += `${index+1}:${elm.SENSORNAME} ${String.fromCharCode(13)}`;
+      let _KEY = elm.DTUID > 0 ? `<.${String(elm.DTUID).padStart(3,"0")}.|.${String(elm.SENSORID).padStart(2,"0")}.>` : '';
+      _TEXT += `${index+1}:${_KEY} .. ${elm.SENSORNAME} ${String.fromCharCode(13)}`;
     })
     return _TEXT;
   }

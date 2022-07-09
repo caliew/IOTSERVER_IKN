@@ -57,15 +57,19 @@ const sensorData = (sensor) => {
 		switch (sensor.type) {
 			case "WTRPRS(485)":
 				_reading = Number(parseFloat(`0x${_data.RCV_BYTES[0]}${_data.RCV_BYTES[1]}`).toFixed(2)/100.0);
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "AIRRH(485)":
 				_reading = Number(_data.DATAS[1])/10.0;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "WTRTEMP(485)":
 				_reading = Number(_data.DATAS[1])/10.0;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "AIRFLW(485)":
 				_reading = Number(_data.DATAS[0])/10.0;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "PWRMTR(485)":
 				let _HEXStr = _data.RCV_BYTES[0] + _data.RCV_BYTES[1];
@@ -80,11 +84,13 @@ const sensorData = (sensor) => {
 				}
 				_reading0 = _reading1;
 				_DATEIME = _dateTime;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "WISENSOR":
 				_reading = Number(_data.Temperature);
 				break;
 			default:
+				// _reading = null;
 				break;
 		}
 		// ----------------------
