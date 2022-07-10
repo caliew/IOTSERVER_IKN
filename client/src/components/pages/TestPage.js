@@ -234,6 +234,8 @@ const Test = () => {
         entries={10}
         pagesAmount={10}
         striped
+        autoWidth 
+        bordered
         materialSearch 
         data={data}/>
       </div>

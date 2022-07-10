@@ -139,7 +139,7 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
           </div>
           {
             toggleListing && (
-              <MDBTable striped small>
+              <MDBTable striped small autoWidth responsive>
                 <MDBTableBody>
                 {
                   airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})

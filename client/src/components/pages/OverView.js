@@ -80,7 +80,7 @@ const OverView = () => {
     }
     // -----
     return (
-      <MDBTable small>
+      <MDBTable small autoWidth bordered hover responsive>
         <MDBTableBody>
         <tr className='text-center align-middle' >
           <td className='text-center align-middle' rowspan="2">SENSOR TYPES</td>

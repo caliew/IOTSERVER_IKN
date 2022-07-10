@@ -392,7 +392,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           </div>
           {
             toggleSTATS && (
-            <MDBTable striped small>
+            <MDBTable striped small autoWidth >
               <MDBTableBody>
                 { weekDays && getRowsWeekDay() }
               </MDBTableBody>
@@ -410,7 +410,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           </div>
           {
             toggleListing && (
-              <MDBTable striped small>
+              <MDBTable striped small autoWidth responsive>
                 <MDBTableBody>
                 {
                     pwrMeters && pwrMeters.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})
@@ -426,9 +426,9 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           <MDBRow center>
             { toggleGauge && pwrMeters && rawdata && rawdata.map((sensor,index) => {
                 return (
-                  <MDBCol size='4'>
+                  <div className="d-flex justify-content-center">
                     { drawPWRMETER(sensor,getName(sensor.dtuid,sensor.sensorid)) }
-                  </MDBCol>
+                  </div>
                 )              
             }) }
           </MDBRow>
@@ -490,9 +490,9 @@ function drawPWRMETER(sensor,name) {
   let Frequency = sensor.frequency;
   // ------------------------------
   return (
-    <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="280" height="250" viewBox="0 0 280 250"  preserveAspectRatio="xMidYMid meet" >
+    <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="300" height="250" viewBox="0 0 300 250"  preserveAspectRatio="xMidYMid meet" >
       <g transform="translate(0,0) scale(0.80,0.80)" >
-        <rect width="280" height="300" rx="5" stroke="yellow" stroke-width="4" fill="black"/>
+        <rect width="300" height="300" rx="5" stroke="yellow" stroke-width="4" fill="black"/>
           <g transform="translate(5,5)" >
           <text x="10" y="20"  fill="white" font-size="1.0em" >{_DATE}</text>
           <text x="10" y="38"  fill="white" font-size="1.0em" >{_TIME}</text>

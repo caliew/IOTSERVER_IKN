@@ -117,7 +117,7 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
             </div>
             {
               toggleListing && (
-                <MDBTable striped small>
+                <MDBTable striped small autoWidth responsive>
                   <MDBTableBody>
                     {
                       airFlowSensors && airFlowSensors.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})

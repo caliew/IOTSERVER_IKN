@@ -124,7 +124,7 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
           </div>
           {
             toggleListing && (
-              <MDBTable striped small>
+              <MDBTable striped small autoWidth responsive>
                 <MDBTableBody>
                 {
                     airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} 

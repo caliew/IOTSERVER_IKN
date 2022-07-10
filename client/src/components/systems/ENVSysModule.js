@@ -147,7 +147,7 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
           </div>
           {
             toggleListing && (
-              <MDBTable striped small>
+              <MDBTable striped small autoWidth responsive>
                 <MDBTableBody>
                 {
                     wiSensors === null ? <h4>LOADING</h4> : getWISENSORSList()
