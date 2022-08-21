@@ -2,3 +2,4 @@
 /.data
 /.logs
 /client/node_modules
+restartlog.json
