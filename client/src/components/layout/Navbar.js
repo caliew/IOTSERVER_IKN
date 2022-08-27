@@ -32,9 +32,11 @@ const Navbar = (props) => {
       { user && (user.companyname != "AWC" && user.companyname != "IKN"  && user.companyname != "Nippon Glass") && 
         <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/BigDATAView' className='white-text'>VISZ</Link></MDBNavItem>
       }
+
       { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "SuaraKOM" && user.companyname != "TDK") && 
         <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/NipponGlass' className='white-text'>NIPPON</Link></MDBNavItem>
       }
+
       { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && 
         <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/test' className='white-text'>TEST</Link></MDBNavItem>
       }

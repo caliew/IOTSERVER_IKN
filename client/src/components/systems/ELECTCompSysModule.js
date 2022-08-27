@@ -384,7 +384,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     return (
       <>
 			<MDBRow center>
-        <MDBCard className="p-4 m-2"style={{ width: "50rem" }}>
+        <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
 				  <div className='d-flex'>
             { ToggleSTATSButton('ELECTRICITY CONSUMPTION (Kwh)') }&nbsp;&nbsp;&nbsp;
             { toggleSTATS && ToggleSTATSWEEKButton('BY WEEK') }&nbsp;&nbsp;&nbsp;
@@ -392,7 +392,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           </div>
           {
             toggleSTATS && (
-            <MDBTable striped small autoWidth >
+            <MDBTable striped small autoWidth responsive>
               <MDBTableBody>
                 { weekDays && getRowsWeekDay() }
               </MDBTableBody>

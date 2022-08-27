@@ -234,6 +234,7 @@ const Test = () => {
         entries={10}
         pagesAmount={10}
         striped
+        responsive
         autoWidth 
         bordered
         materialSearch 

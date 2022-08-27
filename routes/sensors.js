@@ -27,6 +27,13 @@ const formatDate = (date) => {
   }
   return [year, month, day].join('-');
 }
+
+
+router.use(
+  cors({
+      origin:'*',
+  })
+);
 // @route     GET api/sensors
 // @desc      Get all sensors
 // @access    Private
@@ -81,13 +88,11 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// @route     GET api/sensors/nippontest
+// @route     GET api/sensors/nipponglass
 // @desc      GET TEST DATA ON NIPPON GLASS
 // @access    PRIVATE
 router.get('/nipponglass', auth, async(req,res) => {
-  // -------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  // ---------
+  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   _logs.read('_NIPPONDEMO',10,null,null,false,function(err,sensorData) {
     // -----------------------------
     let ObjData = {};
@@ -110,6 +115,21 @@ router.get('/nipponglass', auth, async(req,res) => {
   // res.status(200).send(data);
 })
 
+router.get('/teawarehouse', auth, async(req,res) => {
+  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  _logs.read('_TEAWAREHOUSE',30,null,null,false,function(err,sensorData) {
+    // -----------------------------
+    let ObjData = {};
+    ObjData['sensorData'] = sensorData;
+    // console.log(sensorData)
+    // ------------------------------
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.status(200).send(ObjData);
+  });
+
+})
 
 // @route     GET api/sensors/statsdata
 // @desc      Get all sensors
@@ -177,7 +197,7 @@ router.get('/statsDAYData', auth, async (req, res) => {
             // -------
           }
         } else {
-          nVALID += 1;
+          nINVALID += 1;
         }
       })
     })

@@ -29,17 +29,18 @@ const NipponGlassPage = () => {
 			setRadius(radius > 50 ? 15 : radius + 5);
 			// ---------
 			radius > 50 && RELOADRAWDARA();
-		}, 2000);
+		}, 60000);
 		return () => clearTimeout(_mTimer);
     // ------------
 	})
 	// -------
 	const RELOADRAWDARA = () => {
 		try {
-			// console.log(`/API/SENSORS/NIPPONGLASS`)
 			// --------------------------------
 			axios.get('/api/sensors/nipponglass', { } ).then (res => {
 				// ------------------
+				console.log('..../api/sensors/nipponglass...')
+				console.log(res);
 				setData(res.data);
 				// ---------
 			}).then( res => {
@@ -51,6 +52,22 @@ const NipponGlassPage = () => {
 		}
 		// ---------
 	}
+	const LOAD_TEAWAREHOUSEDATA = () => {
+		try {
+			// --------------------------------
+			axios.get('/api/sensors/teawarehouse', { } ).then (res => {
+				// ------------------
+				console.log('..../api/sensors/teawarehouse...')
+				console.log(res);
+				// ---------
+			}).catch ( err => {
+				// ---------
+			})
+		} catch (err) {
+		}
+		// ---------
+	}
+
 	// -------
 	const abstractData = (index) => {
 		// ------------
@@ -200,6 +217,7 @@ function parseFloat(str) {
 		// -------------------
 		let { _TIME, _DTUID, _SENSORID, _kWhr, _VoltageA, _VoltageB, _VoltageC, _CurrentA, _CurrentB, _CurrentC, _PowerF, _FREQ } = abstractData(0);
 		let ObjPRESSURE = (rawdata && rawdata['sensorData'][0]) ? rawdata['sensorData'][0] : null;
+		if (!ObjPRESSURE) return;
 		// -------------------
 		// let current     =`A=${(hexToSignedInt(bytesData[3]+bytesData[4])*0.001).toFixed(2)} B=${(hexToSignedInt(bytesData[5]+bytesData[6])*0.001).toFixed(2)} C=${(hexToSignedInt(bytesData[7]+bytesData[8])*0.001).toFixed(2)}`;
 		// let powerfactor =`${(_dataArr[15]*0.0001).toFixed(2)}`;
@@ -209,10 +227,15 @@ function parseFloat(str) {
 		let _OBJTIME = ObjPRESSURE ? new Date(ObjPRESSURE.TIMESTAMP) : new Date();
 		let _date = `${_OBJTIME.getDate()}/${_OBJTIME.getMonth()+1}`;
 		let _time = `${_OBJTIME.getHours()}: ${_OBJTIME.getMinutes().toString().padStart(2,"0")}`;
-		let _humidity = ObjPRESSURE ? ObjPRESSURE.DATAS[0]*0.10 : 0.0;
-		let _temperature = ObjPRESSURE ? ObjPRESSURE.DATAS[1]*0.10 : 0.0;
-		let _pressText = ObjPRESSURE ? `0x${ObjPRESSURE.RCV_BYTES[0]}${ObjPRESSURE.RCV_BYTES[1]}` : '';
-		let _pressure = ObjPRESSURE ? (parseFloat(_pressText)/10).toFixed(2): 0;
+		let _humidity,  _temperature,_pressText,_pressure = '';
+		if (ObjPRESSURE && ObjPRESSURE.DATAS) {
+			_humidity = ObjPRESSURE ? ObjPRESSURE.DATAS[0]*0.10 : 0.0;
+			_temperature = ObjPRESSURE ? ObjPRESSURE.DATAS[1]*0.10 : 0.0;
+		}
+		if (ObjPRESSURE && ObjPRESSURE.RCV_BYTES) {
+			_pressText = ObjPRESSURE ? `0x${ObjPRESSURE.RCV_BYTES[0]}${ObjPRESSURE.RCV_BYTES[1]}` : '';
+			_pressure = ObjPRESSURE ? (parseFloat(_pressText)/10).toFixed(2): 0;
+		}
 		// Number(parseFloat(`0x${ObjPRESSURE.RCV_BYTES[0]}${ObjPRESSURE.RCV_BYTES[1]}`)/100).toFixed(2)
 		// let _ADCBYTE = (rawdata && rawdata.sensorData.length > 0 ) ? rawdata.sensorData[0].DATAS : '';
 		// let _ADCHEX = (rawdata && rawdata.sensorData.length > 0 )  ? rawdata.sensorData[0].DATAS.substr(10,4) : '';
@@ -283,6 +306,7 @@ function parseFloat(str) {
 						</g>
 				</svg>
 				</div>
+			<MDBBtn onClick={()=>LOAD_TEAWAREHOUSEDATA()}>TEST DATA</MDBBtn>
 			<MDBBtn onClick={()=>RELOADRAWDARA()}>REFRESH</MDBBtn>
 				<MDBDataTable 
 					entriesOptions={[10, 20, 50, 100]}
