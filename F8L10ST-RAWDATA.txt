@@ -1,0 +1,32 @@
+..BUFFER..
+FD EE 11 44 5F 34 00    FA 0D 02    01 03 06    02 A8 01 0A 02 16    E0 1F E5 60
+                          -13-                  .6 .7 .8 .9.10.11   .12.13 
+.. H E A D E R S ...       .1 .2    .3 .4 .5    .1 .2 .3 .4 .5 .6    .1 .2
+FD EE 11 44 5F 34 00    FA 0D 02    01 03 06    02 A8 01 0A 02 16    E0 1F    E5 60
+   FE 0A 44 5F 35 00 FA 06 04 0B 01 00 03 19 CC
+          17.01.02.03.04   .05.06.07   .08.09.10  .11.12.13.14.15.16   .17.18   .19.20
+                               13.01   .02.03.04  .05.06.07.08.09.10   .11.12   .13.14
+                                              06  .01.02.03.04.05.06
+    FD EE 11 44 5F 34 00    FA 0D 02    01 03 06   02 FA 01 15 02 08    E8 1D    3A E6
+    FD EE 11 44 5F 35 00
+PRE=FD EE 11 44 5F 34 00 ..DATA=01030602fa01150208
+200 {
+  _DATE: '21/8',
+  _TIME: '20:29',
+  PortID: 1009,
+  _DTUID: 56,
+  _SENSORID: 1,
+  _FUNCTID: 3,
+  _NDATA: 6,
+  _DATA: 'FA0D0201030602D0011301D290B113E2',
+  _MODE: 'RS485',
+  _PORT: undefined,
+  _TYPE: undefined,
+  FA 0D 02 01 03 06    02 D0 01 13 01 D2     90 B1 13 E2
+  _DATAHEX: '02D0011301D2',
+  _READING1: undefined,
+  _READING2: undefined
+}
+
+[DECODEF8L10ST]..CHECK...DTU=<47> DATA=FA060703F61C50720E... CMND=7 ..MODE=HEART-BEAT  FUNCT=246
+FA 06 07 03 F6 1C 50 72 0E

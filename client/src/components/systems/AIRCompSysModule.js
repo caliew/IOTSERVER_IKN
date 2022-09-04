@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
-import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBCardTitle, MDBCardText } from 'mdbreact';
+import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBCardTitle } from 'mdbreact';
 
 import Chart from "react-google-charts";
+import Page from './StatsComp';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -15,10 +16,12 @@ import Chart from "react-google-charts";
 function AIRCompSysModule({ model, color, systemComponent, handleComponetSelection, title, type }) {
     // -----------
     const [airFlowSensors, setAFSensor] = useState([]);
+    const [sensorType,setSensorType] = useState();
     const [airPressData, setAPressData] = useState([]);
-    const [toggleListing,setToggleListing] = useState(true);
-    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleListing,setToggleListing] = useState(false);
+    const [toggleGauge,setToggleGauge] = useState(false);
     const [toggleSparkline,setToggleSparkline] = useState(false);
+    const [toggleOverview,setOverview] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
     const [showHide, setShowHide] = useState(true);
@@ -58,6 +61,7 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
           }
         })
         // --------------------
+        setSensorType(_AFSensors[0].type);
         setAFSensor(_AFSensors.sort(compareByName));
         setAPressData(_airpressureDatas);
         // -------------------------
@@ -111,40 +115,64 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
         </div>  
       )
     }
+    function ToggleSTATSButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSSwitches'
+            checked={toggleOverview}
+            onChange={()=>setOverview(!toggleOverview)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
-			<MDBRow center>
-				<MDBCard className="p-4 m-2"style={{ width: "40rem" }}>
-				  <div className='d-flex'>
-            {ToggleListing(title='AIR COMPRESSOR')}&nbsp;&nbsp;&nbsp;
-            {ToggleSparkline('AIR COMPRESSOR')}
-          </div>
-          {
-            toggleListing && (
-              <MDBTable striped small autoWidth responsive>
-                <MDBTableBody>
-                {
-                    airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} 
-                      index={index} toggleSparkline={toggleSparkline}/>)})
-                }
-                </MDBTableBody>
-              </MDBTable>
-            )
-          }
-        </MDBCard>
+      <>
+        <MDBRow center>
+          <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
+            <div className='d-flex'>{ ToggleSTATSButton('OVERVIEW') }</div>
+            { toggleOverview && airPressData && airPressData.length>0 && <Page title="AIRFLOW METER" data={airPressData} type={sensorType} /> }
+          </MDBCard>
+        </MDBRow>
+        <MDBRow center>
+          <MDBCard className="p-4 m-2"style={{ width: "40rem" }}>
+            <div className='d-flex'>
+              {ToggleListing(title='AIR COMPRESSOR')}&nbsp;&nbsp;&nbsp;
+              {ToggleSparkline('AIR COMPRESSOR')}
+            </div>
+            {
+              toggleListing && (
+                <MDBTable striped small autoWidth responsive>
+                  <MDBTableBody>
+                  {
+                      airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} 
+                        index={index} toggleSparkline={toggleSparkline}/>)})
+                  }
+                  </MDBTableBody>
+                </MDBTable>
+              )
+            }
+          </MDBCard>
 
-				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleGauges(title='AIR COMPRESSOR')}</MDBCardTitle>
-          { showHide && toggleGauge && getDialGauge( { 
-              title : 'PRESSURE',
-              data : airPressData, 
-              redFrom: 90, redTo: 100, yellowFrom: 75, yellowTo: 90, minorTicks: 5})}            
-				</MDBCard>
+          <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+            <MDBCardTitle>{ToggleGauges(title='AIR COMPRESSOR')}</MDBCardTitle>
+            { showHide && toggleGauge && getDialGauge( { 
+                title : 'PRESSURE',
+                data : airPressData, 
+                redFrom: 90, redTo: 100, yellowFrom: 75, yellowTo: 90, minorTicks: 5})}            
+          </MDBCard>
 
-			</MDBRow>
+        </MDBRow>
+      </>
     )
 }
 // ---------
@@ -224,43 +252,6 @@ function parseFloat(str) {
       exp--;
   }
   return float*sign;
-}
-function getDatas(sensor) {
-  // console.log(sensor.logsdata);
-  let datas = [];
-  let VelData = [];
-  let PressData = [];
-  let rmsVel = 0;
-  let maxVel = -999;
-  let minVel = 999;
-  let maxVelDateTime;
-  let minVelDateTime;
-  // -----------------
-  sensor.logsdata.map( (data,index) => {
-    let _Date = new Date(data.TIMESTAMP);
-    let _timeLabel = _Date.toLocaleDateString([], {hour12: false,hour: "2-digit",minute: "2-digit"});
-    // -------------------------------------------------
-		let velocity = Number(data.DATAS[0])/10.0;
-    let pressure = Number(parseFloat(`0x${data.RCV_BYTES[0]}${data.RCV_BYTES[1]}`).toFixed(2)/100.0);
-		// -------------------
-    if (velocity > maxVel) {
-      maxVel = velocity;
-      maxVelDateTime = _timeLabel;
-    }
-    // -------------------------
-    if (velocity < minVel) {
-      minVel = velocity;
-      minVelDateTime = _timeLabel;
-    }
-    // ----------------------------------------------
-    VelData.push({y:velocity,x:_timeLabel}); 
-    PressData.push({y:pressure,x:_timeLabel}); 
-  })
-  // -------------
-  // datas.push(VelData)
-  datas.push(PressData)
-  // ----------------
-  return { datas,maxVelDateTime,minVelDateTime,maxVel,minVel,rmsVel };
 }
 //  -----------
 // Set default props

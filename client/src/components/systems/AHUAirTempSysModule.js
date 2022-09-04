@@ -4,6 +4,7 @@ import SensorList from './SensorList';
 import { MDBTable,MDBTableBody,MDBRow,MDBCard,MDBCol, MDBCardTitle } from 'mdbreact';
 
 import Thermometer from './Thermometer';
+import Page from './StatsComp';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -15,11 +16,13 @@ import Thermometer from './Thermometer';
 function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSelection, title, type }) {
     // -----------
     const [airFlowSensors, setAFSensor] = useState([]);
+    const [sensorType,setSensorType] = useState();
     const [sensorLabels, setSensorLabels] = useState([]);
     const [airFlowData, setAFlowData] = useState([]);
-    const [toggleListing,setToggleListing] = useState(true);
-    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleListing,setToggleListing] = useState(false);
+    const [toggleGauge,setToggleGauge] = useState(false);
     const [toggleSparkline,setToggleSparkline] = useState(false);
+    const [toggleOverview,setOverview] = useState(false);
 		// --------------------------
     const sensorContext = useContext(SensorContext);
     const { sensors, getSensors } = sensorContext;
@@ -53,6 +56,8 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
 					}
         })
         // --------------------
+        setSensorType(_AFSensors[0].type);
+        console.log("SENSORS=",_AFSensors[0])
         setAFSensor(_AFSensors.sort(compareByName));
         setSensorLabels(_sLabels);
         setAFlowData(_airflowDatas.sort(compareByName));
@@ -106,11 +111,34 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
         </div>  
       )
     }  
+    function ToggleSTATSButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSSwitches'
+            checked={toggleOverview}
+            onChange={()=>setOverview(!toggleOverview)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
+      <>
+        <MDBRow center>
+          <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
+            <div className='d-flex'>{ ToggleSTATSButton('OVERVIEW') }</div>
+            { toggleOverview && airFlowData && airFlowData.length>0 && <Page title="AIRFLOW TEMPERATURE" data={airFlowData} type={sensorType} /> }
+          </MDBCard>
+        </MDBRow>          
 			<MDBRow center>
 				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
 				  <div className='d-flex'>
@@ -140,6 +168,7 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
       </MDBCard>
 
 			</MDBRow>
+      </>
     )
 }
 

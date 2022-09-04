@@ -1,27 +1,10 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
-import { MDBTable,MDBTableBody,MDBRow,MDBCard,MDBCol, MDBCardTitle, MDBCardText } from 'mdbreact';
+import { MDBTable,MDBTableBody,MDBRow,MDBCard,MDBCol, MDBCardTitle } from 'mdbreact';
 
-import SparklinePlots from '../data-ui/SparklinePlots';
-
-import Chart from "react-google-charts";
 import Thermometer from './Thermometer';
-import TDKFloorPlan from './TDKFloorPlan';
-
-import { 
-  CTW_A_TEMP1,CTW_A_TEMP2,CTW_A_FLOWRATE,CTW_A_ELECTPWR, 
-  CTW_B_TEMP1,CTW_B_TEMP2,CTW_B_FLOWRATE,CTW_B_ELECTPWR,
-  WCPU_A_TEMP1, WCPU_A_TEMP2, WCPU_A_FLOWRATE, WCPU_A_ELECTPWR,
-  WCPU_B_TEMP1, WCPU_B_TEMP2, WCPU_B_FLOWRATE, WCPU_B_ELECTPWR,
-  AHU_A_TEMP1,AHU_A_TEMP2,AHU_A_FLOWRATE,AHU_A_ELECTPWR,
-  AHU_B_TEMP1,AHU_B_TEMP2,AHU_B_FLOWRATE,AHU_B_ELECTPWR, 
-  CHILLER_A_CH_TEMP1, CHILLER_A_CH_TEMP2, CHILLER_A_CH_FLOWRATE,
-  CHILLER_A_CW_TEMP1, CHILLER_A_CW_TEMP2, CHILLER_A_CW_FLOWRATE,
-  CHILLER_B_CH_TEMP1, CHILLER_B_CH_TEMP2, CHILLER_B_CH_FLOWRATE,
-  CHILLER_B_CW_TEMP1, CHILLER_B_CW_TEMP2, CHILLER_B_CW_FLOWRATE,
-  CHILLER_A_ELECTPWR, CHILLER_B_ELECTPWR
-} from '../types';
+import Page from './StatsComp';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -33,11 +16,13 @@ import {
 function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSelection, title, type }) {
     // -----------
     const [airFlowSensors, setAFSensor] = useState([]);
+    const [sensorType,setSensorType] = useState();
     const [sensorLabels, setSensorLabels] = useState([]);
     const [airFlowData, setAFlowData] = useState([]);
-    const [toggleListing,setToggleListing] = useState(true);
-    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleListing,setToggleListing] = useState(false);
+    const [toggleGauge,setToggleGauge] = useState(false);
     const [toggleSparkline,setToggleSparkline] = useState(false);
+    const [toggleOverview,setOverview] = useState(false);
 		// --------------------------
     const sensorContext = useContext(SensorContext);
     const { sensors, getSensors } = sensorContext;
@@ -74,7 +59,9 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
 					}
         })
         // --------------------
+        setSensorType(_AFSensors[0].type);
         setAFSensor(_AFSensors.sort(compareByName));
+        console.log(_AFSensors[0])
         setSensorLabels(_sLabels);
         setAFlowData(_airflowDatas.sort(compareByName));
     }
@@ -126,40 +113,64 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
           </label>
         </div>  
       )
+    }    
+    function ToggleSTATSButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSSwitches'
+            checked={toggleOverview}
+            onChange={()=>setOverview(!toggleOverview)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
     }    // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
-			<MDBRow center>
-				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-				  <div className='d-flex'>
-            {ToggleListing('WATER PIPE TEMP.')}&nbsp;&nbsp;&nbsp;
-            {ToggleSparkline('WATER PIPE TEMP.')}
-          </div>
-          {
-            toggleListing && (
-              <MDBTable striped small autoWidth responsive>
-                <MDBTableBody>
-                {
-                  airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})
-                }
-                </MDBTableBody>
-              </MDBTable>
-            )
-          }
-				</MDBCard>
+      <>
+        <MDBRow center>
+          <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
+            <div className='d-flex'>{ ToggleSTATSButton('OVERVIEW') }</div>
+            { toggleOverview && airFlowData && airFlowData.length>0 && <Page title="AIRFLOW METER" data={airFlowData} type={sensorType} /> }
+          </MDBCard>
+        </MDBRow>      
+        <MDBRow center>
+          <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+            <div className='d-flex'>
+              {ToggleListing('WATER PIPE TEMP.')}&nbsp;&nbsp;&nbsp;
+              {ToggleSparkline('WATER PIPE TEMP.')}
+            </div>
+            {
+              toggleListing && (
+                <MDBTable striped small autoWidth responsive>
+                  <MDBTableBody>
+                  {
+                    airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})
+                  }
+                  </MDBTableBody>
+                </MDBTable>
+              )
+            }
+          </MDBCard>
 
-        <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-          <MDBCardTitle>{ToggleGauges('WATER PIPE TEMP.')}</MDBCardTitle>
-					{ toggleGauge && sensorLabels && airFlowData && getThemrmometer( { 
-							title : 'AIR TEMP', 
-							sensors : sensorLabels, 
-							data : airFlowData, 
-							redFrom: 90, redTo: 100, yellowFrom: 70, yellowTo: 90, minorTicks: 5})}
-				</MDBCard>
+          <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+            <MDBCardTitle>{ToggleGauges('WATER PIPE TEMP.')}</MDBCardTitle>
+            { toggleGauge && sensorLabels && airFlowData && getThemrmometer( { 
+                title : 'AIR TEMP', 
+                sensors : sensorLabels, 
+                data : airFlowData, 
+                redFrom: 90, redTo: 100, yellowFrom: 70, yellowTo: 90, minorTicks: 5})}
+          </MDBCard>
 
-			</MDBRow>
+        </MDBRow>
+      </>
     )
 }
 

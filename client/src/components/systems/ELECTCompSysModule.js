@@ -20,13 +20,13 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     const [weekDays,setWeekDay] = useState(null);
     const [yearMonths,setYearMonth] = useState(null);
     const [toggleSTATS,setToggleSTATS] = useState(false);
-    const [toggleSTATSWEEK,setToggleSTATSWEEK] = useState(true);
-    const [toggleListing,setToggleListing] = useState(true);
-    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleSTATSWEEK,setToggleSTATSWEEK] = useState(false);
+    const [toggleListing,setToggleListing] = useState(false);
+    const [toggleGauge,setToggleGauge] = useState(false);
     const [toggleSparkline,setToggleSparkline] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
-    const { sensors,  getSensors, plotSensorMap } = sensorContext;
+    const { sensors,  getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
       RELOADRAWDARA();

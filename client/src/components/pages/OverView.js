@@ -41,7 +41,6 @@ const OverView = () => {
           };
           return map; },{}
         );
-        console.log(_dtuIDSensors);
         // -------------------
         setStatsData(_mapSensorType);
         let ObjKEYS = Object.keys(_mapSensorType);
@@ -66,7 +65,7 @@ const OverView = () => {
           onChange={()=>setToggle(!toggle)}
         />
         <label className='custom-control-label' htmlFor='overviewSwitches'>
-          <h5>{title}</h5>
+          <h5>&nbsp;{title}</h5>
         </label>
       </div>  
     )
@@ -214,7 +213,7 @@ const OverView = () => {
   return (
 		<MDBContainer style={{width: "auto",position: "relative",marginTop: '2rem'}} >
       <MDBCard className="p-4">
-        <MDBCardTitle>{ ToggleButton('DAILY STATUS OVERVIEW') }</MDBCardTitle>
+        <MDBCardTitle>{ ToggleButton('IOT NETWORK STATUS OVERVIEW') }</MDBCardTitle>
         { toggle && sensorTypes && STATSView() }
         {/* { toggle && sensorTypes && PROGRESSView() } */}
       </MDBCard>

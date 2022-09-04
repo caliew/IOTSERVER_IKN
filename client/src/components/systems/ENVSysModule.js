@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, Fragment } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
 import { MDBTable,MDBTableBody,MDBRow,MDBCard, MDBCardTitle,MDBCol  } from 'mdbreact';
+import Page from './StatsComp';
 
 import Thermometer from './Thermometer'
 
@@ -28,11 +29,12 @@ let sensorLocationMap = {
 function ENVSysModule({ systemComponent, handleComponetSelection, type, userCompanyName }) {
     // -----------
     const [wiSensors, setWiSensor] = useState([]);
-    const [sensorLabels, setSensorLabels] = useState([]);
+    const [sensorType,setSensorType] = useState();
     const [tempData, setTempData] = useState([]);
-    const [toggleListing,setToggleListing] = useState(true);
-    const [toggleGauge,setToggleGauge] = useState(true);
+    const [toggleListing,setToggleListing] = useState(false);
+    const [toggleGauge,setToggleGauge] = useState(false);
     const [toggleSparkline,setToggleSparkline] = useState(false);
+    const [toggleOverview,setOverview] = useState(false);
 		// --------------------------------------------
     const sensorContext = useContext(SensorContext);
     const { sensors, getSensors } = sensorContext;
@@ -76,6 +78,7 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
         // -------------------
       });
       // --------------------
+      setSensorType(_wiSensors[0].type)
 			setWiSensor(_wiSensors.sort(compareByName));
 			setTempData(_tempDatas.sort(compareByName));
     }
@@ -134,45 +137,69 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
         </div>  
       )
     }
+    function ToggleSTATSButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSSwitches'
+            checked={toggleOverview}
+            onChange={()=>setOverview(!toggleOverview)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
+
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
-      <MDBRow center>
-				<MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-				  <div className='d-flex'>
-            {ToggleListing('ENV. TEMP. RH & ABS')}&nbsp;&nbsp;&nbsp;
-            {ToggleSparkline('ENV. TEMP. RH & ABS')}
-          </div>
-          {
-            toggleListing && (
-              <MDBTable striped small autoWidth responsive>
-                <MDBTableBody>
-                {
-                    wiSensors === null ? <h4>LOADING</h4> : getWISENSORSList()
-                }
-                </MDBTableBody>
-              </MDBTable>
-            )
-          }
+      <>
+        <MDBRow center>
+        <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
+          <div className='d-flex'>{ ToggleSTATSButton('OVERVIEW') }</div>
+          { toggleOverview && tempData && tempData.length > 0 && <Page title="WI-SENSOR" data={tempData} type={sensorType}/> }
         </MDBCard>
+        </MDBRow>
+        <MDBRow center>
+          <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+            <div className='d-flex'>
+              {ToggleListing('ENV. TEMP. RH & ABS')}&nbsp;&nbsp;&nbsp;
+              {ToggleSparkline('ENV. TEMP. RH & ABS')}
+            </div>
+            {
+              toggleListing && (
+                <MDBTable striped small autoWidth responsive>
+                  <MDBTableBody>
+                  {
+                      wiSensors === null ? <h4>LOADING</h4> : getWISENSORSList()
+                  }
+                  </MDBTableBody>
+                </MDBTable>
+              )
+            }
+          </MDBCard>
 
-        <MDBCard className="p-4 m-2" style={{ width: "40rem"}}>
-          <MDBCardTitle>{ToggleGauges('ENV. TEMP. RH & ABS')}</MDBCardTitle>
-          { sensorLabels && tempData && toggleGauge &&
-              getThemrmometer( 
-                  { title : 'ENVIRONMENTS', 
-                  sensors : sensorLabels, 
-                  data : tempData, 
-                  redFrom: 90, 
-                  redTo: 100, 
-                  yellowFrom: 75, 
-                  yellowTo: 90,
-                  minorTicks: 5})}
-        </MDBCard>
+          <MDBCard className="p-4 m-2" style={{ width: "40rem"}}>
+            <MDBCardTitle>{ToggleGauges('ENV. TEMP. RH & ABS')}</MDBCardTitle>
+            { tempData && toggleGauge &&
+                getThemrmometer( 
+                    { title : 'ENVIRONMENTS',
+                    data : tempData, 
+                    redFrom: 90, 
+                    redTo: 100, 
+                    yellowFrom: 75, 
+                    yellowTo: 90,
+                    minorTicks: 5})}
+          </MDBCard>
 
-      </MDBRow>
+        </MDBRow>
+      </>
 	)
 }
 
@@ -236,23 +263,6 @@ function compareByName(a, b) {
 // -------------
 // GET SVG MODEL
 // -------------
-const getSensorLocation = (prop) => {
-  // ---------------
-  let strLocation = '';
-  if (sensorLocationMap.hasOwnProperty(prop)) {
-    let ObjSensorLocation = sensorLocationMap[prop];
-    if (ObjSensorLocation) strLocation = `translate(${ObjSensorLocation.x},${ObjSensorLocation.y})`;
-  }
-  return strLocation;
-}
-const getSensorTemperature = (prop) => {
-  let TempReading = ''
-  if (sensorLocationMap.hasOwnProperty(prop)) {
-    let ObjSensorLocation = sensorLocationMap[prop];
-    if(ObjSensorLocation) TempReading = ObjSensorLocation.reading;
-  }
-  return TempReading;
-}
 const getThemrmometer = (data) => {
   return (
     // <div className="d-flex row p-4 justify-content-center">
