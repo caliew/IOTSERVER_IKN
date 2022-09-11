@@ -115,20 +115,29 @@ router.get('/nipponglass', auth, async(req,res) => {
   // res.status(200).send(data);
 })
 
-router.get('/teawarehouse', auth, async(req,res) => {
+router.get('/teawarehouse/rawdata', auth, async(req,res) => {
   console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  _logs.read('_TEAWAREHOUSE',500,null,null,false,function(err,sensorData) {
+  _logs.read('_TEAWAREHOUSE',2500,null,null,false,function(err,sensorData) {
     // -----------------------------
     let ObjData = {};
     ObjData['sensorData'] = sensorData;
     // console.log(sensorData)
+    _data.read('teawarehouse','settings',function(err,settingData) {
+      ObjData['settings'] = settingData;
+      res.status(200).send(ObjData);
+    })
     // ------------------------------
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.status(200).send(ObjData);
   });
+})
 
+router.put('/teawarehouse/settings',auth,async(req,res) => {
+  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.update('teawarehouse','settings', ObjData, function (err) { 
+    console.log(err)
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
 })
 
 // @route     GET api/sensors/statsdata
