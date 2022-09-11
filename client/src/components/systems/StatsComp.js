@@ -31,11 +31,12 @@ const Page = ({title,data,type}) => {
     data.map((item,index)=>{
       // {name: 'L1- FREEZER MS', temperature: -21, humidity: -959.04}
       let _NAME = item['name'] ? item['name'] : 'NA'
-      let _TEMP = item['temperature'] ? item['temperature'] : null;
-      let _HUMD = item['humidity'] ? (item['humidity'] > -900 ? item['humidity'] : null) : null;
+      let _TEMP = item['temperature'] ? item['temperature'].toFixed(2) : null;
+      let _HUMD = item['humidity'] ? (item['humidity'] > -900 ? item['humidity'].toFixed(2) : null) : null;
       let _SPEED = item['velocity'] ? item['velocity'] : null;
       let _PRESSURE = item['pressure'] ? item['pressure'] : null;
       let _data;
+      console.log(_TEMP,_HUMD,_SPEED,_PRESSURE)
       switch (type) {
         case "AIRRH(485)":
           _data = [_NAME,_TEMP];
@@ -91,8 +92,12 @@ const Page = ({title,data,type}) => {
       },
     ],
     series: [ 
-      { name: 'TEMP',  yAxisIndex: 1, type: 'bar' },
-      { name: 'RH',  yAxisIndex: 0, type: 'bar' } 
+      { name: 'TEMP',  yAxisIndex: 1, type: 'bar', 
+        markPoint: { data: [ { type: 'max', name: 'Max' }, { type: 'min', name: 'Min' } ] },   
+        markLine: { data: [{ type: 'average', name: 'Avg' }], label: { distance: [-100, 100] } }  },
+      { name: 'RH',  yAxisIndex: 0, type: 'bar', 
+        markPoint: { data: [ { type: 'max', name: 'Max' }, { type: 'min', name: 'Min' } ] },   
+        markLine: { data: [{ type: 'average', name: 'Avg' }], label: { distance: [-50, 100] } }  } 
     ]
   };
   let option2 = {
@@ -119,7 +124,9 @@ const Page = ({title,data,type}) => {
       }
     ],
     series: [ 
-      { name: 'SPEED',  yAxisIndex: 0, type: 'bar' }
+      { name: 'SPEED',  yAxisIndex: 0, type: 'bar', 
+        markPoint: { data: [ { type: 'max', name: 'Max' }, { type: 'min', name: 'Min' } ] },   
+        markLine: { data: [{ type: 'average', name: 'Avg' }], label: { distance: [-100, 100] } }  }
     ]
 
   }
@@ -147,7 +154,9 @@ const Page = ({title,data,type}) => {
       }
     ],
     series: [ 
-      { name: 'TEMPERATURE',  yAxisIndex: 0, type: 'bar' }
+      { name: 'TEMPERATURE',  yAxisIndex: 0, type: 'bar', 
+        markPoint: { data: [ { type: 'max', name: 'Max' }, { type: 'min', name: 'Min' } ] },   
+        markLine: { data: [{ type: 'average', name: 'Avg' }], label: { distance: [-100, 100] } }  }
     ]
 
   }
@@ -175,7 +184,9 @@ const Page = ({title,data,type}) => {
       }
     ],
     series: [ 
-      { name: 'PRESSURE',  yAxisIndex: 0, type: 'bar' }
+      { name: 'PRESSURE',  yAxisIndex: 0, type: 'bar', 
+        markPoint: { data: [ { type: 'max', name: 'Max' }, { type: 'min', name: 'Min' } ] },   
+        markLine: { data: [{ type: 'average', name: 'Avg' }], label: { distance: [-100, 100] } }  }
     ]
 
   }

@@ -57,61 +57,17 @@ const ChartsPage = () => {
 		return ({
 			title: { text: `${title}` },
 			tooltip: { trigger: "axis" },
-			legend: { 
-				width: "83%",
-				height: "17%",
-				bottom: "91%",
-				top: "10%",
-				data: getLegendsRHData()
-			},
-			xAxis: {
-				type: 'time',
-				boundaryGap: false,
-				splitLine: { show: false }
-			},
-			yAxis: {
-				type: 'value',
-				axisLabel: { formatter: '{value} C' },
-				boundaryGap: [0, '100%'],
-				splitLine: { show: false }
-			},		
-			grid: {
-				left: "3%",
-				right: "4%",
-				bottom: "3%",
-				containLabel: true
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					dataZoom: { yAxisIndex: 'none' },
-					dataView: { readOnly: false },
-					magicType: { type: ['line', 'bar'] },
-					restore: {},
-					saveAsImage: {},
-				}
-			},
+			legend: { width: "83%", height: "17%", bottom: "91%", top: "10%", data: getLegendsRHData() },
+			xAxis: { type: 'time', boundaryGap: false, splitLine: { show: false } },
+			yAxis: { type: 'value', axisLabel: { formatter: '{value} C' }, boundaryGap: [0, '100%'], splitLine: { show: false } },		
+			grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
+			toolbox: { show: true, feature: { dataZoom: { yAxisIndex: 'none' }, dataView: { readOnly: false }, 
+								magicType: { type: ['line', 'bar'] }, restore: {}, saveAsImage: {} } },
 			dataZoom: [
-				{
-					type: 'slider',
-					xAxisIndex: 0,
-					filterMode: 'none'
-				},
-				{
-					type: 'slider',
-					yAxisIndex: 0,
-					filterMode: 'none'
-				},
-				{
-					type: 'inside',
-					xAxisIndex: 0,
-					filterMode: 'none'
-				},
-				{
-					type: 'inside',
-					yAxisIndex: 0,
-					filterMode: 'none'
-				}
+				{ type: 'slider', xAxisIndex: 0, filterMode: 'none' },
+				{ type: 'slider', yAxisIndex: 0, filterMode: 'none' },
+				{ type: 'inside', xAxisIndex: 0, filterMode: 'none' },
+				{ type: 'inside', yAxisIndex: 0, filterMode: 'none' }
 			],
 			series: getSeriesRH(0)
 		})
@@ -435,22 +391,7 @@ const ChartsPage = () => {
 	// --------
 	function padTo2Digits(num) {
 		return num.toString().padStart(2, '0');
-	}	
-	function formatDate(date) {
-		return (
-			[
-				date.getFullYear(),
-				padTo2Digits(date.getMonth() + 1),
-				padTo2Digits(date.getDate()),
-			].join('-') +
-			' ' +
-			[
-				padTo2Digits(date.getHours()),
-				padTo2Digits(date.getMinutes()),
-				// padTo2Digits(date.getSeconds()),
-			].join(':')
-		);
-	}	
+	}
 	const getLegendsRHData = () => {
 		let _datas = [];
 		plotRHSensors && plotRHSensors.forEach( _data => {

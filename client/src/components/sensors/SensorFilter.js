@@ -20,6 +20,8 @@ const SensorFilter = () => {
     }
   });
   const onChange = e => {
+    // NEED TO WAIT FOR LOADING COMPLETE
+    if (!sensors) return;
     if (text.current.value !== '') {
       filterSensors(e.target.value);
     } else {
