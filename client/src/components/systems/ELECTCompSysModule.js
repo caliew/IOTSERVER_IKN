@@ -3,7 +3,6 @@ import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
 import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBInput ,MDBCardTitle } from 'mdbreact';
 import axios from 'axios';
-import Toggle from '../control/toggle';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -230,15 +229,15 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
         <>
           <tr className='text-center align-middle'>
             <td>NAME</td><td>DTU ID</td><td>SENSOR ID</td><td>TYPES</td>
-            { toggleSTATSWEEK ? weekDays.map((wk,index) => {
+            { toggleSTATSWEEK ? (weekDays && weekDays.map((wk,index) => {
                 // -----
                 return (<td>{wk}</td>)
                 // ------
-              }) : yearMonths.map((mth,index) => {
+              })) : (yearMonths && yearMonths.map((mth,index) => {
                 // -----
                 if (index < yearMonths.length) return (<td>{mth.substring(5)}</td>)
                 // ------
-              }) 
+              }))
             }
           </tr>
           {
