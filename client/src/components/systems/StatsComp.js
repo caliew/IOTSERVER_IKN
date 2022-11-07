@@ -3,7 +3,6 @@ import ReactECharts from 'echarts-for-react';
 const colors = ['#5470C6', '#91CC75', '#EE6666'];
 
 const Page = ({title,data,type}) => {
-  console.log(title,type,data)
   const getLegends = () => {
     let _legend0 = ['TEMP','RH'];
     let _legend1 = ['SPEED'];
@@ -36,7 +35,6 @@ const Page = ({title,data,type}) => {
       let _SPEED = item['velocity'] ? item['velocity'] : null;
       let _PRESSURE = item['pressure'] ? item['pressure'] : null;
       let _data;
-      console.log(_TEMP,_HUMD,_SPEED,_PRESSURE)
       switch (type) {
         case "AIRRH(485)":
           _data = [_NAME,_TEMP];

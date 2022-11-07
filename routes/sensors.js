@@ -92,7 +92,7 @@ router.get('/', auth, async (req, res) => {
 // @desc      GET TEST DATA ON NIPPON GLASS
 // @access    PRIVATE
 router.get('/nipponglass', auth, async(req,res) => {
-  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] `)
   _logs.read('_NIPPONDEMO',10,null,null,false,function(err,sensorData) {
     // -----------------------------
     let ObjData = {};
@@ -116,12 +116,16 @@ router.get('/nipponglass', auth, async(req,res) => {
 })
 
 router.get('/teawarehouse/rawdata', auth, async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  _logs.read('_TEAWAREHOUSE',5000,null,null,false,function(err,sensorData) {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
+  let ObjData = req.query;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 5000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  _logs.read('_TEAWAREHOUSE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
     // -----------------------------
     let ObjData = {};
     ObjData['sensorData'] = sensorData;
-    // console.log(sensorData)
+    // console.log('TEAMWAREHOUSE/RAWDATA...',nTotalLines,_date0,_date1,'..FILTERED...',sensorData.length);
     _data.read('teawarehouse','settings',function(err,settingData) {
       ObjData['settings'] = settingData;
       res.status(200).send(ObjData);
@@ -134,10 +138,23 @@ router.put('/teawarehouse/settings',auth,async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
   _data.update('teawarehouse','settings', ObjData, function (err) { 
-    console.log(err)
+    // console.log(err);
   })
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
+})
+
+router.get('/teawarehouse/alerts',auth,async(req,res)=>{
+  let ObjData = req.query;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 5000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  _logs.read('_TEAWAREHOUSEALERTS',nTotalLines,_date0,_date1,false,function(err,alertsData){
+    // console.log(`../TEAWAREHOUSE/ALERTS...${nTotalLines}..${_date0}..${_date1}..${alertsData.length}`)
+    let ObjData = {};
+    ObjData['alerts'] = alertsData;
+    res.status(200).send(ObjData);
+  })
 })
 
 // @route     GET api/sensors/statsdata
@@ -239,9 +256,9 @@ router.get('/sensordatadownload/:id', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}>`)
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}>`)
   DownLoadData(req.params.id);
-  console.log('... .. . RESPONSE 200 - UNDER DEVELOPMENT .')
+  // console.log('... .. . RESPONSE 200 - UNDER DEVELOPMENT .')
   res.status(200).send('UNDER DEVELOPMENT...')
 });
 
@@ -252,7 +269,7 @@ router.get('/sensorstats/:dtuId&:sensorId', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  console.log(`DTUID:${req.params.dtuId}....SENSORID:${req.params.sensorId}`);
+  // console.log(`DTUID:${req.params.dtuId}....SENSORID:${req.params.sensorId}`);
   // ----------
   let query = {
     dtuId : req.params.dtuId,
@@ -276,7 +293,7 @@ router.post('/',[auth,[
     check('type', 'Please define SENSOR TYPE').not().isEmpty() ],],
   async (req, res) => {
     // ----------------------------------
-    console.log(`... API/SENSORS [POST]`)
+    // console.log(`... API/SENSORS [POST]`)
     // ----------------------------------
     const errors = validationResult(req);
     // ---------------------
@@ -327,7 +344,7 @@ router.put('/:id', auth, async (req, res) => {
   
   try {
     let sensor = await Sensor.findById(req.params.id);
-    console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id.yellow}>`)
+    // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id.yellow}>`)
 
     if (!sensor) return res.status(404).json({msg: 'Sensor not found'});
     sensor = await Sensor.findByIdAndUpdate(
@@ -351,7 +368,7 @@ router.delete('/:id', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}> USER OBJECT <${req.user.id}>`)
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}> USER OBJECT <${req.user.id}>`)
   // ------------------------------------
   try {
     // -------
@@ -388,8 +405,8 @@ app.client.request = function (headers,path,method,queryStringObject,payload,cal
   payload = typeof payload == "object" && payload !== null ? payload : {};
   callback = typeof callback == "function" ? callback : false;
   // --------------
-  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}>`)
-  console.log('.....CHECK POINT (1).....')
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}>`)
+  // console.log('.....CHECK POINT (1).....')
   // For each query string parameter sent, add it to the path
   var requestUrl = path + "?";
   var counter = 0;
@@ -408,7 +425,7 @@ app.client.request = function (headers,path,method,queryStringObject,payload,cal
   // ------------------------------------
   // Form the http request as a JSON type
   // ------------------------------------
-  console.log('.....CHECK POINT (2).....')
+  // console.log('.....CHECK POINT (2).....')
   // --------------------------------
   //  XMLHttpRequest is built-in in browsers environments, but it's not built-in in a Node environment, 
   //  so it's not defined, thus the error. You'll have to install the xmlhttprequest package 
@@ -425,14 +442,14 @@ app.client.request = function (headers,path,method,queryStringObject,payload,cal
   //     xhr.setRequestHeader(headerKey, headers[headerKey]);
   //   }
   // }
-  console.log('.....CHECK POINT (3).....')
+  // console.log('.....CHECK POINT (3).....')
   // -------------------------------------------------------------
   // If there is a current session token set, add that as a header
   // -------------------------------------------------------------
   // if (app.config.sessionToken) {
   //   xhr.setRequestHeader("token", app.config.sessionToken.id);
   // }
-  console.log('.....CHECK POINT (4).....')
+  // console.log('.....CHECK POINT (4).....')
   // ------------------------------------------------
   // When the request comes back, handle the response
   // ------------------------------------------------
@@ -460,7 +477,7 @@ app.client.request = function (headers,path,method,queryStringObject,payload,cal
 function DownLoadData(strSensorLabel) {
   // ------------------------
   let downloadDataQueryString = { id: strSensorLabel };
-  console.log('...ROUTES/SENSORS.JS.... DOWNLOADDATA CALLING API/SENSORSTATS/DATA',strSensorLabel);
+  // console.log('...ROUTES/SENSORS.JS.... DOWNLOADDATA CALLING API/SENSORSTATS/DATA',strSensorLabel);
   app.client.request(undefined,"api/sensorstats/data","GET",downloadDataQueryString,undefined,function (statusCode, sensorData) {
     // -------------
     if (!sensorData && statusCode != 200)
@@ -469,7 +486,7 @@ function DownLoadData(strSensorLabel) {
     let exportData = [];
     let sensor = sensorTypeMap[strSensorLabel];
     let factor = (sensor.ratingMIN && sensor.ratingMAX) ? sensor.ratingMAX/sensor.ratingMIN : 1.0;
-    console.log('....[' + sensor.sensortype + ']....');
+    // console.log('....[' + sensor.sensortype + ']....');
     // -----------------
     if (sensorData.data) {
       sensorData.data.forEach((data) => {
@@ -578,7 +595,7 @@ function DownLoadData(strSensorLabel) {
         exportData.push(dataObject);
       });
       // -------------
-      console.log(exportData[0]);
+      // console.log(exportData[0]);
       var stringData = JSON.stringify(exportData);
       var csv = this.convertToCSV(stringData);
       // -------------
