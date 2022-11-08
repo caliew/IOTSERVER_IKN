@@ -2,7 +2,7 @@ import React, { useContext,useState,useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Routes from '../../Routes';
 import { MDBNavbar,MDBNavbarBrand,MDBNavbarNav,MDBNavbarToggler,MDBCollapse,MDBNavItem,MDBFooter,MDBIcon } from 'mdbreact';
-// import './App.css';
+import '../../App.css';
 
 import AuthContext from '../../context/auth/authContext';
 
@@ -64,8 +64,8 @@ const Navbar = (props) => {
   //  -----------
   const guestLinks = (
     <MDBNavbarNav right>
-      <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/register' className='white-text'>REGISTER</Link></MDBNavItem>
-      <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/login' className='white-text'>LOGIN</Link></MDBNavItem>
+      {/* <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/register' className='white-text'>REGISTER</Link></MDBNavItem> */}
+      {/* <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/login' className='white-text'>LOGIN</Link></MDBNavItem> */}
     </MDBNavbarNav>
   );
   // ---------------
