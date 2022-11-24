@@ -115,6 +115,20 @@ router.get('/nipponglass', auth, async(req,res) => {
   // res.status(200).send(data);
 })
 
+router.get('/shinko/rawdata', auth, async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
+  let ObjData = req.query;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 5000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  _logs.read('_SHINKO',nTotalLines,_date0,_date1,false,function(err,sensorData) {
+    // -----------------------------
+    let ObjData = {};
+    ObjData['sensorData'] = sensorData;
+    res.status(200).send(ObjData);
+  });
+})
+
 router.get('/teawarehouse/rawdata', auth, async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   let ObjData = req.query;
