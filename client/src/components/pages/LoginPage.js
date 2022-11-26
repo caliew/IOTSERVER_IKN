@@ -52,14 +52,14 @@ const Login = (props) => {
   // const AccessCode = useSelector(getAccessCode);
 
   return (
-    <div className="Login" style={{display:'flex',justifyContent:'center',marginBottom:'50px'}}>
-    <MDBCard >
-      <MDBCardImage src='https://www.newswire.com/blog/wp-content/uploads/2019/03/monitoring.jpg' position='top' alt='...' />
-      <MDBCardBody>
-        <MDBInput label='ACCESS CODE' type='text' value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
-      </MDBCardBody>
-    </MDBCard>
-    </div>
+    <MDBContainer className="Login" style={{display:'flex',justifyContent:'center',marginBottom:'50px',maxWidth:'550px'}}>
+      <MDBCard className=''>
+        <MDBCardImage src='https://www.newswire.com/blog/wp-content/uploads/2019/03/monitoring.jpg' height='250px' className='w-auto' alt='...' />
+        <MDBCardBody>
+          <MDBInput label='ACCESS CODE' type='text' value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
+        </MDBCardBody>
+      </MDBCard>
+    </MDBContainer>
   );
 }
 
