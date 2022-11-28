@@ -25,25 +25,20 @@ const Login = (props) => {
 
   useEffect(() => {
     previousInputValue.current = inputValue;
-    console.log('ACCESS CODE=',inputValue)
     if (String(inputValue).toUpperCase() === 'TDKADMIN') {
-			let user =  {email:'ADMIN@TDK.COM',password:'123456'}
-			console.log(user);
+			let user =  {email:'ADMIN@TDK.COM',password:'123456'};
 			login(user)
 		}
     if (String(inputValue).toUpperCase() === 'TDKSTAFF') { 
 			let user = {email:'STAFF@tdk.com',password:'123456'};
-			console.log(user)
 			login(user) 
 		}
     if (String(inputValue).toUpperCase() === 'IKNADMIN') { 
 			let user = {email:'ADMIN@IKN.COM',password:'123456'};
-			console.log(user)
 			login(user) 
 		}
     if (String(inputValue).toUpperCase() === 'IKNSTAFF') { 
 			let user = {email:'STAFF@IKN.COM',password:'123456'};
-			console.log(user)
 			login(user) 
 		}
   }, [inputValue]);
