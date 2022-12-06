@@ -21,6 +21,14 @@ class ReactLEDDisplay extends React.Component {
         this.setState(nextProps);
     }
 
+    GetNEGSign(width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol) {
+        console.log('..NEGATIVE SIGN...')
+        return(
+        <svg width={+width + 4} height={+height} transform={skew}>
+            <rect x={ledSize} y={barSize + (ledSize)} rx="2" ry="2" width={barSize} height={ledSize} style={{fill: foregroundCol, stroke:borderCol, opacity:'0.8'}}  />
+        </svg>
+        )
+    }
     GetDot(width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol) {
         return (
             <svg width={+ledSize + 4} height={+height} transform={skew}>
@@ -29,17 +37,16 @@ class ReactLEDDisplay extends React.Component {
         )
     }
     GetLEDOnNumber(value,width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol) {
-        console.log(value);
         return (
             <svg width={+width + 4} height={+height} transform={skew}>
-            <rect x={ledSize} y="0" rx="2" ry="2" width={barSize} height={ledSize} style={{fill: `${ (value & 1) === 1 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
-            <rect x={barSize + ledSize} y={ledSize} rx="2" ry="2" width={ledSize} height={barSize} style={{fill: `${ (value & 2) === 2 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
-            <rect x={ledSize} y={barSize + (ledSize)} rx="2" ry="2" width={barSize} height={ledSize} style={{fill: `${ (value & 4) === 4 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
-            <rect x={barSize + ledSize} y={barSize + (ledSize * 2)} rx="2" ry="2" width={ledSize} height={barSize} style={{fill: `${ (value & 8) === 8 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
-            <rect x={ledSize} y={(barSize * 2) + (ledSize * 2)} rx="2" ry="2" width={barSize} height={ledSize} style={{fill:`${ (value & 16) === 16 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
-            <rect x="0" y={barSize + (ledSize * 2)} rx="2" ry="2" width={ledSize} height={barSize} style={{fill:`${ (value & 32) === 32 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
-            <rect x="0" y={ledSize} rx="2" ry="2" width={ledSize} height={barSize} style={{fill:`${ (value & 64) === 64 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
-        </svg>
+                <rect x={ledSize} y="0" rx="2" ry="2" width={barSize} height={ledSize} style={{fill: `${ (value & 1) === 1 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
+                <rect x={barSize + ledSize} y={ledSize} rx="2" ry="2" width={ledSize} height={barSize} style={{fill: `${ (value & 2) === 2 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
+                <rect x={ledSize} y={barSize + (ledSize)} rx="2" ry="2" width={barSize} height={ledSize} style={{fill: `${ (value & 4) === 4 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
+                <rect x={barSize + ledSize} y={barSize + (ledSize * 2)} rx="2" ry="2" width={ledSize} height={barSize} style={{fill: `${ (value & 8) === 8 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
+                <rect x={ledSize} y={(barSize * 2) + (ledSize * 2)} rx="2" ry="2" width={barSize} height={ledSize} style={{fill:`${ (value & 16) === 16 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
+                <rect x="0" y={barSize + (ledSize * 2)} rx="2" ry="2" width={ledSize} height={barSize} style={{fill:`${ (value & 32) === 32 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
+                <rect x="0" y={ledSize} rx="2" ry="2" width={ledSize} height={barSize} style={{fill:`${ (value & 64) === 64 ? foregroundCol : backgroundCol}`, stroke:borderCol, opacity:'0.8'}}  />
+            </svg>
         )
     }
     GetDigits(inputValue) {
@@ -52,10 +59,11 @@ class ReactLEDDisplay extends React.Component {
         const ledSize = +this.state.ledSize;
         const height = (width * 2) + (ledSize * 3);
         const barSize = width - (ledSize * 2);
-        console.log(inputValue,value);
-        return inputValue !== '.' ? 
-            this.GetLEDOnNumber(value,width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol) :
-            this.GetDot(width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol);
+        // -------
+        if (inputValue === '-') return this.GetNEGSign(width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol);
+        // --------
+        return inputValue !== '.' ? this.GetLEDOnNumber(value,width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol) : 
+            this.GetDot(width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol)
     }
 
     render() {
