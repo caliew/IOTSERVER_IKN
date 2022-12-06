@@ -20,7 +20,9 @@ class ReactLEDDisplay extends React.Component {
     componentWillReceiveProps(nextProps) {
         this.setState(nextProps);
     }
-
+    GetForeGroundCOl(value) {
+        return (Number(this.state.value) > 23) ? '#ff0000' : '#000000'
+    }
     GetNEGSign(width,height,skew,ledSize,barSize,foregroundCol,backgroundCol,borderCol) {
         console.log('..NEGATIVE SIGN...')
         return(
@@ -51,7 +53,7 @@ class ReactLEDDisplay extends React.Component {
     }
     GetDigits(inputValue) {
         const value = +this.state.lookUpValues[inputValue];
-        const foregroundCol = this.state.foregroundCol;
+        const foregroundCol = this.GetForeGroundCOl(inputValue);
         const backgroundCol = this.state.backgroundCol;
         const borderCol = this.state.borderCol;
         const skew = "skewX(" + this.state.skew + ")";
