@@ -47,6 +47,10 @@ const Navbar = (props) => {
           <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/cmms' className='white-text'>CMMS</Link></MDBNavItem>
       }
 
+      { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && 
+          <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/led' className='white-text'>LED</Link></MDBNavItem>
+      }
+
       { user && (user.companyname != "AWC" && user.companyname != "Nippon Glass") && 
           <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/charting' className='white-text'>CHARTS</Link></MDBNavItem>
       }

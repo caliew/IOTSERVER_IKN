@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import AdminPage from './components/pages/AdminPage';
 import BigDATAView from './components/pages/BIgDATAView'
 import MaintScehduler from './components/pages/MaintScehduler';
+import LEDPanel from './components/pages/LEDPanel';
 import HomePage from './components/pages/HomePage';
 import RegisterPage from './components/pages/RegisterPage';
 import ReportPage from './components/pages/ReportPage';
@@ -22,6 +23,7 @@ class Routes extends React.Component {
         <Route exact path='/BigDATAView' component={BigDATAView} />
         <Route exact path='/NipponGlass' component={NipponGlassPage}/>
         <Route exact path='/cmms' component={MaintScehduler} />
+        <Route exact path='/led' component={LEDPanel} />
         <Route exact path='/admin' component={AdminPage} />
         <Route exact path='/register' component={RegisterPage} />
         <Route exact path='/charting' component={ChartsPage} />
