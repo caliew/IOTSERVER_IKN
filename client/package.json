@@ -4,6 +4,7 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "mapbox-gl": "^2.9.2",
     "@data-ui/sparkline": "0.0.84",
     "@data-ui/theme": "0.0.84",
     "@jiaminghi/data-view-react": "^1.2.5",
