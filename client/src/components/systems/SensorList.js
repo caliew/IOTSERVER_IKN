@@ -106,8 +106,8 @@ const getBATTIcon = (batt) => {
 	if (batt >75)	return (<MDBIcon icon="battery-full" size="2x"/>)
 	if (batt >50)	return (<MDBIcon icon="battery-three-quarters" size="2x"/>)
 	if (batt >25)	return (<MDBIcon icon="battery-half" size="2x"/>)
-	if (batt >25)	return (<MDBIcon icon="battery-quarter" size="2x"/>)
-	return (<MDBIcon icon="battery-empty" size="2x"/>)
+	if (batt >25)	return (<MDBIcon icon="battery-quarter" size="2x" style={{ background: 'yellow' }}/>)
+	return (<MDBIcon icon="battery-quarter" size="2x" style={{ color: 'red' }}/>)
 }
 // ------------
 const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
@@ -186,7 +186,7 @@ const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 					{limits}<br/>
 				</td>
 				<td>
-					{getBATTIcon(batt)} <br/> {batt}%
+					{getBATTIcon(batt)} <br/>
 					&nbsp;&nbsp;
 				</td>
 				<td><MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/></td>
