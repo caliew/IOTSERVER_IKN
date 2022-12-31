@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from 'react';
-import { MDBIcon } from 'mdbreact';
+import { MDBTableBody,MDBIcon } from 'mdbreact';
 
 import {
   Sparkline,
@@ -102,6 +102,13 @@ const sensorData = (sensor) => {
 }
 // -----------------------
 const renderLabel = d => d.toFixed(1);
+const getBATTIcon = (batt) => {
+	if (batt >75)	return (<MDBIcon icon="battery-full" size="2x"/>)
+	if (batt >50)	return (<MDBIcon icon="battery-three-quarters" size="2x"/>)
+	if (batt >25)	return (<MDBIcon icon="battery-half" size="2x"/>)
+	if (batt >25)	return (<MDBIcon icon="battery-quarter" size="2x"/>)
+	return (<MDBIcon icon="battery-empty" size="2x"/>)
+}
 // ------------
 const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 	// -------------------
@@ -114,6 +121,7 @@ const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 		let mm = _date && _date.getMonth()+1;
 		let dd = _date && _date.getDate();
 		let batt = sensor.logsdata.length > 0 ? logsdata[0].BATT : null;
+		console.log(name,sensorId,batt)
 		let interval = sensor.logsdata.length > 0 ? logsdata[0].INTERVAL : null;
 		let hours = _date && ("0" + _date.getHours()).slice(-2);
 		let minutes = _date && ("0" + _date.getMinutes()).slice(-2);
@@ -176,9 +184,12 @@ const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 				<td>
 					{reading}<br/>
 					{limits}<br/>
-					<MDBIcon icon="battery-full" size="2x"/>&nbsp;&nbsp;
-					<MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/>
 				</td>
+				<td>
+					{getBATTIcon(batt)} <br/> {batt}%
+					&nbsp;&nbsp;
+				</td>
+				<td><MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/></td>
 				<td>
 					{/* { companyName !== "IKN" && getSparkLine(sensor) } */}
 					{ toggleSparkline && getSparkLine(sensor) }
@@ -208,7 +219,7 @@ const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 	}	
 	// --------------	
 	return (
-		<>
+		<MDBTableBody>
 			{ sensor.type === 'AIRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
 			{ sensor.type === 'AIRFLW(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
 			{ sensor.type === 'WTRPRS(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
@@ -216,7 +227,7 @@ const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 			{ sensor.type === 'WTRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
 			{ sensor.type === 'PWRMTR(485)' && getTableRow(index+1,sensor) }
 			{ sensor.type === 'WISENSOR' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-		</>
+		</MDBTableBody>
 	)
 
 }
