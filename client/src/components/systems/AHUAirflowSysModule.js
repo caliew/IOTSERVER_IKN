@@ -44,7 +44,7 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
         let _airflowDatas = [];
         sensors.map( sensor => {
           // -----------
-					if (sensor.type === 'AIRFLW(485)' && sensor.location !== 'AIRCOMP') {
+					if (sensor.type === 'AIRFLW(485)' && sensor.logsdata && sensor.logsdata.length>1 && sensor.location !== 'AIRCOMP') {
             // --------
 						_AFSensors.push(sensor);
             let _objSensor = {
@@ -57,9 +57,11 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
 					}
         })
         // ------------------------
-        setSensorType(_AFSensors[0].type);
-        setAFSensor(_AFSensors.sort(compareByName));
-        setAFlowData(_airflowDatas.sort(compareByName));
+        if ( _AFSensors && _AFSensors.length > 1 && _AFSensors[0].type) {
+          setSensorType(_AFSensors[0].type);
+          setAFSensor(_AFSensors.sort(compareByName));
+          setAFlowData(_airflowDatas.sort(compareByName));
+        }
         // ----------------------
     }
     // ----

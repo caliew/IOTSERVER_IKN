@@ -70,7 +70,7 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
         };
         // ---------
         let ObjSensor = sensorLocationMap[sensor.sensorId];
-        if (ObjSensor && ObjSensor.hasOwnProperty("reading")) {
+        if (ObjSensor && sensor.logsdata && sensor.logsdata.length > 1 && ObjSensor.hasOwnProperty("reading")) {
           ObjSensor["reading"] = Number(sensor.logsdata[0].Temperature.toFixed(1));
           delete sensorLocationMap[sensor.name];
         }

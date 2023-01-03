@@ -42,17 +42,20 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
         let _sLabels = [];
 				let _plotDatas = [];
         let _airflowDatas = [];
+        // --------------------
         sensors.map( sensor => {
 					if (sensor.type === 'AIRRH(485)') {
 						let { datas } = getDatas(sensor);
 						_AFSensors.push(sensor);
 						_sLabels.push(sensor.name);
 						_plotDatas.push(datas);
-            let _dataObj = {
-              name : sensor.name,
-              temperature : Number(sensor.logsdata[0].DATAS[1])/10.0
+            if (sensor && sensor.logsdata.length > 1) {
+              let _dataObj = {
+                name : sensor.name,
+                temperature : Number(sensor.logsdata[0].DATAS[1])/10.0
+              }
+              sensor.logsdata[0] && _airflowDatas.push(_dataObj);
             }
-						sensor.logsdata[0] && _airflowDatas.push(_dataObj);
 					}
         })
         // --------------------
