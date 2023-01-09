@@ -110,7 +110,7 @@ const getBATTIcon = (batt) => {
 	return (<MDBIcon icon="battery-quarter" size="2x" style={{ color: 'red' }}/>)
 }
 // ------------
-const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
+const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 	// -------------------
 	const getDTUID = (dtuId) => `DTU ID:${dtuId}`;
 	// ------------------
@@ -186,7 +186,7 @@ const SensorList = ({companyName,sensor,index,toggleSparkline}) => {
 					{limits}<br/>
 				</td>
 				<td>
-					{getBATTIcon(batt)} <br/>
+					{batt && getBATTIcon(batt)} <br/>
 					&nbsp;&nbsp;
 				</td>
 				<td><MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/></td>
