@@ -41,6 +41,10 @@ const Login = (props) => {
 			let user = {email:'STAFF@IKN.COM',password:'123456'};
 			login(user) 
 		}
+    if (String(inputValue).toUpperCase() === 'DEMO') { 
+			let user = {email:'STAFF@tdk.COM',password:'123456'};
+			login(user) 
+		}
   }, [inputValue]);
 
   // const navigate = useNavigate();

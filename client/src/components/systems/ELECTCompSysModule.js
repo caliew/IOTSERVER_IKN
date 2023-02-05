@@ -251,13 +251,14 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
                     <td>{_data['SENSORNAME']}</td>
                     <td>{_data['DTUID']}</td><td>{_data['SENSORID']}</td>
                     <td>TOTAL<br/>NETT</td>
-                    { toggleSTATSWEEK ? weekDays.map((wk,index) => {
+                    { toggleSTATSWEEK && weekDays ? 
+                      weekDays.map((wk,index) => {
                         // -------------
                         let _READING0 = _data[weekDays[index+1]] || 0;
                         let _READING = _data[weekDays[index]] || 0;
                         return (<td>{_READING}<br/>{_READING-_READING0}</td>)
                         // ------------
-                      }) : yearMonths.map((mth,index) => {
+                      }) : yearMonths && yearMonths.map((mth,index) => {
                         // -----
                         let _READING0 = _data[yearMonths[index+1]]|| 0;
                         let _READING = _data[yearMonths[index]]|| 0;
