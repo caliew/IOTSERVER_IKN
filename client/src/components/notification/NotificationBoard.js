@@ -82,10 +82,11 @@ const Notification = () => {
 	// let arrNotice = value[0]
 	// console.log(arrNotice)
 	// });
-	const getAlertText = (name,sensorId,reading,limit) => {
+	const getAlertText = (name,sensorId,type,sensorType,reading,limit) => {
 		let strAlert = '';
-		if (reading > limit) strAlert = ` ${name} [${sensorId}] ... ${reading}C > ${limit}C` 
-		if (reading < limit) strAlert = ` ${name} [${sensorId}] ... ${reading}C < ${limit}C` 
+		const getSymbol = () => sensorType == 'RH' ? '%' : 'C';
+		if (reading > limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}>${limit}` 
+		if (reading < limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}<${limit}` 
 		return strAlert;
 	}
 	const isToday = (someDate) => {
@@ -108,7 +109,7 @@ const Notification = () => {
 						<MDBListGroupItem color={color}>{getTimeDateLabel(note.date)}<span>&nbsp;&nbsp;&nbsp;</span>
 							<MDBBadge color={color}>{color.toUpperCase()}</MDBBadge> &nbsp;&nbsp;
 							<i class="far fa-bell" />{note.Flag} &nbsp;&nbsp;
-							{getAlertText(note.name,note.sensorId,note.reading,note.limit)}
+							{getAlertText(note.name,note.sensorId,note.type,note.sensorType,note.reading,note.limit)}
 						</MDBListGroupItem>
 					</h6>
 				);
