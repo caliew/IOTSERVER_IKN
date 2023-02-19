@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "AEROSOFT IOT PORTAL",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
@@ -56,7 +56,7 @@
     ]
   },
   "proxy": "http://localhost:5000",
-  "proxy1": "http://202.59.9.164:5000/:5000",
+  "proxy1": "http://202.59.9.164:5000",
   "devDependencies": {
     "react-app-rewired": "^2.1.8"
   }
