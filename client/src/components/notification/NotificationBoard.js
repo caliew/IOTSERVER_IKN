@@ -9,9 +9,7 @@ const Notification = () => {
   const { notifications } = notificationContext;
 	const [userNotifications,setNotifications] = useState(null);
 	const [toggleListing,setToggleListing] = useState(true); 
-	const [toggleTODAYListing,setToggleTODAYListing] = useState(true); 
-	// const [userNotificationsMap,setNotificationsMap] = useState(null)
-	// const [userSensors,setUserSensors] = useState([]);
+	const [toggleTODAYListing,setToggleTODAYListing] = useState(true);
 	// ---------------------------------------------
 	const sensorContext = useContext(SensorContext);
   const { sensors } = sensorContext;
@@ -58,7 +56,6 @@ const Notification = () => {
 			});
 			// --------------------
 			setNotifications(userNotificationArr.sort(compareByDate));
-			// setNotificationsMap(noticeMap);
 		}
 	},[notifications,sensors]);
 	// -------------------------
@@ -84,9 +81,10 @@ const Notification = () => {
 	// });
 	const getAlertText = (name,sensorId,type,sensorType,reading,limit) => {
 		let strAlert = '';
+		console.log('GET ALERT TEXT=',name,sensorId,sensorType,reading,limit)
 		const getSymbol = () => sensorType == 'RH' ? '%' : 'C';
-		if (reading > limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}>${limit}` 
-		if (reading < limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}<${limit}` 
+		if (reading >= limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}>${limit}` 
+		if (reading <= limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}<${limit}` 
 		return strAlert;
 	}
 	const isToday = (someDate) => {
