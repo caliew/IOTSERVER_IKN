@@ -1,12 +1,6 @@
 import React, { useContext, useRef, useEffect } from 'react';
-import { MDBContainer,MDBJumbotron,MDBIcon,MDBCardBody,MDBCard,MDBCardText } from 'mdbreact';
+import { MDBContainer,MDBJumbotron,MDBIcon } from 'mdbreact';
 import SensorContext from '../../context/sensor/sensorContext';
-
-const styledFilter = {
-  display: 'inline-flex',
-  alignItems:'center',
-  gap:'20px'
-}
 
 const SensorFilter = () => {
   // ---------------

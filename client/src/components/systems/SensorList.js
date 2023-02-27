@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React from 'react';
 import { MDBTableBody,MDBIcon } from 'mdbreact';
 
 import {
@@ -14,7 +14,7 @@ import { allColors } from '@data-ui/theme'; // open-color colors
 
 // ----------------------
 function parseFloat(str) {
-  var float = 0, sign, order, mantissa, exp,
+  var float = 0, sign, mantissa, exp,
   int = 0, multi = 1;
   if (/^0x/.exec(str)) {
       int = parseInt(str, 16);
@@ -30,7 +30,7 @@ function parseFloat(str) {
       }
   }
   sign = (int >>> 31) ? -1 : 1;
-  exp = (int >>> 23 & 0xff) - 127;
+  exp = ((int >>> 23) & 0xff) - 127;
   mantissa = ((int & 0x7fffff) + 0x800000).toString(2);
   for (i=0; i<mantissa.length; i+=1) {
       float += parseInt(mantissa[i]) ? Math.pow(2, exp) : 0;
@@ -95,6 +95,7 @@ const sensorData = (sensor) => {
 		}
 		// ----------------------
 		_reading !== null && dataArray.push(_reading);
+		return null;
 		// ----------------------
 	})
 	// -------------
@@ -121,8 +122,6 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 		let mm = _date && _date.getMonth()+1;
 		let dd = _date && _date.getDate();
 		let batt = sensor.logsdata.length > 0 ? logsdata[0].BATT : null;
-		console.log(name,sensorId,batt)
-		let interval = sensor.logsdata.length > 0 ? logsdata[0].INTERVAL : null;
 		let hours = _date && ("0" + _date.getHours()).slice(-2);
 		let minutes = _date && ("0" + _date.getMinutes()).slice(-2);
 		let _timediff = _date && (new Date().getTime()  - _date.getTime());

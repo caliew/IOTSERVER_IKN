@@ -2,18 +2,17 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import SensorContext from '../../context/sensor/sensorContext';
 import AuthContext from '../../context/auth/authContext';
-import { MDBContainer,MDBRow,MDBCol, MDBCardGroup, MDBIcon, MDBBtn,
-         MDBCard, MDBCardBody, MDBListGroup , MDBCardTitle, MDBCardText } from 'mdbreact';
+import { MDBRow, MDBIcon, MDBBtn,MDBCard, MDBCardBody, MDBCardText } from 'mdbreact';
 
 const SensorItem = ({ sensor,SelectSensor }) => {
   // ---------------
   const sensorContext = useContext(SensorContext);
-  const { deleteSensor, setCurrent, clearCurrent } = sensorContext;
+  const { deleteSensor, clearCurrent } = sensorContext;
 
   const authContext = useContext(AuthContext);
-  const { user, companies } = authContext;
+  const { user } = authContext;
   
-  const { _id, name, dtuId, sensorId, type, location, company, variables } = sensor;
+  const { _id, name, dtuId, sensorId, type, location, company } = sensor;
 
   const onDelete = () => {
     deleteSensor(_id);

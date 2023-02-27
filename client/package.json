@@ -1,12 +1,11 @@
 {
-  "name": "AEROSOFT_IOT_PORTAL",
+  "name": "AeroSOFTIOTPortal",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
   "dependencies": {
     "@data-ui/sparkline": "0.0.84",
     "@data-ui/theme": "0.0.84",
-    "@jiaminghi/data-view-react": "^1.2.5",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",

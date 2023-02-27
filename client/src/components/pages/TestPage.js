@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from 'react';
-import { MDBBtn, MDBDataTable, MDBTableBody } from 'mdbreact';
+import { MDBBtn, MDBDataTable } from 'mdbreact';
 import axios from 'axios';
 
 const Test = () => {
@@ -38,9 +38,6 @@ const Test = () => {
     }
     // ---------
   }
-  function pad2(number) {
-    return (number < 10 ? '0' : '') + number
-  }
   function byteArray(dataArr) {
     let strTEXT ="";
     dataArr && dataArr.forEach((_byte,index) => {
@@ -49,22 +46,8 @@ const Test = () => {
     return strTEXT;
   }
   // ------
-  function getBYTESTRING(RCV_BYTES) {
-    let strLINE = ``;
-    let nCOUNT = 0;
-    RCV_BYTES.forEach(_BYTE => {
-      nCOUNT += 1;
-      if (nCOUNT < 5) {
-        strLINE += `${_BYTE} `
-      } else {
-        strLINE += `>`
-      }
-    })
-    strLINE += ``;
-    return strLINE;
-  }
   function hexToSignedInt(hex) {
-    if (hex.length % 2 != 0) {
+    if (hex.length % 2 !== 0) {
       hex = "0" + hex;
     }
     var num = parseInt(hex, 16);
@@ -73,74 +56,6 @@ const Test = () => {
       num = num - maxVal;
     }
     return num;
-  }  
-  function getREADING(sensorObj) {
-    let strREADING;
-    let bytesData;
-    let dataArr;
-    // getBYTESTRING(sensorObj.RCV_BYTES)
-    // byteArray(sensorObj.sensorDataArr)
-    // byteArray(sensorObj.sensorDataFloatArr)
-    // byteArray(sensorObj.sensorDataIntArr)
-    switch(sensorObj.SENSORTYPE) {
-      case 'PWR-METER-STATE':
-        bytesData = sensorObj.RCV_BYTES;
-        dataArr = sensorObj.sensorDataArr;
-        strREADING = `V=<${(dataArr[0]*0.1).toFixed(0)}|${(dataArr[1]*0.1).toFixed(0)}|${(dataArr[2]*0.1).toFixed(0)}>\r\n`;
-        strREADING += `A=<${(hexToSignedInt(bytesData[3]+bytesData[4])*0.001).toFixed(2)}|${(hexToSignedInt(bytesData[5]+bytesData[6])*0.001).toFixed(2)}|${(hexToSignedInt(bytesData[7]+bytesData[8])*0.001).toFixed(2)}>\r\n`
-        strREADING += `P=<${(hexToSignedInt(bytesData[9]+bytesData[10])).toFixed(0)}W>\r\n`
-        strREADING += `Q=<${(hexToSignedInt(bytesData[11]+bytesData[12])).toFixed(0)}var>\r\n`
-        strREADING += `S=<${(hexToSignedInt(bytesData[13]+bytesData[14])).toFixed(0)}VA>\r\n`
-        strREADING += `PF=<${(dataArr[15]*0.0001).toFixed(2)}>\r\n`
-        strREADING += `F=<${(dataArr[16]*0.01).toFixed(0)}Hz>\r\n`
-        break;
-      case 'PWR-METER-POWER':
-        strREADING = `${(Number(byteArray(sensorObj.sensorDataIntArr))*0.01).toFixed(2)} kWh`;
-        break;
-      case 'AIRFLOW-VEL':
-        dataArr = sensorObj.sensorDataArr;
-        strREADING = `${Number(dataArr[0])/10.0} m/s`;
-        break;
-      case 'AIRFLOW-TEMP':
-        dataArr = sensorObj.sensorDataArr;
-        strREADING = `${(Number(dataArr[0])/10).toFixed(2)} % ${(Number(dataArr[1])/10).toFixed(2)} C`;
-        break;
-      case 'AIR-PRES':
-        strREADING = `${Number(byteArray(sensorObj.sensorDataFloatArr)).toFixed(2)} psi`;
-        break;
-      case 'WATER-PRES':
-        strREADING = `${Number(byteArray(sensorObj.sensorDataFloatArr)).toFixed(2)} psi`;
-        break;
-      case 'WATER-TEMP':
-        dataArr = sensorObj.sensorDataArr;
-        strREADING = `${(Number(dataArr[1])/10).toFixed(2)} C`;
-        break;
-      default :
-        break;
-    }
-    return strREADING;
-  }
-  const fillTableRow = (_sensor,index) => {
-    return (
-    <tr>
-      <td>{index+1}</td>
-      <td>{_sensor.DATESTAMP}</td>
-      <td>{_sensor.TIMESTAMP}</td>
-      <td>{String(_sensor.DTUID).padStart(3,"0")}</td>
-      <td>{pad2(_sensor.SENSORID)}</td>
-      <td>{_sensor.SENSORTYPE}</td>
-      <td>{getREADING(_sensor)}</td>
-      <td>{getBYTESTRING(_sensor.RCV_BYTES)}</td>
-      <td>{}</td>
-      <td>{}</td>
-    </tr>)
-  }
-  const populateData = (data) => {
-    return (
-      <MDBTableBody>
-        { data && data.map((_sensor,index) => { return fillTableRow(_sensor,index); })}
-      </MDBTableBody>
-    )  
   }
   // -----------------
   const getRows = () => {

@@ -40,11 +40,14 @@ const MaintScehduler = () => {
   const [showHideEvent, setAddEvent] = useState(false);
   const [AddMode, setAddMode] = useState(true);
   // ---------------------
-  useEffect(()=>{ getMaintEvents(user); },[])
+  useEffect(()=>{ 
+    getMaintEvents(user);
+    //  -----------
+    // eslint-disable-next-line
+  },[])
   // -----------
   useEffect(()=> {
     setEvents(maintEvents);
-    console.log(maintEvents);
     // getMaintEvents(user);
   },[maintEvents])
   // -------------------
@@ -128,7 +131,6 @@ const MaintScehduler = () => {
   }
   const onClickEvent = (eventId) => {
     console.info(`..onClickEvent ${eventId}...`)
-    let _foundEvent = events.find(_evnt => _evnt.id === eventId);
   }
   function compareByDate(a, b) {
     var dateA = new Date(a.from); // ignore upper and lowercase

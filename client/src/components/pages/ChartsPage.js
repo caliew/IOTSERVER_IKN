@@ -2,7 +2,7 @@ import React, { useContext,useState,useEffect,useRef } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import { MDBContainer, MDBTable,MDBTableHead,MDBTableBody,MDBCol,MDBCard,MDBBtn,MDBInput,MDBRow,MDBBox } from 'mdbreact';
 import ReactEcharts from "echarts-for-react";
-import { CSVDownload,CSVLink } from 'react-csv';
+import { CSVLink } from 'react-csv';
 import AlertContext from '../../context/alert/alertContext';
 import DateRangePicker from '@wojtekmaj/react-daterange-picker'
 
@@ -389,9 +389,6 @@ const ChartsPage = () => {
 		})
 	};
 	// --------
-	function padTo2Digits(num) {
-		return num.toString().padStart(2, '0');
-	}
 	const getLegendsRHData = () => {
 		let _datas = [];
 		plotRHSensors && plotRHSensors.forEach( _data => {
@@ -538,7 +535,7 @@ const ChartsPage = () => {
 		sensor.logsdata && sensor.logsdata.map( (_data,index) => {
 			// -----------
 			let _dateTime = new Date(_data.TIMESTAMP);
-			let _timeDIFF = (index==0) ? 0 : diff_hours(_DATEIME0,_dateTime)
+			let _timeDIFF = (index===0) ? 0 : diff_hours(_DATEIME0,_dateTime)
 			// -----------
 			switch (sensor.type) {
 				case "WTRPRS(485)":
@@ -587,13 +584,14 @@ const ChartsPage = () => {
 				 dataArray.push([_dateTime,_reading]);
 			}
 			// ----------------------
+			return null;
 		})
 		// -------------
 		return dataArray;
 	}
 	// ----------------------
 	function parseFloat(str) {
-		var float = 0, sign, order, mantissa, exp,
+		var float = 0, sign, mantissa, exp,
 		int = 0, multi = 1;
 		if (/^0x/.exec(str)) {
 				int = parseInt(str, 16);
@@ -609,7 +607,7 @@ const ChartsPage = () => {
 				}
 		}
 		sign = (int >>> 31) ? -1 : 1;
-		exp = (int >>> 23 & 0xff) - 127;
+		exp = ((int >>> 23) & 0xff) - 127;
 		mantissa = ((int & 0x7fffff) + 0x800000).toString(2);
 		for (i=0; i<mantissa.length; i+=1) {
 				float += parseInt(mantissa[i]) ? Math.pow(2, exp) : 0;
@@ -722,6 +720,7 @@ const ChartsPage = () => {
 				if (_min > _PWRREADING) _min = _PWRREADING;
 				if (_max < _PWRREADING) _max = _PWRREADING;
 				weekPWRReading[_weekOfYear] = { DATE:_dateTime , READING:_PWRREADING };
+				return null;
 			})
 			let obj = {
 				name:sensorName,
@@ -730,8 +729,8 @@ const ChartsPage = () => {
 				_min, _max
 			}
 			sensorDataArr.push(obj);
+			return null;
 		})
-		console.log(sensorDataArr);
 		return ( 
 		<MDBTable>
 			<MDBTableHead><td >NAME</td><th>WEEK</th><th>MIN (KWh)</th><th>MAX (kWh)</th><th>kWhr</th></MDBTableHead>
@@ -801,7 +800,7 @@ const ChartsPage = () => {
   };
 	// --------
   function hexToSignedInt(hex) {
-    if (hex.length % 2 != 0) {
+    if (hex.length % 2 !== 0) {
       hex = "0" + hex;
     }
     var num = parseInt(hex, 16);
@@ -869,7 +868,7 @@ const ChartsPage = () => {
 			// --------------------
 			for (let i=0; i< logsdata.length; i++) {
 				// --------------
-				const {TIMESTAMP,RCV_BYTES,Temperature,Humidity,DATAS}  = logsdata[i];
+				const {TIMESTAMP,Temperature,Humidity,DATAS}  = logsdata[i];
 				const _date = new Date(TIMESTAMP);
 				let data = { date:_date.toLocaleDateString(), time:`${_date.toLocaleDateString()} ${_date.toLocaleTimeString([], {
 					hour: '2-digit',minute: '2-digit'})}`,

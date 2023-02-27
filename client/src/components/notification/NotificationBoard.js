@@ -1,7 +1,7 @@
 import React, { useState,useEffect,useContext } from 'react';
 import NotificationContext from '../../context/notification/notificationContext';
 import SensorContext from '../../context/sensor/sensorContext';
-import { MDBContainer,MDBListGroup,MDBListGroupItem,MDBBadge,MDBJumbotron,MDBCardTitle,MDBRow } from 'mdbreact';
+import { MDBContainer,MDBListGroup,MDBListGroupItem,MDBBadge,MDBJumbotron } from 'mdbreact';
 
 const Notification = () => {
 	// ---------------------------
@@ -21,6 +21,7 @@ const Notification = () => {
 			sensors.map(sensor => {
 				let key = `${sensor.dtuId}:${sensor.sensorId}`;
 				sensorsArr.push(key)
+				return null;
 			})
 			// setUserSensors(sensorsArr);
 		}
@@ -33,7 +34,7 @@ const Notification = () => {
 				let key = `${notice.dtuId}:${notice.sensorId}`;
 				if(sensorsArr.includes(key)) {
 					let _date = new Date(notice.date);
-					if (_date.getMonth() == new Date().getMonth()) userNotificationArr.push(notice);
+					if (_date.getMonth() === new Date().getMonth()) userNotificationArr.push(notice);
 				}
 			})
 			// -------------
@@ -81,17 +82,15 @@ const Notification = () => {
 	// });
 	const getAlertText = (name,sensorId,type,sensorType,reading,limit) => {
 		let strAlert = '';
-		console.log('GET ALERT TEXT=',name,sensorId,sensorType,reading,limit)
-		const getSymbol = () => sensorType == 'RH' ? '%' : 'C';
 		if (reading >= limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}>${limit}` 
 		if (reading <= limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}<${limit}` 
 		return strAlert;
 	}
 	const isToday = (someDate) => {
 		const today = new Date()
-		return someDate.getDate() == today.getDate() &&
-			someDate.getMonth() == today.getMonth() &&
-			someDate.getFullYear() == today.getFullYear()
+		return someDate.getDate() === today.getDate() &&
+			someDate.getMonth() === today.getMonth() &&
+			someDate.getFullYear() === today.getFullYear()
 	}	
 	const getALERTEVENTS = () => {
 		// ----------
@@ -111,7 +110,8 @@ const Notification = () => {
 						</MDBListGroupItem>
 					</h6>
 				);
-			} 
+			}
+			return null;
 		});
 		return _alertDatas;
 	}

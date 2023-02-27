@@ -26,7 +26,7 @@ function randomExtend(minNum, maxNum) {
 }
 */
 function parseFloat(str) {
-  var float = 0, sign, order, mantissa, exp,
+  var float = 0, sign, mantissa, exp,
   int = 0, multi = 1;
   if (/^0x/.exec(str)) {
       int = parseInt(str, 16);
@@ -42,7 +42,7 @@ function parseFloat(str) {
       }
   }
   sign = (int >>> 31) ? -1 : 1;
-  exp = (int >>> 23 & 0xff) - 127;
+  exp = ((int >>> 23) & 0xff) - 127;
   mantissa = ((int & 0x7fffff) + 0x800000).toString(2);
   for (i=0; i<mantissa.length; i+=1) {
       float += parseInt(mantissa[i]) ? Math.pow(2, exp) : 0;
@@ -51,7 +51,7 @@ function parseFloat(str) {
   return float*sign;
 }
 function hexToSignedInt(hex) {
-  if (hex.length % 2 != 0) {
+  if (hex.length % 2 !== 0) {
     hex = "0" + hex;
   }
   var num = parseInt(hex, 16);
@@ -102,7 +102,7 @@ function getReading(sensor) {
   return Obj;
 }
 function findSensor(sensors,dtuId,sensorId) {
-  let sensor = sensors.find(sensor => (sensor.dtuId == dtuId && sensor.sensorId == sensorId));
+  let sensor = sensors.find(sensor => (Number(sensor.dtuId) === dtuId && Number(sensor.sensorId) === sensorId));
   return sensor ? getReading(sensor) : '0';
 }
 // --------------
@@ -256,7 +256,7 @@ function createData(sensors) {
   // -------
 }
 // -------
-export default (state, action) => {
+const sensorReducer = (state, action) => {
   // ----------------
   switch (action.type) {
     case SET_SENSORS:
@@ -389,3 +389,5 @@ export default (state, action) => {
       return state;
   }
 };
+
+export default sensorReducer;

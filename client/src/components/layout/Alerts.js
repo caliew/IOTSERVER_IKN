@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import AlertContext from '../../context/alert/alertContext';
-import { MDBContainer,MDBCol,MDBRow,MDBCardBody,MDBCardTitle,MDBCardText,MDBCardFooter } from 'mdbreact';
+import { MDBContainer } from 'mdbreact';
 
 const Alerts = () => {
   const alertContext = useContext(AlertContext);

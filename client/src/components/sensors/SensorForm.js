@@ -14,13 +14,13 @@ const SensorForm = ({SensorInfo,ClearSelectSensor}) => {
   // USE SENSOR CONTEXT
   // -------------------
   const sensorContext = useContext(SensorContext);
-  const { addSensor, updateSensor, clearCurrent, current } = sensorContext;
+  const { addSensor, updateSensor } = sensorContext;
   // ---------
   // USE STATE
   // ---------
   const [companyState,setCompanyState] = useState(null);
   const [sensor, setSensor] = useState({ name:'',dtuId:'',sensorId:'',type:'',ratingMin:'',company:null,ratingMax:'',variables:[],limits:{} });
-  const { name, dtuId, sensorId, type, ratingMin, ratingMax,company,limits,location } = sensor;
+  const { name, dtuId, sensorId, type, ratingMin, ratingMax,limits,location } = sensor;
   // ----------
   // USE EFFECT
   // ----------
@@ -44,7 +44,8 @@ const SensorForm = ({SensorInfo,ClearSelectSensor}) => {
       }
       // -------------------------
     } 
-    // --------
+    //  -----------
+    // eslint-disable-next-line
   }, [SensorInfo]);
   // ---------
   // FUNCTIONS
@@ -108,6 +109,8 @@ const SensorForm = ({SensorInfo,ClearSelectSensor}) => {
         setSensor({...sensor, dtuId:'0',ratingMin:'1', ratingMax:'1',[name]:sensorType,
           limits: {TEMPERATURE_MIN:'MIN',TEMPERATURE_MAX:'MAX',HUMIDITY_MIN:'MIN',HUMIDITY_MAX:'MAX'},
           variables:['TEMPERATURE','HUMIDITY']});
+        return;
+      default:
         return;
     }
   }

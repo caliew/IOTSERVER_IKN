@@ -28,10 +28,11 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
     const { sensors, getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
-        if (sensors === null) getSensors(30,null,null);
-        // ------------------
-        abstactAIRFLOWSensor();
-        //  ---------------
+      if (sensors === null) getSensors(30,null,null);
+      // ------------------
+      abstactAIRFLOWSensor();
+      //  -----------
+      // eslint-disable-next-line
     },[sensors])
     // ---------------------------
     const abstactAIRFLOWSensor = () => {
@@ -55,6 +56,7 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
             }
 						sensor.logsdata[0] && _airflowDatas.push(_objSensor);
 					}
+          return null;
         })
         // ------------------------
         if ( _AFSensors && _AFSensors.length > 1 && _AFSensors[0].type) {

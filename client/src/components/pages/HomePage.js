@@ -32,11 +32,11 @@ const HomePage = () => {
 	// ---------------------
 	const [selection,setSelection] = useState(null);
   const [systemComponent, setSystemComponent] = useState(null);
-	const [mTimer,setTimer] = useState(null);
+	let mTimer;
 	// --------------
 	useEffect(()=> {
 		// -----------
-		user && user.companyname == "Nippon Glass" && history.push('/NipponGlass')
+		user && user.companyname === "Nippon Glass" && history.push('/NipponGlass')
 		!isAuthenticated && history.push('/login');
 		// -----------
 		if (isAuthenticated)  {
@@ -52,7 +52,9 @@ const HomePage = () => {
 				addTimer(_mTimer);
 			}
 		}
-	},[user])
+		//  -----------
+		// eslint-disable-next-line
+	},[]);
   // --------------------------------------------
 	const handleTimer = () => {
 		// ----------
@@ -68,9 +70,10 @@ const HomePage = () => {
 	// -----
 	return (
     <main className='clearfix"' style={{ marginTop: '2rem' }}>
-			<NotificationBoard />
 
-			{ user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && <OverView /> }
+			{ isAuthenticated && <NotificationBoard />} 
+
+			{ isAuthenticated && user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && <OverView /> }
 
 			<MDBContainer className="my-3">
 					<MDBCardGroup >
@@ -82,7 +85,7 @@ const HomePage = () => {
 							<MDBCardFooter small muted></MDBCardFooter>
 						</MDBCard>
 
-						{ user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && (
+						{ user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && (
 							<>
 								<MDBCard onClick={()=>setSelection('AHU_AFLW')} className={selection==='AHU_AFLW' && 'grey lighten-2'}>
 									<MDBIcon fas icon="wind" size='4x' className="d-flex pt-4 justify-content-center"/>
@@ -145,6 +148,7 @@ const HomePage = () => {
 					{ selection === 'SYS_ELECT' && <ELECTCompSysModule /> }
 					{ selection === 'SYS_PERF' && <SYSTEMPERFModule sensorsData={sensorsData} /> }
 					{ selection === 'SYS_HVAC1' && 
+							// eslint-disable-next-line react/jsx-pascal-case
 							<TDK_HVAC_PlanView model='4' color='black' 
 								sensorsData={sensorsData} 
 								handleComponetSelection={handleComponetSelection} 

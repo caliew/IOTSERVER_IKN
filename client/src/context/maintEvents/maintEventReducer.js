@@ -1,6 +1,6 @@
 import { SET_MAINTEVENTS, ADD_MAINTEVENT, UPDATE_MAINTEVENT, DELETE_MAINTEVENT } from '../types';
 
-export default (state, action) => {
+const maintEventReducer = (state, action) => {
   // -------------------
   let _maintEvents = state.maintEvents;
   switch (action.type) {
@@ -32,3 +32,5 @@ export default (state, action) => {
       return state;
   }
 };
+
+export default maintEventReducer;

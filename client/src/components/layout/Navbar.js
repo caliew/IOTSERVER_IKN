@@ -13,9 +13,9 @@ const Navbar = (props) => {
   const { isAuthenticated, logout, user, loadUser } = authContext;
   // ---------------------------------------------
   useEffect(() => {
-    loadUser();
+    isAuthenticated && loadUser();
     // eslint-disable-next-line
-  }, []);
+  }, [isAuthenticated]);
   const onLogout = () => {
     logout();
     // clearContacts();
@@ -29,34 +29,34 @@ const Navbar = (props) => {
   // ---------------
   const authLinks = (
     <MDBNavbarNav right>
-      { user && (user.companyname != "AWC" && user.companyname != "IKN"  && user.companyname != "Nippon Glass") && 
+      { user && (user.companyname !== "AWC" && user.companyname !== "IKN"  && user.companyname !== "Nippon Glass") && 
         <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/BigDATAView' className='white-text'>VISZ</Link></MDBNavItem>
       }
 
-      { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "SuaraKOM" && user.companyname != "TDK") && 
+      { user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "SuaraKOM" && user.companyname !== "TDK") && 
         <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/NipponGlass' className='white-text'>NIPPON</Link></MDBNavItem>
       }
 
-      { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && 
+      { user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && 
         <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/test' className='white-text'>TEST</Link></MDBNavItem>
       }
 
       <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/' className='white-text'>HOME</Link></MDBNavItem>
 
-      { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && 
+      { user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && 
           <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/cmms' className='white-text'>CMMS</Link></MDBNavItem>
       }
 
-      { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && 
+      { user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && 
           <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/led' className='white-text'>LED</Link></MDBNavItem>
       }
 
-      { user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && 
+      { user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && 
           <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/gismap' className='white-text'>GIS</Link></MDBNavItem>
       }
 
 
-      { user && (user.companyname != "AWC" && user.companyname != "Nippon Glass") && 
+      { user && (user.companyname !== "AWC" && user.companyname !== "Nippon Glass") && 
           <MDBNavItem className="px-md-2 font-weight-light"> <Link onClick={()=>closeCollapse('mainNavbarCollapse')} to='/charting' className='white-text'>CHARTS</Link></MDBNavItem>
       }
 
@@ -91,8 +91,8 @@ const Navbar = (props) => {
         <MDBNavbar color='indigo' dark expand='md' fixed='top' scrolling>
           <MDBNavbarBrand href='/' className='py-0 font-weight-light'>
             {
-              user &&  (user.companyname == "AeroSOFT Technologies Pte Ltd" || user.companyname == "TDK" || 
-                        user.companyname == "SuaraKOM" ) ? (
+              user &&  (user.companyname === "AeroSOFT Technologies Pte Ltd" || user.companyname === "TDK" || 
+                        user.companyname === "SuaraKOM" ) ? (
                 <a class="navbar-brand" href="/en">
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 850.4 178.6" height="25px" preserveAspectRatio="none" fill={'white'}>
                 <polygon points="103.1,37.8 65.3,75.6 140.8,75.6 "></polygon>

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import ReactLEDDisplay from './ReactLEDDisplay';
-import { MDBContainer,MDBIcon,MDBCardGroup,MDBCard,MDBCardBody,MDBCardFooter } from 'mdbreact';
+import { MDBContainer } from 'mdbreact';
 // import './index.css'
 
 const LEDPanel = () => {

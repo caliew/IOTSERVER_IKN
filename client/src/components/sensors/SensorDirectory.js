@@ -1,14 +1,12 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import Sensors from './Sensor';
 import SensorForm from './SensorForm';
 import SensorFilter from './SensorFilter';
-import { MDBContainer,MDBRow,MDBCol, MDBBtn, 
-         MDBCard, MDBCardBody, MDBCardImage, MDBCardTitle, MDBCardText } from 'mdbreact';
+import { MDBContainer,MDBRow,MDBCol } from 'mdbreact';
 
 const SensorDirectory = ({user}) => {
   // -------------
   const [SensorInfo,setSensor] = useState(null);
-  const [Delete, setDelete] = useState(false);
   // ------
   const SelectSensor = (sensor) => {
     // ---------------

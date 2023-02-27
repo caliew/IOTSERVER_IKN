@@ -1,20 +1,21 @@
 import React, { useEffect,useState,useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../../context/auth/authContext';
-import { MDBContainer,MDBTable,MDBTableBody,MDBProgress,MDBCard,MDBTooltip,MDBCardTitle } from 'mdbreact';
+import { MDBContainer,MDBTable,MDBTableBody,MDBCard,MDBCardTitle } from 'mdbreact';
 
 const OverView = () => {
   // ------  
   const [toggle,setToggle] = useState(false);
   const [statsData,setStatsData] = useState(null);
   const [sensorTypes,setSensorTypes] = useState(null);
-  const [weekDays,setWeekDay] = useState(null);
   // --------------
   const authContext = useContext(AuthContext);
   const { user } = authContext;
   // -------------
   useEffect(()=>{
     LOADSTATS();
+    //  -----------
+    // eslint-disable-next-line
   },[])
   // -------
   const LOADSTATS = () => {
@@ -29,15 +30,6 @@ const OverView = () => {
             map[sensor.SENSORTYPE].push(sensor);
           } else {
             map[sensor.SENSORTYPE].push(sensor); 
-          };
-          return map; },{}
-        );
-        let _dtuIDSensors = res.data.reduce((map,sensor) => {
-          if (map[sensor.DTUID] === undefined) {
-            map[sensor.DTUID] = [];
-            map[sensor.DTUID].push(sensor);
-          } else {
-            map[sensor.DTUID].push(sensor); 
           };
           return map; },{}
         );
@@ -104,20 +96,6 @@ const OverView = () => {
       </MDBTable>
     )
   }
-  function PROGRESSView() {
-    return (
-      <>
-        <MDBProgress height='1'>
-        </MDBProgress>
-
-        <br />
-
-        <MDBProgress height='20'>
-        </MDBProgress>
-      </>
-      
-    )
-  }
   function getHourRow(nIndex,key,_arrHours,ObjSensors) {
     // ------
     let ObjHourCount = {};
@@ -146,18 +124,6 @@ const OverView = () => {
       })
     })
     // -----
-    let ObjDataCallback = {
-      index : nIndex,
-      SensorType : key,
-      HourNow : _now.getHours(),
-      Sensors : ObjSensors,
-      TotalSensors : ObjSensors.length,
-      Hours : _arrHours,
-      HourSensorCount : ObjHourCount,
-      ActiveSensors : ObjHourActiveSensors,
-      MissingSensors : ObjHourMissingSensors
-    }
-    // ------
     return (
       <>
       <tr>
@@ -195,19 +161,6 @@ const OverView = () => {
       _TEXT += `${index+1}:${_KEY} .. ${elm.SENSORNAME} ${String.fromCharCode(13)}`;
     })
     return _TEXT;
-  }
-  function getSENSORSTYPE_STATUS(key,ObjSensors,nHour1,nHour2) {
-    // ---------------------
-    // console.log(key,nHour,ObjSensors);
-    let nCOUNT = 0;
-    console.log(key,ObjSensors)
-    // ------------
-    ObjSensors.map((elm,index) => {
-      // console.log(`KEY=${key} <${ObjSensors.length}> ..[${index}]..${elm.SENSORNAME}...INDEX=<${index}> LENGTH=${elm.DATA.length}...${nCOUNT}`);
-      nCOUNT ++;
-    })
-    return nCOUNT;
-    // --------------------
   }
   // ------
   return (

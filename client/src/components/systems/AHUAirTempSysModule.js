@@ -28,8 +28,10 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
     const { sensors, getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
-        if (sensors === null) getSensors(30,null,null);
-        abstactAIRFLOWSensor();
+      if (sensors === null) getSensors(30,null,null);
+      abstactAIRFLOWSensor();
+      //  -----------
+      // eslint-disable-next-line
     },[sensors])
     // ---------------------------
     const abstactAIRFLOWSensor = () => {
@@ -44,6 +46,7 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
         let _airflowDatas = [];
         // --------------------
         sensors.map( sensor => {
+          // ------
 					if (sensor.type === 'AIRRH(485)') {
 						let { datas } = getDatas(sensor);
 						_AFSensors.push(sensor);
@@ -57,10 +60,10 @@ function AHUAirTempSysModule ({ model, color, systemComponent, handleComponetSel
               sensor.logsdata[0] && _airflowDatas.push(_dataObj);
             }
 					}
+          return null;
         })
         // --------------------
         setSensorType(_AFSensors[0].type);
-        console.log("SENSORS=",_AFSensors[0])
         setAFSensor(_AFSensors.sort(compareByName));
         setSensorLabels(_sLabels);
         setAFlowData(_airflowDatas.sort(compareByName));
@@ -231,14 +234,15 @@ function getDatas(sensor) {
       minVel = velocity;
       minVelDateTime = _timeLabel;
     }
-    // ----------------------------------------------
-    VelData.push({y:velocity,x:_timeLabel}); 
+    // -------------------------------------
+    VelData.push({y:velocity,x:_timeLabel});
+    return null;
   })
   datas.push(VelData)
   return { datas,maxVelDateTime,minVelDateTime,maxVel,minVel,rmsVel };
 }
 //  -----------
-AHUAirTempSysModule .defaultProps = {
+AHUAirTempSysModule.defaultProps = {
   color: "black",
   handleComponetSelection: null,
   title:'PRODUCTION FLOOR PLAN'

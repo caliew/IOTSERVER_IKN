@@ -6,7 +6,7 @@ import AuthContext from '../../context/auth/authContext';
 const Admin = () => {
 	
   const authContext = useContext(AuthContext);
-  const { isAuthenticated, logout, user, loadUser } = authContext;
+  const { user } = authContext;
 
 	return (
     <main style={{ marginTop: '2rem' }}>

@@ -26,7 +26,7 @@ const AuthState = props => {
     token: localStorage.getItem('token'),
     isAuthenticated: null,
     loading: true,
-    user: null,
+    user: {},
     users: null,
     companies: null,
     error: null
@@ -67,7 +67,6 @@ const AuthState = props => {
     try {
       // --------------
       const res = await axios.put( `/api/users/${user._id}`, user, config);
-      // console.log(state.users.indexof(res.data));
       // -------------------
       dispatch({
         type: UPDATE_USER,
@@ -105,7 +104,7 @@ const AuthState = props => {
   // GET ALL USERS
   // -------------
   const getAllUsers = async() => {
-    // ----
+    // --------
     try {
       const res = await axios.get('/api/users');
       // -------
@@ -141,7 +140,6 @@ const AuthState = props => {
       }
     };
     // -------
-    console.log('.... REGISTER USER ....')
     try {
       const res = await axios.post('/api/users', formData, config);
       dispatch({
@@ -162,6 +160,7 @@ const AuthState = props => {
   // Login User
   // ----------
   const login = async formData => {
+    // ------
     const config = {
       headers: {
         'Content-Type': 'application/json'
@@ -188,7 +187,7 @@ const AuthState = props => {
   // Logout
   // ------
   const logout = () => {
-    // ------------------------
+    // ------
     mTimer.forEach( _mTimer => {
       clearTimeout(_mTimer)
     });

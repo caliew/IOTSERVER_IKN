@@ -1,19 +1,8 @@
 import React, { useEffect,useState } from 'react';
-import { MDBBtn, MDBDataTable, MDBTabContent } from 'mdbreact';
+import { MDBBtn, MDBDataTable } from 'mdbreact';
 import axios from 'axios';
-import animationData from "../../lottie/43885-laptop-working.json";
 import { ReactComponent as SVGPLOT1} from '../systems/svg/files/NIPPON_GLASS_FLOORPLAN.svg';
 
-
-// ---------------
-const defaultOptions = {
-	loop: true,
-	autoplay: true,
-	animationData: animationData,
-	rendererSettings: {
-		// preserveAspectRatio: "xMidYMid slice"
-	}
-};
 // ---------------
 const NipponGlassPage = () => {
   // ---------------
@@ -67,7 +56,6 @@ const NipponGlassPage = () => {
 		}
 		// ---------
 	}
-
 	// -------
 	const abstractData = (index) => {
 		// ------------
@@ -119,9 +107,9 @@ const NipponGlassPage = () => {
 				pressure:_READING,};
 				// -------------
 			DataArr.push(Obj);
+			return null;
 		})
 		return DataArr;
-
 	}
 	const getRows2 = () => {
 		// --------------
@@ -144,11 +132,12 @@ const NipponGlassPage = () => {
 				freq:_FREQ };
 				// -------------
 			DataArr.push(Obj);
+			return null;
 		})
 		return DataArr;
 	}
   function hexToSignedInt(hex) {
-    if (hex.length % 2 != 0) {
+    if (hex.length % 2 !== 0) {
       hex = "0" + hex;
     }
     var num = parseInt(hex, 16);
@@ -182,12 +171,10 @@ const NipponGlassPage = () => {
       { label: 'PRESSURE (bar)', field: 'pressure', sort: 'asc', width: 20 }
     ],
     rows: getRows1()
-
 	}
-
 // ----------------------
 function parseFloat(str) {
-  var float = 0, sign, order, mantissa, exp,
+  var float = 0, sign, mantissa, exp,
   int = 0, multi = 1;
   if (/^0x/.exec(str)) {
       int = parseInt(str, 16);
@@ -203,7 +190,7 @@ function parseFloat(str) {
       }
   }
   sign = (int >>> 31) ? -1 : 1;
-  exp = (int >>> 23 & 0xff) - 127;
+  exp = ((int >>> 23) & 0xff) - 127;
   mantissa = ((int & 0x7fffff) + 0x800000).toString(2);
   for (i=0; i<mantissa.length; i+=1) {
       float += parseInt(mantissa[i]) ? Math.pow(2, exp) : 0;
@@ -212,7 +199,6 @@ function parseFloat(str) {
   return float*sign;
 }	// --------
 	const getRadius = () => { return radius; }
-	const getDate = () => { return rawdata && rawdata.sensorData ? rawdata.sensorData[0]._DATE : "-" }
 	const drawSVG = () => {
 		// -------------------
 		let { _TIME, _DTUID, _SENSORID, _kWhr, _VoltageA, _VoltageB, _VoltageC, _CurrentA, _CurrentB, _CurrentC, _PowerF, _FREQ } = abstractData(0);
@@ -227,11 +213,7 @@ function parseFloat(str) {
 		let _OBJTIME = ObjPRESSURE ? new Date(ObjPRESSURE.TIMESTAMP) : new Date();
 		let _date = `${_OBJTIME.getDate()}/${_OBJTIME.getMonth()+1}`;
 		let _time = `${_OBJTIME.getHours()}: ${_OBJTIME.getMinutes().toString().padStart(2,"0")}`;
-		let _humidity,  _temperature,_pressText,_pressure = '';
-		if (ObjPRESSURE && ObjPRESSURE.DATAS) {
-			_humidity = ObjPRESSURE ? ObjPRESSURE.DATAS[0]*0.10 : 0.0;
-			_temperature = ObjPRESSURE ? ObjPRESSURE.DATAS[1]*0.10 : 0.0;
-		}
+		let _pressText,_pressure = '';
 		if (ObjPRESSURE && ObjPRESSURE.RCV_BYTES) {
 			_pressText = ObjPRESSURE ? `0x${ObjPRESSURE.RCV_BYTES[0]}${ObjPRESSURE.RCV_BYTES[1]}` : '';
 			_pressure = ObjPRESSURE ? (parseFloat(_pressText)/10).toFixed(2): 0;

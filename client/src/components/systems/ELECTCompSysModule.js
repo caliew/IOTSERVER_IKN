@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
-import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBInput ,MDBCardTitle } from 'mdbreact';
+import { MDBTable,MDBTableBody,MDBRow,MDBCard,MDBCardTitle } from 'mdbreact';
 import axios from 'axios';
 
 // https://jpg-svg.com/#
@@ -30,6 +30,8 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     useEffect(()=>{
       RELOADRAWDARA();
       LOADSTATS();
+      //  -----------
+      // eslint-disable-next-line
     },[])
     useEffect(()=>{
         // ---------
@@ -37,6 +39,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
         // ------------------
         abstactELECTPWRMTR();
         // -------------
+        // eslint-disable-next-line        
     },[sensors])
     // ---------------------------
     const abstactELECTPWRMTR = () => {
@@ -52,13 +55,8 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           // --------------------
           if (sensor.type==='PWRMTR(485)') {
             // ------------------------------
-            let { datas } = getDatas(sensor);
             let _data = sensor.logsdata.length > 0 ? sensor.logsdata[0] : null;
             // ---------------------
-            let _dataObj = {
-              ...sensor,
-              name : getName(sensor.dtuid,sensor.sensorid)
-            }
             _PWRMeters.push(sensor);
             // --------------------
             let _HEXStr = _data ? _data.RCV_BYTES[0] + _data.RCV_BYTES[1] : '';
@@ -93,7 +91,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       return strTEXT;
     }
     function hexToSignedInt(hex) {
-      if (hex.length % 2 != 0) {
+      if (hex.length % 2 !== 0) {
         hex = "0" + hex;
       }
       var num = parseInt(hex, 16);
@@ -123,6 +121,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
                 if ( !YearsMonths.includes(key) && key.includes('MNTH')) YearsMonths.push(key);
               })
             }
+            return null;
           })
           setWeekDay(WeeksDays);
           setYearMonth(YearsMonths);
@@ -229,15 +228,8 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
         <>
           <tr className='text-center align-middle'>
             <td>NAME</td><td>DTU ID</td><td>SENSOR ID</td><td>TYPES</td>
-            { toggleSTATSWEEK ? (weekDays && weekDays.map((wk,index) => {
-                // -----
-                return (<td>{wk}</td>)
-                // ------
-              })) : (yearMonths && yearMonths.map((mth,index) => {
-                // -----
-                if (index < yearMonths.length) return (<td>{mth.substring(5)}</td>)
-                // ------
-              }))
+            { toggleSTATSWEEK ? (weekDays && weekDays.map((wk,index) => <td>{wk}</td>)) : 
+                  (yearMonths && yearMonths.map((mth,index) => (index < yearMonths.length) ? <td>{mth.substring(5)}</td>:<></>))
             }
           </tr>
           {
@@ -268,6 +260,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
                     }
                   </tr>)
               }
+              return null;
           })}
         </>
       )
@@ -275,7 +268,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     // ----------
     function getName(_dtuID,_sensorID) {
       // --------------------
-      let sensorFound = pwrMeters.find(sensor => sensor.dtuId == _dtuID && sensor.sensorId == _sensorID);
+      let sensorFound = pwrMeters.find(sensor => (sensor.dtuId === _dtuID) && (sensor.sensorId === _sensorID));
       return sensorFound ? sensorFound.name : "";
     }
     // -----
@@ -440,38 +433,10 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
 // -------------
 // GET SVG MODEL
 // -------------
-function getDatas(sensor) {
-  // console.log(sensor.logsdata);
-  let datas = [];
-  let PressData = [];
-  let rmsVel = 0;
-  let maxVel = -999;
-  let minVel = 999;
-  let maxVelDateTime;
-  let minVelDateTime;
-  // -----------------
-  sensor.logsdata.map( (data,index) => {
-    let _Date = new Date(data.TIMESTAMP);
-    let _timeLabel = _Date.toLocaleDateString([], {hour12: false,hour: "2-digit",minute: "2-digit"});
-    // -------------------------------------------------
-    let _hexString = `${data.RCV_BYTES[0]+data.RCV_BYTES[1]}`
-    let _hexInt = parseInt(_hexString, 16)*0.01;
-    let pressure = Number(_hexInt).toFixed(0);
-		// -------------------
-    PressData.push({y:pressure,x:_timeLabel}); 
-  })
-  // -------------
-  // datas.push(VelData)
-  datas.push(PressData)
-  // ----------------
-  return { datas,maxVelDateTime,minVelDateTime,maxVel,minVel,rmsVel };
-}
 function drawPWRMETER(sensor,name) {
   // ------------
   let _DATE = sensor.date;
   let _TIME = sensor.time;
-  let _DTUID = sensor.dtuid;
-  let _SENSORID = sensor.sensorid;
   let _TITLE = name ? name : '';
   let ElectEnergy = Number(sensor.energy.split(' ')[0]).toFixed(0);
   // ------------

@@ -32,6 +32,7 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
         if (sensors === null) getSensors(30,null,null);
         abstactAIRFLOWSensor();
         // ---------------------
+        // eslint-disable-next-line
     },[sensors])
     // ---------------------------
     const abstactAIRFLOWSensor = () => {
@@ -57,11 +58,11 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
             }
 						sensor.logsdata[0] && _airflowDatas.push(_dataObj);
 					}
+          return null;
         })
         // --------------------
         setSensorType(_AFSensors[0].type);
         setAFSensor(_AFSensors.sort(compareByName));
-        console.log(_AFSensors[0])
         setSensorLabels(_sLabels);
         setAFlowData(_airflowDatas.sort(compareByName));
     }
@@ -231,16 +232,18 @@ function getDatas(sensor) {
       minVel = velocity;
       minVelDateTime = _timeLabel;
     }
-    // ----------------------------------------------
-    VelData.push({y:velocity,x:_timeLabel}); 
+    // -------------------------------------
+    VelData.push({y:velocity,x:_timeLabel});
+    return null;
   })
   datas.push(VelData)
   return { datas,maxVelDateTime,minVelDateTime,maxVel,minVel,rmsVel };
 }
 //  -----------
-PIPEWTRTempSysModule .defaultProps = {
+PIPEWTRTempSysModule.defaultProps = {
   color: "black",
   handleComponetSelection: null,
   title:'PRODUCTION FLOOR PLAN'
 };
+
 export default PIPEWTRTempSysModule 

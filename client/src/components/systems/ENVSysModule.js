@@ -42,6 +42,7 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
     useEffect(()=>{
         if (sensors === null) getSensors(30,null,null);
         abstactWiSensor();
+        // eslint-disable-next-line
     },[sensors])
     // ---------------------------
     const abstactWiSensor = () => {
@@ -51,14 +52,12 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
 			// ABSTRACT WISENSOR
 			// -----------------
 			let _wiSensors = [];
-			let _sLabels = [];
 			let _tempDatas = [];
       // ----------------------
 			sensors.forEach( sensor => {
         // -----------------------
         if (sensor.type === 'WISENSOR') {
           // ----------------------------
-          let { datas } = getDatas(sensor);
           _wiSensors.push(sensor);
           // -----------------
           let _sensorObj = {
@@ -209,50 +208,6 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
 }
 
 // ------------
-function getDatas(sensor) {
-  // console.log(sensor.logsdata);
-  let datas = [];
-  let TempData = [];
-  let HumdData = [];
-  let maxTemp = -999;
-  let maxHumd = -999;
-  let maxTempDateTime;
-  let maxHumdDateTime;
-  let minTempDateTime;
-  let minHumdDateTime;
-  let rmsTemp = 0;
-  let minTemp = 999;
-  let minHumd = 999;
-  sensor.logsdata.forEach( (data,index) => {
-    let _Date = new Date(data.TIMESTAMP);
-    let _timeLabel = _Date.toLocaleDateString([], {hour12: false,hour: "2-digit",minute: "2-digit"});
-    // -------------------------------------------------
-    if (data.Temperature > maxTemp) {
-      maxTemp = data.Temperature;
-      maxTempDateTime = _timeLabel;
-    }
-    if (data.Humidity > maxHumd) {
-      maxHumd = data.Humidity;
-      maxHumdDateTime = _timeLabel;
-    }
-    // -------------------------
-    if (data.Temperature < minTemp) {
-      minTemp = data.Temperature;
-      minTempDateTime = _timeLabel;
-    }
-    if (data.Humidity < minHumd) {
-      minHumd = data.Humidity;
-      minHumdDateTime = _timeLabel;
-    }
-    // ----------------------------------------------
-    TempData.push({y:data.Temperature,x:_timeLabel});
-    HumdData.push({y:data.Humidity,x:_timeLabel})    
-  })
-  datas.push(TempData)
-  datas.push(HumdData)
-  return { datas,maxTempDateTime,minTempDateTime,maxHumdDateTime,minHumdDateTime,
-           maxTemp,maxHumd,minTemp,minHumd,rmsTemp };
-}
 function compareByName(a, b) {
   var nameA = a.name.toUpperCase(); // ignore upper and lowercase
   var nameB = b.name.toUpperCase(); // ignore upper and lowercase
@@ -294,4 +249,5 @@ ENVSysModule.defaultProps = {
   handleComponetSelection: null,
   title:'PRODUCTION FLOOR PLAN'
 };
+
 export default ENVSysModule

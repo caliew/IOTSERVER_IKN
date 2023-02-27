@@ -24,12 +24,13 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
     const [toggleOverview,setOverview] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
-    const [showHide, setShowHide] = useState(true);
     const { sensors, getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
-        if (sensors === null) getSensors(30,null,null);
-        abstactAIRPRESSSensor();
+      if (sensors === null) getSensors(30,null,null);
+      abstactAIRPRESSSensor();
+      //  -----------
+      // eslint-disable-next-line
     },[sensors])
     // ---------------------------
     const abstactAIRPRESSSensor = () => {
@@ -59,6 +60,7 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
             sensor.logsdata[0] && _airpressureDatas.push(_objSensor);
             // -------------------
           }
+          return null;
         })
         // --------------------
         setSensorType(_AFSensors[0].type);
@@ -165,7 +167,7 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
 
           <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
             <MDBCardTitle>{ToggleGauges(title='AIR COMPRESSOR')}</MDBCardTitle>
-            { showHide && toggleGauge && getDialGauge( { 
+            { toggleGauge && getDialGauge( { 
                 title : 'PRESSURE',
                 data : airPressData, 
                 redFrom: 90, redTo: 100, yellowFrom: 75, yellowTo: 90, minorTicks: 5})}            
@@ -229,7 +231,7 @@ const getDialGauge = ({data}) => {
 }
 // ------------
 function parseFloat(str) {
-  var float = 0, sign, order, mantissa, exp,
+  var float = 0, sign,  mantissa, exp,
   int = 0, multi = 1;
   if (/^0x/.exec(str)) {
       int = parseInt(str, 16);
@@ -245,7 +247,7 @@ function parseFloat(str) {
       }
   }
   sign = (int >>> 31) ? -1 : 1;
-  exp = (int >>> 23 & 0xff) - 127;
+  exp = ((int >>> 23) & 0xff) - 127;
   mantissa = ((int & 0x7fffff) + 0x800000).toString(2);
   for (i=0; i<mantissa.length; i+=1) {
       float += parseInt(mantissa[i]) ? Math.pow(2, exp) : 0;

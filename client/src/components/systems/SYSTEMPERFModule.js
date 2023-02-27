@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
-import { MDBContainer,MDBCard,MDBCardTitle,MDBCardText,MDBRow,MDBCardBody,  } from 'mdbreact';
+import React from 'react';
+import { MDBContainer,MDBCard,MDBCardTitle,MDBCardText,MDBRow } from 'mdbreact';
 import {
   CTW_A_TEMP1,CTW_A_TEMP2,CTW_B_TEMP1,CTW_B_TEMP2,
   CTW_A_CWS_PRESS1,CTW_A_CWS_PRESS2,CTW_A_CWR_PRESS,
@@ -25,20 +25,6 @@ import {
 
 function SYSTEMPERFModule ( { sensorsData} ) {
   // -----
-  const enumSystem = { 
-    'CHILLER':0,
-    'COOLING_TOWER':1,
-    'WCPU':2,
-    'PRECOOL':3,
-    'PUMP':4,
-    'COMPRESSED_AIR':5
-  }
-  let CH_A = {
-    title  : 'CHILLER A (DN125)',
-    system : enumSystem.CHILLER,
-    sensors: [ 'CHILLER_A_CH_TEMP1','CHILLER_A_CH_TEMP2','CHILLER_A_CHS_PRESS1','CHILLER_A_CHS_PRESS2','CHILLER_A_CHR_PRESS' ],
-  }
-  // --------
   const getReading = (sensor) => {
     let _label = ""
     if (sensor !== null) _label = `${sensor.reading}bar`;
@@ -305,7 +291,8 @@ function SYSTEMPERFModule ( { sensorsData} ) {
     </MDBRow>
   )
 }
-SYSTEMPERFModule .defaultProps = {
+// -------------
+SYSTEMPERFModule.defaultProps = {
     color: "black",
     handleComponetSelection: null,
     title:'PRODUCTION FLOOR PLAN'

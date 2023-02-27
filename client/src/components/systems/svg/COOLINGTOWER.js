@@ -1,19 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React from 'react'
 
 import { 
-  CTW_A_TEMP1,CTW_A_TEMP2,CTW_A_FLOWRATE,CTW_A_ELECTPWR, 
-  CTW_B_TEMP1,CTW_B_TEMP2,CTW_B_FLOWRATE,CTW_B_ELECTPWR
+  CTW_A_TEMP1,CTW_A_TEMP2,
+  CTW_B_TEMP1,CTW_B_TEMP2
 } from '../../types';
 
 // REFERENCE SVG DATA FROM 
 // '../components/svg/TDK_ISOVIEW.svg'
 
 function COOLINGTOWER({ color, sensorsData, handleComponetSelection }) {
-    // --------------
-    function handleClick (event) {
-        let sysName = event.target.id;
-        if (handleComponetSelection !== null) handleComponetSelection(sysName);
-    }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // --------------------------------------------

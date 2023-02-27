@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import ReactECharts from 'echarts-for-react';
 const colors = ['#5470C6', '#91CC75', '#EE6666'];
 
@@ -8,7 +8,7 @@ const Page = ({title,data,type}) => {
     let _legend1 = ['SPEED'];
     let _legend2 = ['PRESSURE'];
     let _legend3 = ['TEMPERATURE'];
-    if (!data || data.length == 0) return;
+    if (!data || data.length === 0) return;
     switch (type) {
       case "WISENSOR":
         return _legend0;
@@ -26,7 +26,6 @@ const Page = ({title,data,type}) => {
   }
   const getDataSet = () => {
     let _dataSet = [];
-    let _keys = [];
     data.map((item,index)=>{
       // {name: 'L1- FREEZER MS', temperature: -21, humidity: -959.04}
       let _NAME = item['name'] ? item['name'] : 'NA'
@@ -56,6 +55,7 @@ const Page = ({title,data,type}) => {
           break;
       }
       _dataSet.push(_data);
+      return null;
     })
     // console.log(_keys)
     return _dataSet;
