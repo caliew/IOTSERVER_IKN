@@ -4,8 +4,10 @@ const auth = require('../middleware/auth');
 const {check, validationResult} = require('express-validator');
 
 const Alerts = require('../models/Alert');
-
 const _logs = require('../lib/logs');
+
+const cors = require('cors');
+router.use( cors({ origin:'*'}) );
 
 // @route     GET api/alerts
 // @desc      Get all alerts

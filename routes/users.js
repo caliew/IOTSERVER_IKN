@@ -9,6 +9,8 @@ const {check, validationResult} = require('express-validator');
 const User = require('../models/User');
 const Company = require('../models/Company');
 
+const cors = require('cors');
+router.use( cors({ origin:'*'}) );
 // @route     POST api/users
 // @desc      Regiter a user
 // @access    Public

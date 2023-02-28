@@ -28,12 +28,7 @@ const formatDate = (date) => {
   return [year, month, day].join('-');
 }
 
-
-router.use(
-  cors({
-      origin:'*',
-  })
-);
+router.use( cors({origin:'*'}) );
 // @route     GET api/sensors
 // @desc      Get all sensors
 // @access    Private
@@ -296,7 +291,6 @@ router.get('/sensorstats/:dtuId&:sensorId', auth, async (req, res) => {
   // ---------------------------
 });
 
-
 // @route     POST api/sensors
 // @desc      Add new sensor
 // @access    Private
@@ -396,7 +390,6 @@ router.delete('/:id', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 
 // -------------
 // Data Download

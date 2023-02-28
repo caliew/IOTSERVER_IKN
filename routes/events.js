@@ -10,6 +10,9 @@ const Contact = require('../models/Contact');
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
 
+const cors = require('cors');
+router.use( cors({ origin:'*'}) );
+
 // @route     GET api/sensors
 // @desc      Get all users contacts
 // @access    Private

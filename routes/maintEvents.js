@@ -11,6 +11,9 @@ var helpers = require('../lib/helpers');
 const _data = require('../lib/data');
 const _logs = require('../lib/logs');
 
+const cors = require('cors');
+router.use( cors({ origin:'*'}) );
+
 // @route     GET api/MaintEvents
 // @desc      Get all MaintEvents
 // @access    Private

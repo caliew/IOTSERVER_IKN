@@ -9,6 +9,9 @@ const {check, validationResult} = require('express-validator');
 
 const User = require('../models/User');
 
+const cors = require('cors');
+router.use( cors({origin:'*'}) );
+
 // @route     GET api/auth
 // @desc      Get logged in user
 // @access    Private

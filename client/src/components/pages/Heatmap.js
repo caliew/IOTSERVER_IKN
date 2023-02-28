@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { HeatMapGrid } from "react-grid-heatmap";
 import HeatmapLegend from "./HeatmapLegend";
 
@@ -58,7 +58,7 @@ const HeatMap = ({title,sensorData,index}) => {
       _date.setHours(0,0,0,0);
       let _Week = getWeek(_date);
       let _DayOfWeek = _date.getDay();
-      if (_DayOfWeek == 0) _Week +=1;
+      if (_DayOfWeek === 0) _Week +=1;
       // console.log(`..${key} =>${_Day}/${_Month+1}/${_Year}...`)
       // -----------------------
       if (mapWeeks[_Week] == null) {
@@ -68,10 +68,12 @@ const HeatMap = ({title,sensorData,index}) => {
       } else {
         mapWeeks[_Week][_DayOfWeek] = Number(values[index]);
       }
+      return null;
     })
     // -------------------
     Object.entries(mapWeeks).map(item => {
       mapData.push(item[1]);
+      return null;
     })
     // --------------
     data = mapData;
@@ -87,7 +89,6 @@ const HeatMap = ({title,sensorData,index}) => {
     let palette1 = [];
     let palette2 = [];
     // --------------
-    let nID = parseInt(ratio*nCOUNT);
     // console.log(ratio,nID)
     palette1[0] = `rgb(255, 0, 0,0.50)`;
     palette1[1] = `rgb(255, 102, 0)`;
@@ -115,7 +116,7 @@ const HeatMap = ({title,sensorData,index}) => {
     // ------------------
     // console.log(ratio);
     // `rgb(0, 255, 0, ${1 - (max - value) / (max - min)})`
-    return index == '0' ? `rgb(55, 125, 255, ${ratio})` : `rgb(255, 0, 0, ${ratio})`;
+    return index === '0' ? `rgb(55, 125, 255, ${ratio})` : `rgb(255, 0, 0, ${ratio})`;
     // if ( nID == 0 ) return `rgb(255,255,255,0.0)`;
     // return index == '0' ? palette1[nID] : palette2[nID];
     // console.log(title,ratio,nID,palette1[nID]);
