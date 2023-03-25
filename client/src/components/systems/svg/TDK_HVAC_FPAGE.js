@@ -67,7 +67,7 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	const [colorGreen2,setColorGreen2] = useState('white');
 	const [strkwidthTemp,setStrokeWidthTemp] = useState(12);
 	const [strkwidthHumd,setStrokeWidthHumd] = useState(0);
-	const [mode,setPlayMode] = useState("play");
+	const [mode,setPlayMode] = useState("pause");
 	// ----------------------
 	useEffect(()=>{
 		if (sensors === null) getSensors(30,null,null);
@@ -515,18 +515,30 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	const GETAIRCOMP = () => {
 		return (
 			<g>
-				<g transform="translate(320.0,190.0)">
-					<rect x="0" y="0" width="90" height="20" fill='white	' />
-					<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData && sensorsData[AIR_COMPRESSOR1].reading} bar</text>
-				</g>
-				<g transform="translate(450.0,190.0)">
-					<rect x="0" y="0" width="90" height="20" fill='white	' />
-					<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData && sensorsData[AIR_COMPRESSOR2].reading} bar</text>
-				</g>
-				<g transform="translate(580.0,190.0)">
-					<rect x="0" y="0" width="90" height="20" fill='white	' />
-					<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData && sensorsData[AIR_COMPRESSOR3].reading} bar</text>
-				</g>
+				{
+					sensorsData && sensorsData[AIR_COMPRESSOR1].reading > 1.0 && (
+						<g transform="translate(320.0,190.0)">
+							<rect x="0" y="0" width="90" height="20" fill='white	' />
+							<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData[AIR_COMPRESSOR1].reading} bar</text>
+						</g>
+					)
+				}
+				{
+					sensorsData && sensorsData[AIR_COMPRESSOR2].reading > 1.0 && (
+						<g transform="translate(450.0,190.0)">
+							<rect x="0" y="0" width="90" height="20" fill='white	' />
+							<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData[AIR_COMPRESSOR2].reading} bar</text>
+						</g>
+					)
+				}
+				{
+					sensorsData && sensorsData[AIR_COMPRESSOR3].reading > 1.0 && (
+						<g transform="translate(580.0,190.0)">
+							<rect x="0" y="0" width="90" height="20" fill='white	' />
+							<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData[AIR_COMPRESSOR3].reading} bar</text>
+						</g>
+					)
+				}
 			</g>
 		)
 	}
@@ -534,12 +546,30 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 		return (
 			<g>
 				<g transform="translate(0.0,150.0)">
-						<rect x="320" y="13" width="90" height="30" fill='white	' />
-						<text x="325" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT1</text>
-						<rect x="450" y="13" width="90" height="30" fill='white	' />
-						<text x="450" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT2</text>
-						<rect x="580" y="13" width="90" height="30" fill='white	' />
-						<text x="580" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT3</text>
+					{
+						sensorsData && sensorsData[AIR_COMPRESSOR1].reading > 1.0 && (
+							<>
+							<rect x="320" y="13" width="90" height="30" fill='white	' />
+							<text x="325" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT1</text>
+							</>
+						)
+					}
+					{
+						sensorsData && sensorsData[AIR_COMPRESSOR2].reading > 1.0 && (
+							<>
+							<rect x="450" y="13" width="90" height="30" fill='white	' />
+							<text x="450" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT2</text>
+							</>
+						)
+					}
+					{
+						sensorsData && sensorsData[AIR_COMPRESSOR3].reading > 1.0 && (
+							<>
+							<rect x="580" y="13" width="90" height="30" fill='white	' />
+							<text x="580" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT3</text>
+							</>
+						)
+					}
 				</g>
 				<g transform="translate(250.0,150.0)">
 						<text x="580" y="35" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>FAN COIL UNIT</text>
@@ -579,14 +609,20 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	const GETTEMPREADINGS = () => {
 		return (
 			<g>
-				<g transform="translate(950.0,510.0)">
-						<rect x="0" y="0" width="100" height="20" fill='blue' />
-						<text x="5" y="15" fill="white" font-size="1.0em" name='CHILLER_A_CH_TEMP1' id='CHILLER_A_CH_TEMP1'>#52={sensorsData && sensorsData[AHU_A_TEMP1].reading}&deg;C</text>
-				</g>
-				<g transform="translate(950.0,630.0)">
-						<rect x="0" y="0" width="100" height="20" fill='blue' />
-						<text x="5" y="15" fill="white" font-size="1.0em" name='CHILLER_A_CH_TEMP1' id='CHILLER_A_CH_TEMP1'>#14={sensorsData && sensorsData[AHU_A_TEMP2].reading}&deg;C</text>
-				</g>
+				{
+					false && (
+						<>
+							<g transform="translate(950.0,510.0)">
+									<rect x="0" y="0" width="100" height="20" fill='blue' />
+									<text x="5" y="15" fill="white" font-size="1.0em" name='CHILLER_A_CH_TEMP1' id='CHILLER_A_CH_TEMP1'>#52={sensorsData && sensorsData[AHU_A_TEMP1].reading}&deg;C</text>
+							</g>
+							<g transform="translate(950.0,630.0)">
+									<rect x="0" y="0" width="100" height="20" fill='blue' />
+									<text x="5" y="15" fill="white" font-size="1.0em" name='CHILLER_A_CH_TEMP1' id='CHILLER_A_CH_TEMP1'>#14={sensorsData && sensorsData[AHU_A_TEMP2].reading}&deg;C</text>
+							</g>
+						</>
+					)
+				}
 				<g transform="translate(1080.0,405.0)">
 						<rect x="0" y="0" width="100" height="20" fill='blue' />
 						<text x="5" y="15" fill="white" font-size="1.0em" name='CHILLER_A_CH_TEMP1' id='CHILLER_A_CH_TEMP1'>#50={sensorsData && sensorsData[AHU_B_TEMP1].reading}&deg;C</text>
@@ -1037,13 +1073,12 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 		mode === "play" ? setPlayMode("pause") : setPlayMode("play")
 	}
 	const handleNextMode = () => {
-		setCounter(counter + 14);
+		setCounter((counter<15) ? 17: 1);
 	}
 	// ---------------------
 	return (
 		// <MDBRow center>
 			<MDBCol md="12">
-
 				{ mode === "play"  && <MDBIcon far icon="pause-circle" size="2x" onClick={()=>handleChangeMode()}/> }
 				{ mode === "pause" && <MDBIcon far icon="play-circle" size="2x"  onClick={()=>handleChangeMode()}/> }
 				<MDBIcon far icon="arrow-alt-circle-right" size='2x' onClick={()=>handleNextMode()}/> { counter }

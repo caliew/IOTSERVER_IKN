@@ -111,23 +111,49 @@ router.get('/nipponglass', auth, async(req,res) => {
 })
 
 router.get('/shinko/rawdata', auth, async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
+  // ---------
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 5000;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // ---------
   _logs.read('_SHINKO',nTotalLines,_date0,_date1,false,function(err,sensorData) {
-    // -----------------------------
+    // --------------------------------------------
+    // IF GETTING NO DATA. USE THE LAST 100 RECORDS
+    // --------------------------------------------
     let ObjData = {};
-    ObjData['sensorData'] = sensorData;
-    res.status(200).send(ObjData);
+    if (sensorData.length == 0 ) {
+      _logs.read('_SHINKO',100,null,null,false,function(err,sensorData1) {
+        ObjData['sensorData'] = sensorData1;
+        _data.read('shinko','settings',function(err,settingData) {
+          ObjData['settings'] = settingData;
+          res.status(200).send(ObjData);
+        })  
+      })
+    } else {
+      ObjData['sensorData'] = sensorData;
+      _data.read('shinko','settings',function(err,settingData) {
+        ObjData['settings'] = settingData;
+        res.status(200).send(ObjData);
+      })
+    }
   });
+})
+
+router.put('/shinko/settings',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.update('shinko','settings', ObjData, function (err) { 
+    // console.log(err);
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
 })
 
 router.get('/teawarehouse/rawdata', auth, async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 5000;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
   _logs.read('_TEAWAREHOUSE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
@@ -208,8 +234,6 @@ router.get('/statsDAYData', auth, async (req, res) => {
   //  ------------------------------------
   // console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
   const user = await User.findById(req.query.id).select('-password');
-  let companyname = user.companyname;
-  // console.log(`.. <${'SENSORS.JS'.yellow}>.. COMPANY NAME=<${companyname}>`)
     // ------
   _data.list('stats',function(err,files) {
     // ---------------
