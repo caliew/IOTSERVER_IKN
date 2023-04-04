@@ -119,8 +119,6 @@ router.get('/', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   // -------------------------------------
-  console.log(`.. <${'USERS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  // ----------------------------
   try {
     const users = await User.find({});
     res.status(200).json(users);
@@ -138,12 +136,9 @@ router.get('/companies', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   // -------------------------------------
-  // console.log(`..API/USERS/COMPANIES [GET]`)
-  // ----------------------------
   try {
     const users = await User.find({});
     let arraycompanies = [...new Set(users.map( x => x.companyname))];
-    console.log(`.. <${'USERS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
     // -----------------------------------------------
     // UPDATE COMPANY TABLE BASE ON UPDATED USER LISTS
     // -----------------------------------------------

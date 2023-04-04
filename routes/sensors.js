@@ -122,8 +122,8 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
     // IF GETTING NO DATA. USE THE LAST 100 RECORDS
     // --------------------------------------------
     let ObjData = {};
-    if (sensorData.length == 0 ) {
-      _logs.read('_SHINKO',100,null,null,false,function(err,sensorData1) {
+    if (sensorData.length < 15 ) {
+      _logs.read('_SHINKO',1000,null,null,false,function(err,sensorData1) {
         ObjData['sensorData'] = sensorData1;
         _data.read('shinko','settings',function(err,settingData) {
           ObjData['settings'] = settingData;
