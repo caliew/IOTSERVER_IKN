@@ -123,18 +123,29 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
     // --------------------------------------------
     let ObjData = {};
     if (sensorData.length < 15 ) {
+      // ---------------
+      // GET SENSOR DATA
+      // ---------------
       _logs.read('_SHINKO',1000,null,null,false,function(err,sensorData1) {
         ObjData['sensorData'] = sensorData1;
         _data.read('shinko','settings',function(err,settingData) {
           ObjData['settings'] = settingData;
           res.status(200).send(ObjData);
-        })  
+        })
       })
     } else {
       ObjData['sensorData'] = sensorData;
       _data.read('shinko','settings',function(err,settingData) {
         ObjData['settings'] = settingData;
-        res.status(200).send(ObjData);
+        // ------
+        let _today0 = new Date();
+        let _today1 = new Date();
+        _today0.setHours(0,0,0);
+        _today1.setHours(23,59,59);
+        _logs.read('_SHINKOALERTS',1000,_today0,_today1,false,function(err,AlertData){
+          ObjData['alerts'] = AlertData;
+          res.status(200).send(ObjData);
+        })
       })
     }
   });
@@ -199,8 +210,6 @@ router.get('/statsPWRMTRdata', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  // ------
   _data.list('stats',function(err,files) {
     // ---------------
     let objData = [];

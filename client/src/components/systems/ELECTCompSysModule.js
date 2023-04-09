@@ -128,7 +128,6 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           // ---------
         }).then(res => {
         }).catch( err => {
-
         })
       } catch (err) {
 
@@ -224,6 +223,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     };
     function getRowsWeekDay() {
       // ------
+      console.log(statsData);
       return (
         <>
           <tr className='text-center align-middle'>
@@ -233,10 +233,8 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
             }
           </tr>
           {
-            Object.entries(statsData).map((data) => {
-              // -------
-              let _data = data[1]
-              // ------
+            statsData.map((_data,index) => {
+              // ---------------
               if ( _data['SENSORTYPE'] === 'PWRMTR(485)') {
                 return (
                   <tr className='text-center align-middle'>
@@ -246,15 +244,15 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
                     { toggleSTATSWEEK && weekDays ? 
                       weekDays.map((wk,index) => {
                         // -------------
-                        let _READING0 = _data[weekDays[index+1]] || 0;
+                        let _READING0 = _data[weekDays[index+1]] || _data.PWRMTR1;
                         let _READING = _data[weekDays[index]] || 0;
-                        return (<td>{_READING}<br/>{_READING-_READING0}</td>)
+                        return (<td>{_READING}<br/>{_READING0-_READING}</td>)
                         // ------------
                       }) : yearMonths && yearMonths.map((mth,index) => {
                         // -----
-                        let _READING0 = _data[yearMonths[index+1]]|| 0;
+                        let _READING0 = _data[yearMonths[index+1]]|| _data.PWRMTR1;
                         let _READING = _data[yearMonths[index]]|| 0;
-                        return (<td>{_READING}<br/>{_READING-_READING0}</td>)
+                        return (<td>{_READING}<br/>{_READING0-_READING}</td>)
                         // ------
                       }) 
                     }
