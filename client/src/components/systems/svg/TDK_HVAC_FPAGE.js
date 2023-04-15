@@ -524,7 +524,7 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 					)
 				}
 				{
-					sensorsData && sensorsData[AIR_COMPRESSOR2].reading > 1.0 && (
+					false && sensorsData && sensorsData[AIR_COMPRESSOR2].reading > 1.0 && (
 						<g transform="translate(450.0,190.0)">
 							<rect x="0" y="0" width="90" height="20" fill='white	' />
 							<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData[AIR_COMPRESSOR2].reading} bar</text>
@@ -532,7 +532,7 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 					)
 				}
 				{
-					sensorsData && sensorsData[AIR_COMPRESSOR3].reading > 1.0 && (
+					false && sensorsData && sensorsData[AIR_COMPRESSOR3].reading > 1.0 && (
 						<g transform="translate(580.0,190.0)">
 							<rect x="0" y="0" width="90" height="20" fill='white	' />
 							<text x="5" y="15" fill="black" font-size="1.0em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>{sensorsData[AIR_COMPRESSOR3].reading} bar</text>
@@ -555,7 +555,7 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 						)
 					}
 					{
-						sensorsData && sensorsData[AIR_COMPRESSOR2].reading > 1.0 && (
+						false && sensorsData && sensorsData[AIR_COMPRESSOR2].reading > 1.0 && (
 							<>
 							<rect x="450" y="13" width="90" height="30" fill='white	' />
 							<text x="450" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT2</text>
@@ -563,7 +563,7 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 						)
 					}
 					{
-						sensorsData && sensorsData[AIR_COMPRESSOR3].reading > 1.0 && (
+						false && sensorsData && sensorsData[AIR_COMPRESSOR3].reading > 1.0 && (
 							<>
 							<rect x="580" y="13" width="90" height="30" fill='white	' />
 							<text x="580" y="30" fill="black" font-size="1.1em" name='CHILLER_A_CHS_PRESS1' id='CHILLER_A_CHS_PRESS1'>CT3</text>

@@ -139,7 +139,7 @@ function PIPEWTRTempSysModule ({ model, color, systemComponent, handleComponetSe
         <MDBRow center>
           <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
             <div className='d-flex'>{ ToggleSTATSButton('OVERVIEW') }</div>
-            { toggleOverview && airFlowData && airFlowData.length>0 && <Page title="AIRFLOW METER" data={airFlowData} type={sensorType} /> }
+            { toggleOverview && airFlowData && airFlowData.length>0 && <Page title="WATER TEMPERATURE" data={airFlowData} type={sensorType} /> }
           </MDBCard>
         </MDBRow>      
         <MDBRow center>

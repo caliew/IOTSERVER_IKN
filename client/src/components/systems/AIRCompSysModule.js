@@ -142,7 +142,7 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
         <MDBRow center>
           <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
             <div className='d-flex'>{ ToggleSTATSButton('OVERVIEW') }</div>
-            { toggleOverview && airPressData && airPressData.length>0 && <Page title="AIRFLOW METER" data={airPressData} type={sensorType} /> }
+            { toggleOverview && airPressData && airPressData.length>0 && <Page title="AIR PRESSURE" data={airPressData} type={sensorType} /> }
           </MDBCard>
         </MDBRow>
         <MDBRow center>

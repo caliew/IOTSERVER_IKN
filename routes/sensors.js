@@ -110,6 +110,14 @@ router.get('/nipponglass', auth, async(req,res) => {
   // res.status(200).send(data);
 })
 
+router.get('/testsite',async(req,res)=>{
+  let fileName = 'BA-10-F6-DE-16-1E';
+  let SiteData = {};
+  _logs.read(fileName,200,null,null,false,function(err,sensorData) {
+    SiteData[fileName] = sensorData;
+    res.status(200).send(sensorData);
+  });
+})
 router.get('/shinko/rawdata', auth, async(req,res) => {
   // ---------
   let ObjData = req.query;
