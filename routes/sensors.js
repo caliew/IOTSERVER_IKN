@@ -111,12 +111,30 @@ router.get('/nipponglass', auth, async(req,res) => {
 })
 
 router.get('/testsite',async(req,res)=>{
-  let fileName = 'BA-10-F6-DE-16-1E';
+  //  -------------------
+  //  READING CONFI FILE
+  //  ------------------
   let SiteData = {};
-  _logs.read(fileName,200,null,null,false,function(err,sensorData) {
-    SiteData[fileName] = sensorData;
-    res.status(200).send(sensorData);
-  });
+  _data.read('sites','snowcity',function(err,settingData) {
+    let nCount = 0;
+    // let fileNames = ['BA-10-F6-DE-16-1E'];
+    let fileNames = Object.keys(settingData);
+    console.log(fileNames);
+    SiteData['config'] = settingData;
+    SiteData['data'] = {};
+    fileNames.forEach((fileName,index)=>{
+      _logs.read(fileName,200,null,null,false,function(err,sensorData) {
+        nCount += 1;
+        console.log(`..${nCount}/${fileNames.length}..  LOG FILE UPLOADED...${fileName}`);
+        SiteData.data[fileName] = sensorData;
+        if (nCount == fileNames.length) {
+          res.status(200).send(SiteData);
+        }
+      });
+    })
+  
+  })  
+  //  ----------------------------------
 })
 router.get('/shinko/rawdata', auth, async(req,res) => {
   // ---------
