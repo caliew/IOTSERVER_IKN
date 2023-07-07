@@ -1,4 +1,5 @@
 import {
+  SET_FETCH_DATETIME,
   SET_SENSORS,
   SET_PLOTSENSORDATA,
   CLEAR_PLOTSENSORDATA,
@@ -113,6 +114,7 @@ function createData(sensors) {
   }
   //  ----------
   return {
+    HEXCHANGER_TEMP : findSensor(sensors,202,14),
     CTW_A_TEMP1 : findSensor(sensors,201,4),
     CTW_A_TEMP2 : findSensor(sensors,201,36),
     CTW_A_FLOWRATE : findSensor(sensors,0,0),
@@ -259,6 +261,11 @@ function createData(sensors) {
 const sensorReducer = (state, action) => {
   // ----------------
   switch (action.type) {
+    case SET_FETCH_DATETIME :
+      return { 
+        ...state,
+        fetchDateTime : action.payload
+      };
     case SET_SENSORS:
       let _mapSensorType = action.payload.reduce((map,sensor) => { 
         if (map[sensor.type] === undefined) {
@@ -311,8 +318,6 @@ const sensorReducer = (state, action) => {
         loading: false
       };
     case ADD_SENSOR:
-      console.log(`... REDUCER ADD SENSOR...`)
-      console.log(action.payload)
       return {
         ...state,
         sensors: [action.payload, ...state.sensors],

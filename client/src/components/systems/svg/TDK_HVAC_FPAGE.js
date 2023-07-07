@@ -3,6 +3,7 @@ import SensorContext from '../../../context/sensor/sensorContext';
 import { MDBIcon } from 'mdbreact';
 
 import {
+	HEXCHANGER_TEMP,
   CTW_A_TEMP1,CTW_A_TEMP2,CTW_B_TEMP1,CTW_B_TEMP2,
   WCPU_A_TEMP1, WCPU_A_TEMP2,WCPU_B_TEMP1, WCPU_B_TEMP2,
   AHU_A_TEMP1,AHU_A_TEMP2,AHU_B_TEMP1,AHU_B_TEMP2,
@@ -53,7 +54,7 @@ const wiSensorList = [
 function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	// -------------------------------------
 	const sensorContext = useContext(SensorContext);
-	const { sensors, getSensors } = sensorContext;
+	const { sensors, getSensors,fetchDateTime } = sensorContext;
 	// ------------------------------------------
 	const [counter,setCounter] = useState(0);
 	// --------------------------------------
@@ -70,7 +71,7 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	const [mode,setPlayMode] = useState("pause");
 	// ----------------------
 	useEffect(()=>{
-		if (sensors === null) getSensors(30,null,null);
+		// if (sensors === null) getSensors(30,null,null);
 		// ---------
 		// SET TIMER
 		// ---------
@@ -631,6 +632,11 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 						<rect x="0" y="0" width="100" height="20" fill='red' />
 						<text x="5" y="15" fill="white" font-size="1.0em" name='CHILLER_A_CH_TEMP1' id='CHILLER_A_CH_TEMP1'>#48={sensorsData && sensorsData[AHU_B_TEMP2].reading}&deg;C</text>
 				</g>
+				{/* HEAT EXCHANGER*/ }
+				<g transform="translate(1080.0,640.0)">
+						<rect x="0" y="0" width="90" height="20" fill='black' />
+						<text x="5" y="15" fill="white" font-size="1.0em" name='HEXCHANGER_TEMP' id='HEXCHANGER_TEMP'>#14={sensorsData && sensorsData[HEXCHANGER_TEMP].reading}&deg;C</text>
+				</g>
 
 				{/* CHILLER A - CHILLED WATER*/}
 				<g transform="translate(720.0,760.0)">
@@ -1075,13 +1081,17 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	const handleNextMode = () => {
 		setCounter((counter<15) ? 17: 1);
 	}
+	const getFetchDateTimelabel = () => {
+		let _date = new Date(fetchDateTime);
+		return `LAST UPDATE ${_date.toLocaleDateString()}:${_date.toLocaleTimeString()}`;
+	}
 	// ---------------------
 	return (
 		// <MDBRow center>
 			<MDBCol md="12">
 				{ mode === "play"  && <MDBIcon far icon="pause-circle" size="2x" onClick={()=>handleChangeMode()}/> }
 				{ mode === "pause" && <MDBIcon far icon="play-circle" size="2x"  onClick={()=>handleChangeMode()}/> }
-				<MDBIcon far icon="arrow-alt-circle-right" size='2x' onClick={()=>handleNextMode()}/> { counter }
+				<MDBIcon far icon="arrow-alt-circle-right" size='2x' onClick={()=>handleNextMode()}/> { getFetchDateTimelabel() }
 				
 				<MDBCard className="p-0" style={{width:"auto"}} >
 				<svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="1800" height="780" 

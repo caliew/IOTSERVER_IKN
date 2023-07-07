@@ -22,44 +22,47 @@ const HomePage = () => {
   const history = useHistory();
 	// --------------------------
   const authContext = useContext(AuthContext);
-  const { isAuthenticated, user, addTimer, getAllCompanies } = authContext;
+  const { isAuthenticated, user, loadUser, getAllCompanies } = authContext;
 	// ------------------------
 	const notificationContext = useContext(NotificationContext);
 	const { getNotification } = notificationContext;
 	// ---------------------------------------------
 	const sensorContext = useContext(SensorContext);
-  const { filterSensors, sensorsData, getSensors } = sensorContext;
+	const { filterSensors, sensorsData, sensors, getSensors } = sensorContext;
 	// ---------------------
+	const [timerFlag, setTimerFlag] = useState(false);
 	const [selection,setSelection] = useState(null);
   const [systemComponent, setSystemComponent] = useState(null);
-	let mTimer;
 	// --------------
 	useEffect(()=> {
 		// -----------
+    isAuthenticated && loadUser();
 		user && user.companyname === "Nippon Glass" && history.push('/NipponGlass')
 		!isAuthenticated && history.push('/login');
 		// -----------
 		if (isAuthenticated)  {
 			// ----------
-			getSensors(30,null,null);
+			// getSensors(30,null,null);
 			getNotification();
 			getAllCompanies();
 			// ---------
 			// SET TIMER
 			// ---------
-			if (mTimer === null) {
-				const _mTimer = setInterval(handleTimer, 1000*60*5);
-				addTimer(_mTimer);
+			if (typeof(user._id) !== 'undefined' && !timerFlag) {
+				setTimerFlag(true)
+				handleTimer();
 			}
+			//	----------
 		}
 		//  -----------
 		// eslint-disable-next-line
-	},[]);
+	},[user]);
   // --------------------------------------------
 	const handleTimer = () => {
 		// ----------
 		getSensors(30,null,null);
 		getNotification();
+		setTimeout(handleTimer,1000*60*5);
 	}
   const handleComponetSelection = (sysName) => {
 		// --------------------------

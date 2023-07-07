@@ -4,8 +4,8 @@
   "description": "Contact manager app",
   "main": "server.js",
   "scripts": {
-    "start": "node index.js --no-ansi",
-    "server": "nodemon index.js --no-ansi",
+    "start": "node index.js --no-ansi --inspect",
+    "server": "nodemon index.js --no-ansi --inspect",
     "client": "npm start --prefix client",
     "clientinstall": "npm install --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",

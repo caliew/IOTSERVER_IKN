@@ -16,6 +16,7 @@ const Navbar = (props) => {
     isAuthenticated && loadUser();
     // eslint-disable-next-line
   }, [isAuthenticated]);
+  
   const onLogout = () => {
     logout();
     // clearContacts();

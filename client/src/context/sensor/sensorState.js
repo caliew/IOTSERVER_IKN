@@ -4,6 +4,7 @@ import AuthContext from '../../context/auth/authContext';
 import SensorContext from './sensorContext';
 import SensorReducer from './sensorReducer';
 import {
+  SET_FETCH_DATETIME,
   SET_SENSORS,
   SET_PLOTSENSORDATA,
   CLEAR_PLOTSENSORDATA,
@@ -27,6 +28,7 @@ const initialState = {
   plotSensorMap:null,
   rawsensors: null,
   current: null,
+  fetchDateTime : null,
   sensorsData: null,
   sensorStatsData: null,
   locationSensorsMap : null,
@@ -48,12 +50,11 @@ const SensorState = props => {
     try {
       // --------------------------------
       const params = { totalLines : datasets, id: user._id, date0, date1 };
-      // console.log(`[SENSORSTATE.JS].. API/SENSORS [GET]..${datasets}..${user._id}`)
       axios.get('/api/sensors', { params } ).then (res => {
         // ----------------
-        // console.log(`..CALLBACK.. <${res.data.length}>`);
         // console.log(res.data.filter(_sensor => _sensor.sensorId==='B0-BC-82-C4-C4-41'));
         dispatch({type: SET_SENSORS,payload: res.data});
+        dispatch({type: SET_FETCH_DATETIME,payload:new Date()});
         // ----------------
       })
       .then( res => { getSensorsData(); })
@@ -84,7 +85,6 @@ const SensorState = props => {
   // --------------------
   const getRawSensors = async() => {
     try {
-      console.log('[SENSORSTATE.JS]....GET API/SENSORS/RAWSENSORDATA....')
       // --------------------------------
       axios.get('/api/sensors/rawsensordata', { } ).then (res => {
         // ----------------
@@ -175,7 +175,6 @@ const SensorState = props => {
   // ADD SENSOR
   // ----------
   const addSensor = async (sensor) => {
-    console.log(`.. API/SENSORS [POST]..`)
     const config = {
       headers: {
         'Content-Type': 'application/json'
@@ -201,7 +200,6 @@ const SensorState = props => {
   // --------------
   const deleteSensor = async id => {
     try {
-      console.log(`.. API/SENSORS [DELETE]..`)
       await axios.delete(`/api/sensors/${id}`);
       // --------------------------------------
       dispatch({
@@ -245,6 +243,7 @@ const SensorState = props => {
   return (
     <SensorContext.Provider
       value={{
+        fetchDateTime : state.fetchDateTime,
         sensors : state.sensors,
         wisensors : state.wisensors,
         sensorTypeMap : state.sensorTypeMap,
