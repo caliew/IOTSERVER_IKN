@@ -136,6 +136,62 @@ router.get('/testsite',async(req,res)=>{
   //  ----------------------------------
 })
 
+// ---
+// IJN
+// ---
+router.get('/IJN/rawdata',auth,async(req,res)=>{
+  // ---------
+  let ObjData = req.query;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // ---------
+  _data.read('IJN','settings',function(err,settingData) {
+    ObjData['settings'] = settingData;
+    //  ---------------------
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0,0,0);
+    _today1.setHours(23,59,59);    
+    //  -----------------------
+    let nCOUNT = 0;
+    Object.keys(settingData).forEach((key,index)=>{
+      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
+        // ---------
+        nCOUNT += 1;
+        if (err) ObjData[key] = sensorData;
+        if (nCOUNT == Object.keys(settingData).length) {
+          _logs.read('_IJN',nTotalLines,_date0,_date1,false,function(err,sensorData) {
+            // --------------------------------------------
+            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
+            // --------------------------------------------
+            if (err) {
+              ObjData['sensorData'] = sensorData;
+              _logs.read('_IJNALERTS',1000,_today0,_today1,false,function(err,AlertData){
+                ObjData['alerts'] = AlertData;
+                res.status(200).send(ObjData);
+              })
+            }
+          });          
+        }        
+      })
+    })
+
+  });
+})
+router.put('/IJN/settings',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.update('IJN','settings', ObjData, function (err) { 
+    // console.log(err);
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
+})
+
+// ---------
+// SNOW CITY
+// ---------
 router.get('/snowcity/rawdata',auth,async(req,res)=>{
   // ---------
   let ObjData = req.query;
@@ -177,8 +233,18 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   });
 })
 router.put('/snowcity/settings',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.update('snowcity','settings', ObjData, function (err) { 
+    // console.log(err);
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
 })
 
+// ------
+// SHINKO
+// ------
 router.get('/shinko/rawdata', auth, async(req,res) => {
   // ---------
   let ObjData = req.query;
@@ -229,6 +295,9 @@ router.put('/shinko/settings',auth,async(req,res) => {
   res.status(200).send('FILE UPDATED..');
 })
 
+// ------------
+// TEAWAREHOUSE
+// ------------
 router.get('/teawarehouse/rawdata', auth, async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   let ObjData = req.query;
@@ -256,7 +325,6 @@ router.put('/teawarehouse/settings',auth,async(req,res) => {
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
 })
-
 router.get('/teawarehouse/alerts',auth,async(req,res)=>{
   let ObjData = req.query;
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 5000;
@@ -270,6 +338,7 @@ router.get('/teawarehouse/alerts',auth,async(req,res)=>{
   })
 })
 
+// ------------------------------------
 // @route     GET api/sensors/statsdata
 // @desc      Get all sensors
 // @access    Private

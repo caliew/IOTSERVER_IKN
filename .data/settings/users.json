@@ -1,0 +1,74 @@
+[{
+  "name": "superuser",
+  "email": "ADMIN@AEROSOFT.COM",
+  "phone": 97668621,
+  "password": "$2a$10$b7xA52epcD5bPNihKv4In.LSjw23y92bhs6czOC1mlz93VN0fSWDa",
+  "status": true,
+  "usertype": "administrator",
+  "companyname": "AeroSOFT Technologies Pte Ltd"
+},{
+  "name": "YEW KWONG LEE",
+  "email": "JAMESLEE@AFFLUENTENGG.COM",
+  "phone": 60122451503,
+  "password": "$2a$10$SCr139kth9fHGGS9CRaFtOuhR7lAYTtbDeJY/4OqkGpBiF7WdZhTO",
+  "status": true,
+  "companyname": "AFFLUENT",
+  "usertype": "user"
+},{
+  "name": "Leslie Liew",
+  "email": "WHLIEW@SUARAKOM.COM.MY",
+  "phone": 127036171,
+  "password": "$2a$10$J/.ek2l1duWAuqlE60NiNeGdfazhGFumhhZearyRjhwK14nR/tbjG",
+  "status": false,
+  "companyname": "SuaraKOM",
+  "usertype": "user"
+},{
+  "name": "IKN ADMINSTRATOR",
+  "email": "ADMIN@IKN.COM",
+  "phone": 6597668621,
+  "password": "$2a$10$b7xA52epcD5bPNihKv4In.LSjw23y92bhs6czOC1mlz93VN0fSWDa",
+  "status": true,
+  "companyname": "IKN",
+  "usertype": "administrator"
+},{
+  "name": "TDK AMINISTRATOR",
+  "email": "ADMIN@TDK.COM",
+  "phone": 60127201522,
+  "password": "$2a$10$b7xA52epcD5bPNihKv4In.LSjw23y92bhs6czOC1mlz93VN0fSWDa",
+  "status": true,
+  "companyname": "TDK",
+  "usertype": "administrator"
+},{
+  "usertype": "user",
+  "status": true,
+  "name": "IKN STAFF",
+  "email": "STAFF@IKN.COM",
+  "companyname": "IKN",
+  "phone": 123456789,
+  "password2": "$2a$10$Liq.BXwTlke0TUkseYT4F.3v25bMh9SM26jSV7cIscRZOT7S58IbC",
+  "password": "$2a$10$b7xA52epcD5bPNihKv4In.LSjw23y92bhs6czOC1mlz93VN0fSWDa",
+},{
+  "usertype": "user",
+  "status": true,
+  "name": "Guest Demo",
+  "email": "DEMO@AEROSOFT.COM",
+  "companyname": "AeroSOFT Technologies Pte Ltd",
+  "phone": 65123456,
+  "password": "$2a$10$55W8hHGKcvx7cVr1vAREzeDdhhhq4T5X2fYOHimc9wVHjLAa/5F1a",
+},{
+  "usertype": "user",
+  "status": true,
+  "name": "Nippon Glass",
+  "email": "DEMO@NIPPONGLASS.COM",
+  "companyname": "Nippon Glass",
+  "phone": 12345678,
+  "password": "$2a$10$5wxGSWtzb58UP5tcKWA8a.YWpGbY9NgaarISrMA8W.oVmyxQ3GJ/S",
+},{
+  "usertype": "user",
+  "status": true,
+  "name": "TDK STAFF",
+  "email": "STAFF@TDK.COM",
+  "companyname": "TDK",
+  "phone": 123456,
+  "password": "$2a$10$b7xA52epcD5bPNihKv4In.LSjw23y92bhs6czOC1mlz93VN0fSWDa",
+}]
