@@ -301,7 +301,7 @@ router.put('/shinko/settings',auth,async(req,res) => {
 router.get('/teawarehouse/rawdata', auth, async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 2000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
   _logs.read('_TEAWAREHOUSE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
