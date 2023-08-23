@@ -1,5 +1,0 @@
-{
-  "1":{"id":'B0-BC-82-C4-C4-41',"NAME":"L1 - COLD ROOM MS","Temperature":{"max":30,"min":0},"Humidity":{"min":0,"max":65}},
-  "2":{"id":'B0-2F-E0-3F-DC-9B',"NAME":"L1 - CYTOTOXIC FRIDGE","Temperature":{"max":30,"min":0},"Humidity":{"min":0,"max":65}},
-  "3":{"id":'B0-B6-C7-46-4D-53',"NAME":"L1 - PHARMACEUTICAL FRIDGE","Temperature":{"max":30,"min":0},"Humidity":{"min":0,"max":65}},
-}
