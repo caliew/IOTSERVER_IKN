@@ -28,7 +28,7 @@ const HomePage = () => {
 	const { getNotification } = notificationContext;
 	// ---------------------------------------------
 	const sensorContext = useContext(SensorContext);
-	const { filterSensors, sensorsData, sensors, getSensors } = sensorContext;
+	const { filterSensors, sensorsData, getSensors } = sensorContext;
 	// ---------------------
 	const [timerFlag, setTimerFlag] = useState(false);
 	const [selection,setSelection] = useState(null);

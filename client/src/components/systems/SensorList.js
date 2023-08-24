@@ -166,7 +166,7 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 				let _RH = Number(logsdata[0].Humidity);
 				// --------
 				let absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
-				reading = ( logsdata[0].Humidity && logsdata[0].Humidity > 0) ? reading = `${reading} RH:${logsdata[0].Humidity.toFixed(1)}%  ABS:${absRH.toFixed(1)}%` : reading;
+				reading = ( logsdata[0].Humidity && logsdata[0].Humidity > 0) ? reading = `${reading} RH:${logsdata[0].Humidity.toFixed(1)}%  ABS:${absRH.toFixed(1)}g.m-3` : reading;
 				limits = sensor.limits ? `${sensor.limits.TEMPERATURE_MIN}°C/${sensor.limits.TEMPERATURE_MAX}°C` : `NA/NA`			
 				break;
 			default:

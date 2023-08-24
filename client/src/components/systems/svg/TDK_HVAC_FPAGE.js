@@ -54,7 +54,7 @@ const wiSensorList = [
 function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	// -------------------------------------
 	const sensorContext = useContext(SensorContext);
-	const { sensors, getSensors,fetchDateTime } = sensorContext;
+	const { fetchDateTime } = sensorContext;
 	// ------------------------------------------
 	const [counter,setCounter] = useState(0);
 	// --------------------------------------

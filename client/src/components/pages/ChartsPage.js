@@ -136,6 +136,70 @@ const ChartsPage = () => {
 			series: getSeriesRH(1)
 		})
 	};
+	const getOptionRHC = ({title}) => {
+		// ----------
+		return ({
+			title: { text: `${title}` },
+			tooltip: { trigger: "axis" },
+			legend: { 
+				width: "83%",
+				height: "17%",
+				bottom: "91%",
+				top: "10%",
+				data: getLegendsRHData()
+			},
+			grid: {
+				left: "3%",
+				right: "4%",
+				bottom: "3%",
+				containLabel: true
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					dataZoom: { yAxisIndex: 'none' },
+					dataView: { readOnly: false },
+					magicType: { type: ['line', 'bar'] },
+					restore: {},
+					saveAsImage: {},
+				}
+			},
+			xAxis: {
+				type: 'time',
+				boundaryGap: false,
+				splitLine: { show: false }
+			},
+			yAxis: {
+				type: 'value',
+				axisLabel: { formatter: '{value} g.m-3' },
+				boundaryGap: [0, '100%'],
+				splitLine: { show: false }
+			},
+			dataZoom: [
+				{
+					type: 'slider',
+					xAxisIndex: 0,
+					filterMode: 'none'
+				},
+				{
+					type: 'slider',
+					yAxisIndex: 0,
+					filterMode: 'none'
+				},
+				{
+					type: 'inside',
+					xAxisIndex: 0,
+					filterMode: 'none'
+				},
+				{
+					type: 'inside',
+					yAxisIndex: 0,
+					filterMode: 'none'
+				}
+			],
+			series: getSeriesRH(2)
+		})
+	};
 	const getOptionVEL = ({title}) => {
 		return ({
 			title: { text: `${title}` },
@@ -569,7 +633,13 @@ const ChartsPage = () => {
 					_reading = nIndex === 0 ? _reading1 : _reading;
 					break;
 				case "WISENSOR":
-					_reading = nIndex === 0 ? (_data.Temperature ? Number(_data.Temperature):null) : ( _data.Humidity ? Number(_data.Humidity) : null) ;
+					// ABSOLUTE HUMIDITY = 6.112 x ( e^((17.67xT)/(T+243.50)) ) x R H x2.1674 / (273.15+T)
+					let _Temp = Number(_data.Temperature);
+					let _RH = Number(_data.Humidity);
+					let absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
+					nIndex === 0 && (_reading = _Temp);
+					nIndex === 1 && (_reading = _RH);
+					nIndex === 2 && (_reading = absRH);
 					break;
 				default:
 					break;
@@ -679,8 +749,8 @@ const ChartsPage = () => {
 		}
 		// ----------------------
 		if (sensor.type === 'WISENSOR' || sensor.type==='AIRRH(485)' || sensor.type==='WTRTEMP(485)') {
-			_found = plotRHSensors.find( el => el.dtuId === sensor.dtuId && el.sensorId === sensor.sensorId)
-			if (_found === undefined) {
+			_found = plotRHSensors.find( el => el.dtuId === sensor.dtuId && el.sensorId === sensor.sensorId);
+			if (!_found) {
 				let _plotRHsensors = [ ...plotRHSensors ];
 				_plotRHsensors.push(sensor);
 				setPlotRHSensor(_plotRHsensors);
@@ -1159,18 +1229,27 @@ const ChartsPage = () => {
 							<MDBBox display="flex" >
 								<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(3,e.target.value)}}/>
 								<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(4,e.target.value)}}/>
-							</MDBBox >)}
+							</MDBBox >
+							)}
 						{ plotRHSensors.length > 0 && (
 								<ReactEcharts
 									option={getOptionRHB({title:'HUMIDITY %'})}
 									style={{ height: "500px", width: "100%" }}
 								/>				
 						)}
+						{ plotRHSensors?.length>0 && console.log(plotRHSensors[0]['type']) } 
+						{ plotRHSensors?.length>0 && plotRHSensors[0]['type'].toUpperCase() === 'WISENSOR' && (
+								<ReactEcharts
+									option={getOptionRHC({title:'ABS HUMIDITY'})}
+									style={{ height: "500px", width: "100%" }}
+								/>				
+							)}
 						{ plotVELSensors.length > 0 && (
 							<MDBBox display="flex" >
 								<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(5,e.target.value)}}/>
 								<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(6,e.target.value)}}/>
-							</MDBBox >)}
+							</MDBBox >
+							)}
 						{ plotVELSensors.length > 0 && (
 								<ReactEcharts
 									option={getOptionVEL({title:'VELOCITY'})}
@@ -1181,7 +1260,8 @@ const ChartsPage = () => {
 							<MDBBox display="flex" >
 								<MDBInput label="BAND MAX" outline onChange={(e)=>{BandMaxChange(7,e.target.value)}}/>
 								<MDBInput label="BAND MIN" outline onChange={(e)=>{BandMaxChange(8,e.target.value)}}/>
-							</MDBBox >)}
+							</MDBBox >
+							)}
 						{ plotPRESSSensors.length > 0 && (
 								<ReactEcharts
 									option={getOptionPRESS({title:'PRESSURE(BAR)'})}
