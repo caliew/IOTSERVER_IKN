@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect,useState,useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../../context/auth/authContext';
