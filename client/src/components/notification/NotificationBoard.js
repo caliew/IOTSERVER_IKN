@@ -8,7 +8,7 @@ const Notification = () => {
   const notificationContext = useContext(NotificationContext);	
   const { notifications } = notificationContext;
 	const [userNotifications,setNotifications] = useState(null);
-	const [toggleListing,setToggleListing] = useState(true); 
+	const [toggleListing,setToggleListing] = useState(false); 
 	const [toggleTODAYListing,setToggleTODAYListing] = useState(true);
 	// ---------------------------------------------
 	const sensorContext = useContext(SensorContext);

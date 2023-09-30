@@ -142,7 +142,7 @@ const Test = () => {
 	return (
     <main style={{ marginTop: '2rem' }}>
       <div class="container-fluid mt-5">
-      <MDBBtn onClick={()=>RELOADRAWDARA()}>REFRESH</MDBBtn>     
+      <MDBBtn onClick={()=>RELOADRAWDARA()}>RELOAD DATA</MDBBtn>     
       <MDBDataTable 
         entriesOptions={[10, 20, 50, 100]}
         small

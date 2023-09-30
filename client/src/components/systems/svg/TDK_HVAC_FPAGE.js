@@ -258,215 +258,226 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 	// ----------
 	// FLOOR PLAN
 	// ----------
+	const DRAWPLAN_TEXT = () => {
+		return (
+			<>
+				<g transform="translate(610,550)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getRHColor(1)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(1)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(1)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(1)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">01</text>
+				</g>
+				<g transform="translate(810,550)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(2)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(2)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(2)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(2)} stroke-width={strkwidthTemp} fill="none" />
+					<circle cx="0" cy="0" r="10" fill="white" filter="url(#heatMap)" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">02</text>
+				</g>
+				<g transform="translate(310,450)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(3)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(3)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(3)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(3)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">03</text>
+				</g>
+				<g transform="translate(360,250)" >
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(4)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(4)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">04</text>
+				</g>
+				
+				<g transform="translate(1000,410)" >
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(5)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(5)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">05</text>
+				</g>
+
+				<g transform="translate(1130,320)" >
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(6)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(6)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">06</text>
+				</g>
+				<g transform="translate(940,280)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(7)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(7)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(7)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(7)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">07</text>
+				</g>
+				<g transform="translate(960,200)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(8)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(8)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(8)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(8)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">08</text>
+				</g>
+				<g transform="translate(460,280)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(9)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(9)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(9)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(9)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">09</text>
+				</g>
+				<g transform="translate(480,600)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(10)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(10)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(10)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(10)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">10</text>
+				</g>
+				<g transform="translate(655,210)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(11)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(11)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(11)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(11)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">11</text>
+				</g>
+				<g transform="translate(600,250)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(12)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(12)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(12)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(12)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">12</text>
+				</g>
+				<g transform="translate(600,180)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(13)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(13)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(13)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(13)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">13</text>
+				</g>
+				<g transform="translate(513,280)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(14)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(14)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(14)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(14)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">14</text>
+				</g>
+				<g transform="translate(640,360)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(15)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(15)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(15)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(15)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">15</text>
+				</g>
+				<g transform="translate(710,410)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(16)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(16)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(16)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(16)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">16</text>
+				</g>
+				<g transform="translate(650,410)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(17)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(17)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(17)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(17)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">17</text>
+				</g>
+				<g transform="translate(725,290)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(18)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(18)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(18)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(18)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-12" y="5" font-size='1.2rem' fill="white">18</text>
+				</g>
+				<g transform="translate(670,300)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(19)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(19)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(19)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(19)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">19</text>
+				</g>
+				<g transform="translate(510,400)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(20)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(20)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(20)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(20)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">20</text>
+				</g>
+				<g transform="translate(510,200)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor1(21)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(21)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(21)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(21)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">21</text>
+				</g>
+				<g transform="translate(760,140)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor2(22)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor2(22)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor2(22)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor2(22)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">22</text>
+				</g>
+				<g transform="translate(700,80)" >
+					{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor2(23)} filter="url(#heatMap)" /> */}
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor2(23)} filter="url(#heatMap)" />
+					{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(23)} stroke-width={strkwidthHumd} fill="none" /> */}
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor2(23)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">23</text>
+				</g>
+				<g transform="translate(630,80)" >
+					<circle cx="0" cy="0" r="40" fill={getHumidityColor2(24)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="25" fill={getTemperatureColor2(24)} filter="url(#heatMap)" />
+					<circle cx="0" cy="0" r="35" stroke={getHumidityColor2(24)} stroke-width={strkwidthHumd} fill="none" />
+					<circle cx="0" cy="0" r="20" stroke={getTemperatureColor2(24)} stroke-width={strkwidthTemp} fill="none" />
+					<text x="-10" y="5" font-size='1.2rem' fill="white">24</text>
+				</g>
+			</>
+		)
+	}
+	const DRAWPLAN_HEATMAP = () => {
+		return (
+			<>
+				<g transform="translate(0,0) scale(1.0,1.00)" fill={color} >
+					<text x="0" y="0"   font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(1)}>{`${getWiSensor(1)['id']} \u00A0\u00A0${getWiSensor(1)['name']} \u00A0\u00A0${getWiSensor(1)['temperature']}℃ RH=${getWiSensor(1)['RH']}% ABS=${getWiSensor(1)['ABS']}g/m3`}</text>
+					<text x="0" y="30"  font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(2)}>{`${getWiSensor(2)['id']} \u00A0\u00A0${getWiSensor(2)['name']} \u00A0\u00A0${getWiSensor(2)['temperature']}℃ RH=${getWiSensor(2)['RH']}% ABS=${getWiSensor(2)['ABS']}g/m3`}</text>
+					<text x="0" y="60"  font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(3)}>{`${getWiSensor(3)['id']} \u00A0\u00A0${getWiSensor(3)['name']} \u00A0\u00A0${getWiSensor(3)['temperature']}℃ RH=${getWiSensor(3)['RH']}% ABS=${getWiSensor(3)['ABS']}g/m3`}</text>
+					<text x="0" y="90"  font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(4)}>{`${getWiSensor(4)['id']} \u00A0\u00A0${getWiSensor(4)['name']} \u00A0\u00A0${getWiSensor(4)['temperature']}℃ RH=${getWiSensor(4)['RH']}% ABS=${getWiSensor(4)['ABS']}g/m3`}</text>
+					<text x="0" y="120" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(5)}>{`${getWiSensor(5)['id']} \u00A0\u00A0${getWiSensor(5)['name']} \u00A0\u00A0${getWiSensor(5)['temperature']}℃ RH=${getWiSensor(5)['RH']}% ABS=${getWiSensor(5)['ABS']}g/m3`}</text>
+					<text x="0" y="150" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(6)}>{`${getWiSensor(6)['id']} \u00A0\u00A0${getWiSensor(6)['name']} \u00A0\u00A0${getWiSensor(6)['temperature']}℃ RH=${getWiSensor(6)['RH']}% ABS=${getWiSensor(6)['ABS']}g/m3`}</text>
+					<text x="0" y="180" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(7)}>{`${getWiSensor(7)['id']} \u00A0\u00A0${getWiSensor(7)['name']} \u00A0\u00A0${getWiSensor(7)['temperature']}℃ RH=${getWiSensor(7)['RH']}% ABS=${getWiSensor(7)['ABS']}g/m3`}</text>
+					<text x="0" y="210" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(8)}>{`${getWiSensor(8)['id']} \u00A0\u00A0${getWiSensor(8)['name']} \u00A0\u00A0${getWiSensor(8)['temperature']}℃ RH=${getWiSensor(8)['RH']}% ABS=${getWiSensor(8)['ABS']}g/m3`}</text>
+					<text x="0" y="240" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(9)}>{`${getWiSensor(9)['id']} \u00A0\u00A0${getWiSensor(9)['name']} \u00A0\u00A0${getWiSensor(9)['temperature']}℃ RH=${getWiSensor(9)['RH']}% ABS=${getWiSensor(9)['ABS']}g/m3`}</text>
+					<text x="0" y="270" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(10)}>{`${getWiSensor(10)['id']} \u00A0\u00A0${getWiSensor(10)['name']} \u00A0\u00A0${getWiSensor(10)['temperature']}℃ RH=${getWiSensor(10)['RH']}% ABS=${getWiSensor(10)['ABS']}g/m3`}</text>
+					<text x="0" y="300" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(11)}>{`${getWiSensor(11)['id']} \u00A0\u00A0${getWiSensor(11)['name']} \u00A0\u00A0${getWiSensor(11)['temperature']}℃ RH=${getWiSensor(11)['RH']}% ABS=${getWiSensor(11)['ABS']}g/m3`}</text>
+					<text x="0" y="330" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(12)}>{`${getWiSensor(12)['id']} \u00A0\u00A0${getWiSensor(12)['name']} \u00A0\u00A0${getWiSensor(12)['temperature']}℃ RH=${getWiSensor(12)['RH']}% ABS=${getWiSensor(12)['ABS']}g/m3`}</text>
+					<text x="0" y="360" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(13)}>{`${getWiSensor(13)['id']} \u00A0\u00A0${getWiSensor(13)['name']} \u00A0\u00A0${getWiSensor(13)['temperature']}℃ RH=${getWiSensor(13)['RH']}% ABS=${getWiSensor(13)['ABS']}g/m3`}</text>
+					<text x="0" y="390" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(14)}>{`${getWiSensor(14)['id']} \u00A0\u00A0${getWiSensor(14)['name']} \u00A0\u00A0${getWiSensor(14)['temperature']}℃ RH=${getWiSensor(14)['RH']}% ABS=${getWiSensor(14)['ABS']}g/m3`}</text>
+					<text x="0" y="420" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(15)}>{`${getWiSensor(15)['id']} \u00A0\u00A0${getWiSensor(15)['name']} \u00A0\u00A0${getWiSensor(15)['temperature']}℃ RH=${getWiSensor(15)['RH']}% ABS=${getWiSensor(15)['ABS']}g/m3`}</text>
+					<text x="0" y="450" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(16)}>{`${getWiSensor(16)['id']} \u00A0\u00A0${getWiSensor(16)['name']} \u00A0\u00A0${getWiSensor(16)['temperature']}℃ RH=${getWiSensor(16)['RH']}% ABS=${getWiSensor(16)['ABS']}g/m3`}</text>
+					<text x="0" y="480" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(17)}>{`${getWiSensor(17)['id']} \u00A0\u00A0${getWiSensor(17)['name']} \u00A0\u00A0${getWiSensor(17)['temperature']}℃ RH=${getWiSensor(17)['RH']}% ABS=${getWiSensor(17)['ABS']}g/m3`}</text>
+					<text x="0" y="510" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(18)}>{`${getWiSensor(18)['id']} \u00A0\u00A0${getWiSensor(18)['name']} \u00A0\u00A0${getWiSensor(18)['temperature']}℃ RH=${getWiSensor(18)['RH']}% ABS=${getWiSensor(18)['ABS']}g/m3`}</text>
+					<text x="0" y="540" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(19)}>{`${getWiSensor(19)['id']} \u00A0\u00A0${getWiSensor(19)['name']} \u00A0\u00A0${getWiSensor(19)['temperature']}℃ RH=${getWiSensor(19)['RH']}% ABS=${getWiSensor(19)['ABS']}g/m3`}</text>
+					<text x="0" y="570" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(20)}>{`${getWiSensor(20)['id']} \u00A0\u00A0${getWiSensor(20)['name']} \u00A0\u00A0${getWiSensor(20)['temperature']}℃ RH=${getWiSensor(20)['RH']}% ABS=${getWiSensor(20)['ABS']}g/m3`}</text>
+					<text x="0" y="600" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(21)}>{`${getWiSensor(21)['id']} \u00A0\u00A0${getWiSensor(21)['name']} \u00A0\u00A0${getWiSensor(21)['temperature']}℃ RH=${getWiSensor(21)['RH']}% ABS=${getWiSensor(21)['ABS']}g/m3`}</text>
+				</g>
+				<g transform="translate(0,100) scale(1.0,1.00)" fill={color} >
+					<text x="0" y="650" font-family="Tahoma"font-size='1.25rem' fill={getTemperatureColor2(22)}>{`${getWiSensor(22)['id']} \u00A0\u00A0${getWiSensor(22)['name']} \u00A0\u00A0${getWiSensor(22)['temperature']}℃ RH=${getWiSensor(22)['RH']}% ABS=${getWiSensor(22)['ABS']}g/m3`}</text>
+					<text x="0" y="680" font-family="Tahoma"font-size='1.25rem' fill={getTemperatureColor2(23)}>{`${getWiSensor(23)['id']} \u00A0\u00A0${getWiSensor(23)['name']} \u00A0\u00A0${getWiSensor(23)['temperature']}℃ RH=${getWiSensor(23)['RH']}% ABS=${getWiSensor(23)['ABS']}g/m3`}</text>
+					<text x="0" y="710" font-family="Tahoma"font-size='1.25rem' fill={getTemperatureColor2(24)}>{`${getWiSensor(24)['id']} \u00A0\u00A0${getWiSensor(24)['name']} \u00A0\u00A0${getWiSensor(24)['temperature']}℃ RH=${getWiSensor(24)['RH']}% ABS=${getWiSensor(24)['ABS']}g/m3`}</text>
+				</g>
+			</>
+		)
+
+	}
 	const DRAWFPLAN = () => {
 		// -----------
 		return (
 			<g transform="translate(0,0) scale(1.0,1.0)" fill={color} >
 				<g transform="translate(0,0) scale(0.70,0.70)" fill={color} >
-					<SVGFPLAN />
+					<SVGFPLAN /> 
 					{/* LOCATIONS */}
 					<g transform="translate(0,0)">
-						<g transform="translate(610,550)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getRHColor(1)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(1)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(1)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(1)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">01</text>
-						</g>
-						<g transform="translate(810,550)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(2)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(2)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(2)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(2)} stroke-width={strkwidthTemp} fill="none" />
-							<circle cx="0" cy="0" r="10" fill="white" filter="url(#heatMap)" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">02</text>
-						</g>
-						<g transform="translate(310,450)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(3)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(3)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(3)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(3)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">03</text>
-						</g>
-						<g transform="translate(360,250)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(4)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(4)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(4)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(4)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">04</text>
-						</g>
-						<g transform="translate(1000,410)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(5)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(5)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(5)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(5)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">05</text>
-						</g>
-						<g transform="translate(1130,320)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(6)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(6)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(6)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(6)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">06</text>
-						</g>
-						<g transform="translate(940,280)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(7)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(7)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(7)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(7)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">07</text>
-						</g>
-						<g transform="translate(960,200)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(8)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(8)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(8)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(8)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">08</text>
-						</g>
-						<g transform="translate(460,280)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(9)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(9)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(9)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(9)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">09</text>
-						</g>
-						<g transform="translate(480,600)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor1(10)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(10)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(10)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(10)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">10</text>
-						</g>
-						<g transform="translate(655,210)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(11)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(11)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(11)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(11)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">11</text>
-						</g>
-						<g transform="translate(600,250)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(12)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(12)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(12)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(12)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">12</text>
-						</g>
-						<g transform="translate(600,180)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(13)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(13)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(13)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(13)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">13</text>
-						</g>
-						<g transform="translate(513,280)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(14)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(14)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(14)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(14)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">14</text>
-						</g>
-						<g transform="translate(640,360)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(15)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(15)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(15)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(15)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">15</text>
-						</g>
-						<g transform="translate(710,410)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(16)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(16)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(16)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(16)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">16</text>
-						</g>
-						<g transform="translate(650,410)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(17)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(17)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(17)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(17)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">17</text>
-						</g>
-						<g transform="translate(725,290)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(18)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(18)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(18)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(18)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-12" y="5" font-size='1.2rem' fill="white">18</text>
-						</g>
-						<g transform="translate(670,300)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(19)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(19)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(19)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(19)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">19</text>
-						</g>
-						<g transform="translate(510,400)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(20)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(20)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(20)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(20)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">20</text>
-						</g>
-						<g transform="translate(510,200)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor1(21)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor1(21)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor1(21)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor1(21)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">21</text>
-						</g>
-						<g transform="translate(760,140)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor2(22)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor2(22)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor2(22)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor2(22)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">22</text>
-						</g>
-						<g transform="translate(700,80)" >
-							{/* <circle cx="0" cy="0" r="40" fill={getHumidityColor2(23)} filter="url(#heatMap)" /> */}
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor2(23)} filter="url(#heatMap)" />
-							{/* <circle cx="0" cy="0" r="35" stroke={getHumidityColor1(23)} stroke-width={strkwidthHumd} fill="none" /> */}
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor2(23)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">23</text>
-						</g>
-						<g transform="translate(630,80)" >
-							<circle cx="0" cy="0" r="40" fill={getHumidityColor2(24)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="25" fill={getTemperatureColor2(24)} filter="url(#heatMap)" />
-							<circle cx="0" cy="0" r="35" stroke={getHumidityColor2(24)} stroke-width={strkwidthHumd} fill="none" />
-							<circle cx="0" cy="0" r="20" stroke={getTemperatureColor2(24)} stroke-width={strkwidthTemp} fill="none" />
-							<text x="-10" y="5" font-size='1.2rem' fill="white">24</text>
-						</g>
+						{ DRAWPLAN_TEXT() }
 					</g>
 				</g>
 				{/* LABELS*/}
 				<g transform="translate(1250,60) scale(0.80,0.80)" >
-					<g transform="translate(0,0) scale(1.0,1.00)" fill={color} >
-						<text x="0" y="0"   font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(1)}>{`${getWiSensor(1)['id']} \u00A0\u00A0${getWiSensor(1)['name']} \u00A0\u00A0${getWiSensor(1)['temperature']}℃ RH=${getWiSensor(1)['RH']}% ABS=${getWiSensor(1)['ABS']}g/m3`}</text>
-						<text x="0" y="30"  font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(2)}>{`${getWiSensor(2)['id']} \u00A0\u00A0${getWiSensor(2)['name']} \u00A0\u00A0${getWiSensor(2)['temperature']}℃ RH=${getWiSensor(2)['RH']}% ABS=${getWiSensor(2)['ABS']}g/m3`}</text>
-						<text x="0" y="60"  font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(3)}>{`${getWiSensor(3)['id']} \u00A0\u00A0${getWiSensor(3)['name']} \u00A0\u00A0${getWiSensor(3)['temperature']}℃ RH=${getWiSensor(3)['RH']}% ABS=${getWiSensor(3)['ABS']}g/m3`}</text>
-						<text x="0" y="90"  font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(4)}>{`${getWiSensor(4)['id']} \u00A0\u00A0${getWiSensor(4)['name']} \u00A0\u00A0${getWiSensor(4)['temperature']}℃ RH=${getWiSensor(4)['RH']}% ABS=${getWiSensor(4)['ABS']}g/m3`}</text>
-						<text x="0" y="120" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(5)}>{`${getWiSensor(5)['id']} \u00A0\u00A0${getWiSensor(5)['name']} \u00A0\u00A0${getWiSensor(5)['temperature']}℃ RH=${getWiSensor(5)['RH']}% ABS=${getWiSensor(5)['ABS']}g/m3`}</text>
-						<text x="0" y="150" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(6)}>{`${getWiSensor(6)['id']} \u00A0\u00A0${getWiSensor(6)['name']} \u00A0\u00A0${getWiSensor(6)['temperature']}℃ RH=${getWiSensor(6)['RH']}% ABS=${getWiSensor(6)['ABS']}g/m3`}</text>
-						<text x="0" y="180" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(7)}>{`${getWiSensor(7)['id']} \u00A0\u00A0${getWiSensor(7)['name']} \u00A0\u00A0${getWiSensor(7)['temperature']}℃ RH=${getWiSensor(7)['RH']}% ABS=${getWiSensor(7)['ABS']}g/m3`}</text>
-						<text x="0" y="210" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(8)}>{`${getWiSensor(8)['id']} \u00A0\u00A0${getWiSensor(8)['name']} \u00A0\u00A0${getWiSensor(8)['temperature']}℃ RH=${getWiSensor(8)['RH']}% ABS=${getWiSensor(8)['ABS']}g/m3`}</text>
-						<text x="0" y="240" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(9)}>{`${getWiSensor(9)['id']} \u00A0\u00A0${getWiSensor(9)['name']} \u00A0\u00A0${getWiSensor(9)['temperature']}℃ RH=${getWiSensor(9)['RH']}% ABS=${getWiSensor(9)['ABS']}g/m3`}</text>
-						<text x="0" y="270" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(10)}>{`${getWiSensor(10)['id']} \u00A0\u00A0${getWiSensor(10)['name']} \u00A0\u00A0${getWiSensor(10)['temperature']}℃ RH=${getWiSensor(10)['RH']}% ABS=${getWiSensor(10)['ABS']}g/m3`}</text>
-						<text x="0" y="300" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(11)}>{`${getWiSensor(11)['id']} \u00A0\u00A0${getWiSensor(11)['name']} \u00A0\u00A0${getWiSensor(11)['temperature']}℃ RH=${getWiSensor(11)['RH']}% ABS=${getWiSensor(11)['ABS']}g/m3`}</text>
-						<text x="0" y="330" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(12)}>{`${getWiSensor(12)['id']} \u00A0\u00A0${getWiSensor(12)['name']} \u00A0\u00A0${getWiSensor(12)['temperature']}℃ RH=${getWiSensor(12)['RH']}% ABS=${getWiSensor(12)['ABS']}g/m3`}</text>
-						<text x="0" y="360" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(13)}>{`${getWiSensor(13)['id']} \u00A0\u00A0${getWiSensor(13)['name']} \u00A0\u00A0${getWiSensor(13)['temperature']}℃ RH=${getWiSensor(13)['RH']}% ABS=${getWiSensor(13)['ABS']}g/m3`}</text>
-						<text x="0" y="390" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(14)}>{`${getWiSensor(14)['id']} \u00A0\u00A0${getWiSensor(14)['name']} \u00A0\u00A0${getWiSensor(14)['temperature']}℃ RH=${getWiSensor(14)['RH']}% ABS=${getWiSensor(14)['ABS']}g/m3`}</text>
-						<text x="0" y="420" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(15)}>{`${getWiSensor(15)['id']} \u00A0\u00A0${getWiSensor(15)['name']} \u00A0\u00A0${getWiSensor(15)['temperature']}℃ RH=${getWiSensor(15)['RH']}% ABS=${getWiSensor(15)['ABS']}g/m3`}</text>
-						<text x="0" y="450" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(16)}>{`${getWiSensor(16)['id']} \u00A0\u00A0${getWiSensor(16)['name']} \u00A0\u00A0${getWiSensor(16)['temperature']}℃ RH=${getWiSensor(16)['RH']}% ABS=${getWiSensor(16)['ABS']}g/m3`}</text>
-						<text x="0" y="480" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(17)}>{`${getWiSensor(17)['id']} \u00A0\u00A0${getWiSensor(17)['name']} \u00A0\u00A0${getWiSensor(17)['temperature']}℃ RH=${getWiSensor(17)['RH']}% ABS=${getWiSensor(17)['ABS']}g/m3`}</text>
-						<text x="0" y="510" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(18)}>{`${getWiSensor(18)['id']} \u00A0\u00A0${getWiSensor(18)['name']} \u00A0\u00A0${getWiSensor(18)['temperature']}℃ RH=${getWiSensor(18)['RH']}% ABS=${getWiSensor(18)['ABS']}g/m3`}</text>
-						<text x="0" y="540" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(19)}>{`${getWiSensor(19)['id']} \u00A0\u00A0${getWiSensor(19)['name']} \u00A0\u00A0${getWiSensor(19)['temperature']}℃ RH=${getWiSensor(19)['RH']}% ABS=${getWiSensor(19)['ABS']}g/m3`}</text>
-						<text x="0" y="570" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(20)}>{`${getWiSensor(20)['id']} \u00A0\u00A0${getWiSensor(20)['name']} \u00A0\u00A0${getWiSensor(20)['temperature']}℃ RH=${getWiSensor(20)['RH']}% ABS=${getWiSensor(20)['ABS']}g/m3`}</text>
-						<text x="0" y="600" font-family="Tahoma" font-size='1.25rem' fill={getTemperatureColor1(21)}>{`${getWiSensor(21)['id']} \u00A0\u00A0${getWiSensor(21)['name']} \u00A0\u00A0${getWiSensor(21)['temperature']}℃ RH=${getWiSensor(21)['RH']}% ABS=${getWiSensor(21)['ABS']}g/m3`}</text>
-					</g>
-					<g transform="translate(0,100) scale(1.0,1.00)" fill={color} >
-						<text x="0" y="650" font-family="Tahoma"font-size='1.25rem' fill={getTemperatureColor2(22)}>{`${getWiSensor(22)['id']} \u00A0\u00A0${getWiSensor(22)['name']} \u00A0\u00A0${getWiSensor(22)['temperature']}℃ RH=${getWiSensor(22)['RH']}% ABS=${getWiSensor(22)['ABS']}g/m3`}</text>
-						<text x="0" y="680" font-family="Tahoma"font-size='1.25rem' fill={getTemperatureColor2(23)}>{`${getWiSensor(23)['id']} \u00A0\u00A0${getWiSensor(23)['name']} \u00A0\u00A0${getWiSensor(23)['temperature']}℃ RH=${getWiSensor(23)['RH']}% ABS=${getWiSensor(23)['ABS']}g/m3`}</text>
-						<text x="0" y="710" font-family="Tahoma"font-size='1.25rem' fill={getTemperatureColor2(24)}>{`${getWiSensor(24)['id']} \u00A0\u00A0${getWiSensor(24)['name']} \u00A0\u00A0${getWiSensor(24)['temperature']}℃ RH=${getWiSensor(24)['RH']}% ABS=${getWiSensor(24)['ABS']}g/m3`}</text>
-					</g>
+					{ DRAWPLAN_HEATMAP() }
 				</g>
 				<g transform="translate(1250,-20) scale(0.9,0.90)" >
 					{ DRAWLEGENDS1() }
@@ -719,8 +730,8 @@ function TDK_IsoVIEW({ color, sensorsData, wisensors }) {
 		// -------------------------------
 		let _name = _object ? _object.name : '---';
 		let _uid = _object.uid;
-		let _temperature = (_wisensor && _wisensor.logsdata) ? _wisensor.logsdata[0].Temperature : 0;
-		let _humidity = (_wisensor && _wisensor.logsdata) ? _wisensor.logsdata[0].Humidity.toFixed(2) : 0;
+		let _temperature = (_wisensor?.logsdata && _wisensor.logsdata.length > 0) ? _wisensor.logsdata[0].Temperature : 0;
+		let _humidity = (_wisensor?.logsdata && _wisensor.logsdata.length > 0) ? _wisensor.logsdata[0].Humidity.toFixed(2) : 0;
 		let absRH = (6.12 * Math.exp( (17.67*_temperature)/(_temperature+243.50)) * _humidity * 2.1674 / ( 273.15 + _temperature )).toFixed(2);
 		// -------
 		let _data = { id:index, uid:_uid, name:_name, temperature:_temperature, RH:_humidity, ABS:absRH }

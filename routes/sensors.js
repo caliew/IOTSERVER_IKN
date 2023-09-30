@@ -343,32 +343,42 @@ router.get('/teawarehouse/alerts',auth,async(req,res)=>{
 // @desc      Get all sensors
 // @access    Private
 router.get('/statsPWRMTRdata', auth, async (req, res) => {
+  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
+  console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}] ..READ FROM [${String('DATA_PWRMTER').yellow}]..`)
+  _data.read('stats','DATA_PWRMTER',function(err,data) {
+    res.status(200).send(data);
+  })
+
+});
+router.get('/statsPWRMTRdata1', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
+  console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
   //  ------------------------------------
   _data.list('stats',function(err,files) {
     // ---------------
     let objData = [];
-    let nINVALID = 0;
     // --------------
+    const countSTAT = files.filter(file=>file.includes('STAT')).length;
     Object.entries(files).map(([index, file]) => {
       // --------
       if (file.includes('STAT')) {
         // -------
         _data.read('stats',file,function(err,data) {
           // ----------------
-          objData.push(data);
+          const keysToRemoved = ['DAYDATA'];
+          let objNewData = {...data};
+          keysToRemoved.forEach(key=>delete objNewData[key]);
+          objData.push(objNewData);
           // ----------------
-          if (objData.length == files.length-nINVALID) {
-            // ------
-            res.status(200).send(objData)
-            // -------
+          if (objData.length == countSTAT) {
+            // ---------------------------
+            _data.create('stats','DATA_PWRMTER',objData,function(err) { console.log('...FILE APPENED...',err)})
+            res.status(200).send(objData);
+            // ---------------------------
           }
         })
-        // -----
-      } else {
-        nINVALID += 1;
-      }
+      } 
     })
   })
 });
@@ -377,7 +387,7 @@ router.get('/statsDAYData', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
+  console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
   const user = await User.findById(req.query.id).select('-password');
     // ------
   _data.list('stats',function(err,files) {
@@ -385,6 +395,8 @@ router.get('/statsDAYData', auth, async (req, res) => {
     let objData = [];
     let nINVALID = 0;
     // --------
+    const countSTAT = files.filter(file=>file.includes('STAT')).length;
+    console.log(`.. <${'SENSORS.JS'.yellow}> ..STATS DIRECTORY FILE READ <${String(files.length).yellow}> ..STATS FILES <${countSTAT}>`);
     Object.entries(files).map(([index, file]) => {
       // ------
       _data.read('stats',file,function(err,data) {
@@ -393,10 +405,9 @@ router.get('/statsDAYData', auth, async (req, res) => {
           // ----------------
           objData.push(data);
           // --------
-          if (objData.length == files.length-1) {
+          if (objData.length == countSTAT) {
             // ----------
             // FILTER SENSOR IS BELONG TO THE USER COMPANY GROUP..
-            // console.log(objData);
             res.status(200).send(objData);
             // -------
           }
