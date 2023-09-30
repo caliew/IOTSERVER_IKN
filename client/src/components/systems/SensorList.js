@@ -155,7 +155,7 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 			case 'PWRMTR(485)':
 				let _HEXStr = logsdata.length > 1 ? logsdata[0].RCV_BYTES[0] + logsdata[0].RCV_BYTES[1] : '';
 				let _HEXInt = parseInt(_HEXStr,16)*0.01;
-				reading = logsdata.length > 0 ? `${Number(_HEXInt.toFixed(0))} kHh` : '- kWh';
+				reading = logsdata.length > 0 ? `${Number(_HEXInt.toFixed(0))} kWh` : '- kWh';
 				limits = '';
 				break;
 			case 'WISENSOR':
