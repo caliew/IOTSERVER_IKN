@@ -251,6 +251,7 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   // ---------
   _logs.read('_SHINKO',nTotalLines,_date0,_date1,false,function(err,sensorData) {
     // --------------------------------------------

@@ -223,7 +223,6 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     };
     function getRowsWeekDay() {
       // ------
-      console.log(statsData);
       return (
         <>
           <tr className='text-center align-middle'>

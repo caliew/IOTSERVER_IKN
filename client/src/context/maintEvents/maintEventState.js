@@ -20,16 +20,10 @@ const MaintEventState = props => {
       const params = { totalLines : 88, companyname: user.companyname, email: user.email };
       axios.get('/api/maintEvents', { params } ).then (res => {
         // -------
-        dispatch({
-          type: SET_MAINTEVENTS,
-          payload: res.data
-        });
+        dispatch({ type:SET_MAINTEVENTS, payload: res.data });
       }).catch ( err => {
         console.log(`..MAINTEVENTSTATE.JS .. MAINTEVENT_ERROR`);
-        dispatch({
-          type: MAINTEVENT_ERROR,
-          payload: null
-        });
+        dispatch({ type:MAINTEVENT_ERROR, payload: null });
       })
       // --------------
     } catch (err) {
@@ -48,10 +42,7 @@ const MaintEventState = props => {
     try {
       const res = await axios.post('/api/maintEvents', maintEvent, config);
       console.log(res.data);
-      dispatch({
-        type: ADD_MAINTEVENT,
-        payload: res.data
-      });
+      dispatch({ type:ADD_MAINTEVENT, payload: res.data });
     } catch (err) {
     }
   };
@@ -62,10 +53,7 @@ const MaintEventState = props => {
     try {
       const res = await axios.put( `/api/maintEvents/${maintEvent._id}`, maintEvent, config);
       console.log(res.data);
-      dispatch({
-        type: UPDATE_MAINTEVENT,
-        payload: res.data
-      });
+      dispatch({ type:UPDATE_MAINTEVENT,payload: res.data });
     } catch (err) {
     }
     // ---------------
@@ -75,10 +63,7 @@ const MaintEventState = props => {
       console.log(`.. API/MAINTEVENTS [DELETE]..`)
       await axios.delete(`/api/maintEvents/${id}`);
       // --------------------------------------
-      dispatch({
-        type: DELETE_MAINTEVENT,
-        payload: id
-      });
+      dispatch({ type:DELETE_MAINTEVENT, payload: id });
     } catch (err) {
     }
     // ---------------

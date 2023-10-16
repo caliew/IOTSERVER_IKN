@@ -40,15 +40,13 @@ const AuthState = props => {
   const loadUser = async () => {
     // ------------------------------
     setAuthToken(localStorage.token);
+    console.log('..AUTHSTATE... LOAD USER')
     // ------------------------------
     try {
       const res = await axios.get('/api/auth');
-      dispatch({
-        type: USER_LOADED,
-        payload: res.data
-      });
+      dispatch({ type:USER_LOADED,payload: res.data});
     } catch (err) {
-      dispatch({ type: AUTH_ERROR });
+      dispatch({ type:AUTH_ERROR });
     }
     try{  
       getAllUsers();
@@ -65,17 +63,12 @@ const AuthState = props => {
     };
     try {
       // --------------
+      console.log('..AUTHSTATE .. UPDATE USER')
       const res = await axios.put( `/api/users/${user._id}`, user, config);
       // -------------------
-      dispatch({
-        type: UPDATE_USER,
-        payload: res.data
-      });
+      dispatch({ type:UPDATE_USER,payload: res.data});
     } catch (err) {
-      dispatch({
-        type: USER_ERROR,
-        payload: err.response.msg
-      });
+      dispatch({ type:USER_ERROR,payload: err.response.msg});
     }
   };
   // --------------------
@@ -88,15 +81,9 @@ const AuthState = props => {
     try {
       const res = await axios.put( `/api/companies/${company._id}`, company, config);
       // -------------------
-      dispatch({
-        type: UPDATE_COMPANY,
-        payload: res.data
-      });
+      dispatch({ type:UPDATE_COMPANY,payload: res.data});
     } catch (err) {
-      dispatch({
-        type: COMPANY_ERROR,
-        payload: err.response.msg
-      });
+      dispatch({ type:COMPANY_ERROR,payload: err.response.msg});
     }
   }
   // -------------
@@ -107,12 +94,9 @@ const AuthState = props => {
     try {
       const res = await axios.get('/api/users');
       // -------
-      dispatch({
-        type: ALL_USERS,
-        payload: res.data
-      });
+      dispatch({ type:ALL_USERS,payload: res.data});
     } catch (err) {
-      dispatch({ type: AUTH_ERROR });
+      dispatch({ type:AUTH_ERROR });
     }
   }
   // -------------
@@ -122,10 +106,7 @@ const AuthState = props => {
     // const params = { totalLines : 88 };
     axios.get('/api/users/companies').then (res => {
       // -------
-      dispatch({
-        type: ALL_COMPANIES,
-        payload: res.data
-      });
+      dispatch({ type:ALL_COMPANIES, payload: res.data});
     }).catch ( err => {
     })
   }
@@ -140,19 +121,14 @@ const AuthState = props => {
     };
     // -------
     try {
+      console.log('..AUTHSTATE REGISTER..');
       const res = await axios.post('/api/users', formData, config);
-      dispatch({
-        type: REGISTER_SUCCESS,
-        payload: res.data
-      });
+      dispatch({ type:REGISTER_SUCCESS, payload: res.data});
       // --------
       loadUser();
       // --------
     } catch (err) {
-      dispatch({
-        type: REGISTER_FAIL,
-        payload: err.response.data.msg
-      });
+      dispatch({ type:REGISTER_FAIL, payload: err.response.data.msg});
     }
   };
   // ----------
@@ -166,20 +142,15 @@ const AuthState = props => {
       }
     };
     try {
+      console.log('..AUTHSTATE LOGIN..');
       const res = await axios.post('/api/auth', formData, config);
-      dispatch({
-        type: LOGIN_SUCCESS,
-        payload: res.data
-      });
+      dispatch({ type:LOGIN_SUCCESS,payload: res.data });
       // --------
       loadUser();
       // --------
     } catch (err) {
       // ---------
-      dispatch({
-        type: LOGIN_FAIL,
-        payload: err.response.data.msg
-      });
+      dispatch({ type:LOGIN_FAIL, payload: err.response.data.msg });
     }
   };
   // ------
@@ -191,8 +162,10 @@ const AuthState = props => {
       clearTimeout(_mTimer)
     });
     // ---------
-    setTimer([])
-    dispatch({ type: LOGOUT });
+    setTimer([]);
+    console.log(mTimer);
+    console.log('..** AUTH STATE **.. LOGOUT.. DISPATCH LOGOUT')
+    dispatch({ type:LOGOUT });
     // ------------------------
   }
   // ------------
@@ -205,7 +178,7 @@ const AuthState = props => {
   // ------------
   // Clear Errors
   // ------------
-  const clearErrors = () => dispatch({ type: CLEAR_ERRORS });
+  const clearErrors = () => dispatch({ type:CLEAR_ERRORS });
   // --------------
   return (
     <AuthContext.Provider

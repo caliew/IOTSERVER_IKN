@@ -36,12 +36,11 @@ const HomePage = () => {
 	// --------------
 	useEffect(()=> {
 		// -----------
-    isAuthenticated && loadUser();
-		user && user.companyname === "Nippon Glass" && history.push('/NipponGlass')
-		!isAuthenticated && history.push('/login');
-		// -----------
+		console.log('...HOMEPAGE USEEFFECT....',isAuthenticated,user?.name);
 		if (isAuthenticated)  {
 			// ----------
+			// isAuthenticated && loadUser();
+			user && user.companyname === "Nippon Glass" && history.push('/NipponGlass')
 			// getSensors(30,null,null);
 			getNotification();
 			getAllCompanies();
@@ -49,10 +48,15 @@ const HomePage = () => {
 			// SET TIMER
 			// ---------
 			if (typeof(user._id) !== 'undefined' && !timerFlag) {
+				console.log('...HOMEPAGE... SET TIMER..')
 				setTimerFlag(true)
 				handleTimer();
 			}
 			//	----------
+		} else  {
+			// !isAuthenticated && history.push('/login');
+			console.log('..HOMEPAGE ... HISTORY PUSH /LOGIN')
+			history.push('/login')
 		}
 		//  -----------
 		// eslint-disable-next-line
@@ -62,6 +66,7 @@ const HomePage = () => {
 		// ----------
 		getSensors(30,null,null);
 		getNotification();
+		console.log('...HOMEPAGE... SETTIMEOUT 5MIN...')
 		setTimeout(handleTimer,1000*60*5);
 	}
   const handleComponetSelection = (sysName) => {

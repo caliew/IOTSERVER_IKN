@@ -8,13 +8,15 @@ const Login = (props) => {
   const alertContext = useContext(AlertContext);
   const { setAlert } = alertContext;
   const authContext = useContext(AuthContext);
-  const { login, error, clearErrors, isAuthenticated } = authContext;
+  const { login, user, error, clearErrors, isAuthenticated } = authContext;
   const [inputValue, setInputValue] = useState("");
   const previousInputValue = useRef("");
 
   useEffect(() => {
     // ---------------------------
-    if (isAuthenticated) {
+    console.log('..LOGIN PAGE .. USE EFFECT..',isAuthenticated,user)
+    if (isAuthenticated && user.name !== 'undefined') {
+      console.log('..LOGIN PAGE .. HISTORY PUSH /',isAuthenticated,user.name)
       props.history.push('/');
     }
     if (error === 'Invalid Credentials' || error === 'Invalid Login' || error === 'Deactivated' ) {
@@ -23,7 +25,7 @@ const Login = (props) => {
     }
     // ------------------------
     // eslint-disable-next-line
-  }, [isAuthenticated]);
+  }, [user]);
 
   useEffect(() => {
     // ---------------------------

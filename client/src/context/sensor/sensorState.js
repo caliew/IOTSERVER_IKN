@@ -53,12 +53,12 @@ const SensorState = props => {
       axios.get('/api/sensors', { params } ).then (res => {
         // ----------------
         // console.log(res.data.filter(_sensor => _sensor.sensorId==='B0-BC-82-C4-C4-41'));
-        dispatch({type: SET_SENSORS,payload: res.data});
-        dispatch({type: SET_FETCH_DATETIME,payload:new Date()});
+        dispatch({ type:SET_SENSORS,payload: res.data});
+        dispatch({ type:SET_FETCH_DATETIME,payload:new Date()});
         // ----------------
       })
       .then( res => { getSensorsData(); })
-      .catch ( err => { dispatch({type: SENSOR_ERROR});} )
+      .catch ( err => { dispatch({ type:SENSOR_ERROR});} )
       // --------------
     } catch (err) {
     }
@@ -66,16 +66,16 @@ const SensorState = props => {
   const getSensorPlotData = async (datasets,date0,date1) => {
     try {
       // --------------------------------
-      dispatch({type:CLEAR_PLOTSENSORDATA})
+      dispatch({ type:CLEAR_PLOTSENSORDATA})
       const params = { totalLines : datasets, id: user._id, date0, date1 };
       // --------------------
       axios.get('/api/sensors', { params } ).then (res => {
         // ----------------
-        dispatch({type: SET_PLOTSENSORDATA,payload: res.data});
+        dispatch({ type:SET_PLOTSENSORDATA,payload: res.data});
         // ----------------
       })
       .then( res => { getSensorsData(); })
-      .catch ( err => { dispatch({type: SENSOR_ERROR});} )
+      .catch ( err => { dispatch({ type:SENSOR_ERROR});} )
       // --------------
     } catch (err) {
     }
@@ -88,13 +88,11 @@ const SensorState = props => {
       // --------------------------------
       axios.get('/api/sensors/rawsensordata', { } ).then (res => {
         // ----------------
-        dispatch({type: SET_RAWSENSORS,payload: res.data});
+        dispatch({ type:SET_RAWSENSORS,payload: res.data});
         // ----------------
       }).then( res => {
       }).catch ( err => {
-        dispatch({
-          type: SENSOR_ERROR
-        });
+        dispatch({ type:SENSOR_ERROR });
       })
       // --------------
 
@@ -106,7 +104,7 @@ const SensorState = props => {
   // SET CURRENT SENSOR
   // -----------
   const setCurrent = sensor => {
-    dispatch({ type: SET_CURRENT_SENSOR, payload: sensor });
+    dispatch({ type:SET_CURRENT_SENSOR, payload: sensor });
   }
   // ---------------
   // GET SENSOR DATA
@@ -135,20 +133,14 @@ const SensorState = props => {
           ++count;
           sensorsStatsData.push(res.data);
           if (count === sensorsArr.length) {
-            dispatch({
-              type: UPDATE_SENSORSTATS,
-              payload: sensorsStatsData
-            });
+            dispatch({ type:UPDATE_SENSORSTATS, payload: sensorsStatsData });
             callback(sensorsStatsData);
             // ---------
           }
         });
       })
     } catch (err) {
-      dispatch({
-        type: SENSOR_ERROR,
-        payload: err.response.msg
-      });
+      dispatch({ type:SENSOR_ERROR, payload: err.response.msg });
     }
   }
   // -------------
@@ -160,15 +152,9 @@ const SensorState = props => {
     };
     try {
       const res = await axios.put( `/api/sensors/${sensor._id}`, sensor, config);
-      dispatch({
-        type: UPDATE_SENSOR,
-        payload: res.data
-      });
+      dispatch({ type:UPDATE_SENSOR, payload: res.data });
     } catch (err) {
-      dispatch({
-        type: SENSOR_ERROR,
-        payload: err.response.msg
-      });
+      dispatch({ type:SENSOR_ERROR,payload: err.response.msg });
     }
   }
   // ----------
@@ -183,16 +169,10 @@ const SensorState = props => {
     try {
       const res = await axios.post('/api/sensors', sensor, config);
       console.log(res);
-      dispatch({
-        type: ADD_SENSOR,
-        payload: res.data
-      });
+      dispatch({ type:ADD_SENSOR, payload: res.data });
     } catch (err) {
       console.log(err.response);
-      dispatch({
-        type: SENSOR_ERROR,
-        payload: err.response.msg
-      });
+      dispatch({ type:SENSOR_ERROR, payload: err.response.msg });
     }
   }
   // --------------
@@ -202,41 +182,35 @@ const SensorState = props => {
     try {
       await axios.delete(`/api/sensors/${id}`);
       // --------------------------------------
-      dispatch({
-        type: DELETE_SENSOR,
-        payload: id
-      });
+      dispatch({ type:DELETE_SENSOR, payload: id });
     } catch (err) {
-      dispatch({
-        type: SENSOR_ERROR,
-        payload: err.response.msg
-      });
+      dispatch({ type:SENSOR_ERROR, payload: err.response.msg });
     }
   };
   // --------------
   // FILTER SENSORS
   // --------------
   const filterSensors = text => {
-    dispatch({ type: FILTER_SENSORS, payload: text });
+    dispatch({ type:FILTER_SENSORS, payload: text });
   }  
   // ---------------------
   // CLEAR CURRENT CONTACT
   // ---------------------
   const clearCurrent = () => {
-    dispatch({ type: CLEAR_CURRENT_SENSOR });
+    dispatch({ type:CLEAR_CURRENT_SENSOR });
   };
   // ------------
   // CLEAR FILTER
   // ------------
   const clearFilter = () => {
-    dispatch({ type: CLEAR_FILTER_SENSORS });
+    dispatch({ type:CLEAR_FILTER_SENSORS });
   };
   // ---------------
   // GET SENSOR DATA
   // ---------------
   const getSensorsData = () => {
     // ----
-    dispatch({type: GET_SENSORS_DATA});
+    dispatch({ type:GET_SENSORS_DATA});
     // -----
   }
   // ---------
