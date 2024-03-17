@@ -352,10 +352,8 @@ router.get('/statsPWRMTRdata', auth, async (req, res) => {
 
 });
 router.get('/statsPWRMTRdata1', auth, async (req, res) => {
-  // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
-  //  ------------------------------------
   _data.list('stats',function(err,files) {
     // ---------------
     let objData = [];

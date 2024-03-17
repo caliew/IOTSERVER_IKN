@@ -150,7 +150,7 @@ function createData(sensors) {
     WCPU_B_CWR_PRESS : findSensor(sensors,215,43),
 
     AHU_A_TEMP1 : findSensor(sensors,202,52), // HEAT EXCHANGER
-    AHU_A_TEMP2 : findSensor(sensors,202,52), //  14=>52 (FAULTY SENSOR TO BE REPLACED... CURRENTLY MAP SENSOR 52)
+    AHU_A_TEMP2 : findSensor(sensors,202,14), //  14=>52 (FAULTY SENSOR TO BE REPLACED... CURRENTLY MAP SENSOR 52)
     AHU_A_FLOWRATE : findSensor(sensors,0,0),
     AHU_A_ELECTPWR : findSensor(sensors,0,0),
     AHU_A_CHR_PRESS1 : findSensor(sensors,202,9),
