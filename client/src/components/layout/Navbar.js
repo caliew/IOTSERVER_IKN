@@ -18,7 +18,6 @@ const Navbar = (props) => {
   }, [isAuthenticated]);
   
   const onLogout = () => {
-    console.log('..NAVBAR .. ONLOGOUT..')
     logout();
     // clearContacts();
   };

@@ -49,6 +49,7 @@ const SensorState = props => {
   const getSensors = async (datasets,date0,date1) => {
     try {
       // --------------------------------
+      console.log('API/SENSOR',user)
       const params = { totalLines : datasets, id: user._id, date0, date1 };
       axios.get('/api/sensors', { params } ).then (res => {
         // ----------------
@@ -95,7 +96,6 @@ const SensorState = props => {
         dispatch({ type:SENSOR_ERROR });
       })
       // --------------
-
     } catch (err) {
 
     }
@@ -190,29 +190,19 @@ const SensorState = props => {
   // --------------
   // FILTER SENSORS
   // --------------
-  const filterSensors = text => {
-    dispatch({ type:FILTER_SENSORS, payload: text });
-  }  
+  const filterSensors = text => dispatch({ type:FILTER_SENSORS, payload: text }); 
   // ---------------------
   // CLEAR CURRENT CONTACT
   // ---------------------
-  const clearCurrent = () => {
-    dispatch({ type:CLEAR_CURRENT_SENSOR });
-  };
+  const clearCurrent = () => dispatch({ type:CLEAR_CURRENT_SENSOR });
   // ------------
   // CLEAR FILTER
   // ------------
-  const clearFilter = () => {
-    dispatch({ type:CLEAR_FILTER_SENSORS });
-  };
+  const clearFilter = () => dispatch({ type:CLEAR_FILTER_SENSORS });
   // ---------------
   // GET SENSOR DATA
   // ---------------
-  const getSensorsData = () => {
-    // ----
-    dispatch({ type:GET_SENSORS_DATA});
-    // -----
-  }
+  const getSensorsData = () => dispatch({ type:GET_SENSORS_DATA});
   // ---------
   return (
     <SensorContext.Provider

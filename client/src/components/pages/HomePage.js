@@ -64,9 +64,9 @@ const HomePage = () => {
   // --------------------------------------------
 	const handleTimer = () => {
 		// ----------
-		getSensors(30,null,null);
+		getSensors(10,null,null);
 		getNotification();
-		console.log('...HOMEPAGE... SETTIMEOUT 5MIN...')
+		console.log('...HOMEPAGE... SETTIMEOUT 5 MIN...')
 		setTimeout(handleTimer,1000*60*5);
 	}
   const handleComponetSelection = (sysName) => {

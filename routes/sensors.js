@@ -36,16 +36,17 @@ router.get('/', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
+  let ObjData = req.query;
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] [${req.query.id}]..`)
+  // -------
   try {
     // ----------
     const user = await User.findById(req.query.id).select('-password');
-    let companyname = user.companyname;
+    let companyname = user?.companyname;
     // -------------
     const sensors = await Sensor.find({dtuId : {$gte:-1}}).sort({
       date: -1,
     });
-    // console.log(`.. <${'SENSORS.JS'.yellow}> ..TOTAL SENSORS=<${sensors.length}>`)
     //  --------------------
     //  ABSTRACT SENSOR DATA
     //  --------------------
@@ -87,7 +88,9 @@ router.get('/', auth, async (req, res) => {
 // @desc      GET TEST DATA ON NIPPON GLASS
 // @access    PRIVATE
 router.get('/nipponglass', auth, async(req,res) => {
+  // -----
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] `)
+  // -----
   _logs.read('_NIPPONDEMO',10,null,null,false,function(err,sensorData) {
     // -----------------------------
     let ObjData = {};
@@ -145,6 +148,7 @@ router.get('/IJN/rawdata',auth,async(req,res)=>{
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   // ---------
   _data.read('IJN','settings',function(err,settingData) {
     ObjData['settings'] = settingData;
@@ -198,6 +202,7 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
   // ---------
   _data.read('snowcity','settings',function(err,settingData) {
     ObjData['settings'] = settingData;
@@ -251,7 +256,7 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   // ---------
   _logs.read('_SHINKO',nTotalLines,_date0,_date1,false,function(err,sensorData) {
     // --------------------------------------------
@@ -295,16 +300,124 @@ router.put('/shinko/settings',auth,async(req,res) => {
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
 })
+// ---
+// MRE
+// ---
+router.get('/mre/rawdata', auth, async(req,res) => {
+  // ---------
+  let ObjData = req.query;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  // ---------
+  _data.read('mre','settings',function(err,settingData) {
+    // --------------------
+    ObjData['settings'] = settingData;
+    //  ---------------------
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0,0,0);
+    _today1.setHours(23,59,59);    
+    //  -----------------------
+    let nCOUNT = 0;
+    Object.keys(settingData).forEach((key,index)=>{
+      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
+        // ---------
+        nCOUNT += 1;
+        if (err) ObjData[key] = sensorData;
+        if (nCOUNT == Object.keys(settingData).length) {
+          _logs.read('_MRE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
+            // --------------------------------------------
+            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
+            // --------------------------------------------
+            if (err) {
+              ObjData['sensorData'] = sensorData;
+              _logs.read('_MREALERTS',1000,_today0,_today1,false,function(err,AlertData){
+                ObjData['alerts'] = AlertData;
+                res.status(200).send(ObjData);
+              })
+            }
+          });
+        }        
+      })
+    })
 
+  });
+})
+router.put('/mre/settings',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.update('mre','settings', ObjData, function (err) { 
+    // console.log(err);
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
+})
+// ------
+// NIPPON GLASS
+// ------
+router.get('/nipponglass/rawdata', auth, async(req,res) => {
+  // ---------
+  let ObjData = req.query;
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  // ---------
+  _data.read('nipponglass','settings',function(err,settingData) {
+    // --------------------
+    ObjData['settings'] = settingData;
+    //  ---------------------
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0,0,0);
+    _today1.setHours(23,59,59);    
+    //  -----------------------
+    let nCOUNT = 0;
+    Object.keys(settingData).forEach((key,index)=>{
+      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
+        // ---------
+        nCOUNT += 1;
+        if (err) ObjData[key] = sensorData;
+        if (nCOUNT == Object.keys(settingData).length) {
+          _logs.read('_NIPPONGLASS',nTotalLines,_date0,_date1,false,function(err,sensorData) {
+            // --------------------------------------------
+            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
+            // --------------------------------------------
+            if (err) {
+              ObjData['sensorData'] = sensorData;
+              _logs.read('_SHINKOALERTS',1000,_today0,_today1,false,function(err,AlertData){
+                ObjData['alerts'] = AlertData;
+                res.status(200).send(ObjData);
+              })
+            }
+          });
+        }        
+      })
+    })
+
+  });
+})
+router.put('/nipponglass/settings',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.update('nipponglass','settings', ObjData, function (err) { 
+    // console.log(err);
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
+})
 // ------------
 // TEAWAREHOUSE
 // ------------
 router.get('/teawarehouse/rawdata', auth, async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
   let ObjData = req.query;
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 2000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
+  // -------
   _logs.read('_TEAWAREHOUSE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
     // -----------------------------
     let ObjData = {};
@@ -343,17 +456,24 @@ router.get('/teawarehouse/alerts',auth,async(req,res)=>{
 // @route     GET api/sensors/statsdata
 // @desc      Get all sensors
 // @access    Private
-router.get('/statsPWRMTRdata', auth, async (req, res) => {
+router.get('/statsPWRMTRdata1', auth, async (req, res) => {
+  // ----
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}] ..READ FROM [${String('DATA_PWRMTER').yellow}]..`)
+  // ----
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
+  // -----
   _data.read('stats','DATA_PWRMTER',function(err,data) {
     res.status(200).send(data);
   })
 
 });
-router.get('/statsPWRMTRdata1', auth, async (req, res) => {
+
+router.get('/statsPWRMTRdata', auth, async (req, res) => {
+  // -------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
+  // -------
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
+  // --------
   _data.list('stats',function(err,files) {
     // ---------------
     let objData = [];
@@ -386,7 +506,7 @@ router.get('/statsDAYData', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
+  // console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
   const user = await User.findById(req.query.id).select('-password');
     // ------
   _data.list('stats',function(err,files) {
@@ -395,7 +515,7 @@ router.get('/statsDAYData', auth, async (req, res) => {
     let nINVALID = 0;
     // --------
     const countSTAT = files.filter(file=>file.includes('STAT')).length;
-    console.log(`.. <${'SENSORS.JS'.yellow}> ..STATS DIRECTORY FILE READ <${String(files.length).yellow}> ..STATS FILES <${countSTAT}>`);
+    // console.log(`.. <${'SENSORS.JS'.yellow}> ..STATS DIRECTORY FILE READ <${String(files.length).yellow}> ..STATS FILES <${countSTAT}>`);
     Object.entries(files).map(([index, file]) => {
       // ------
       _data.read('stats',file,function(err,data) {
@@ -457,8 +577,6 @@ router.get('/sensorstats/:dtuId&:sensorId', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  // console.log(`DTUID:${req.params.dtuId}....SENSORID:${req.params.sensorId}`);
-  // ----------
   let query = {
     dtuId : req.params.dtuId,
     sensorId : req.params.sensorId
