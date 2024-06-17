@@ -321,17 +321,22 @@ router.get('/mre/rawdata', auth, async(req,res) => {
     _today1.setHours(23,59,59);    
     //  -----------------------
     let nCOUNT = 0;
+    let sensorPlotData = {};
     Object.keys(settingData).forEach((key,index)=>{
       _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
         // ---------
         nCOUNT += 1;
-        if (err) ObjData[key] = sensorData;
+        if (err) sensorPlotData[key] = sensorData;
         if (nCOUNT == Object.keys(settingData).length) {
+          // ------------------------------------
+          // ALL READ FULLFILLED TO RETURN STATUS
+          // ------------------------------------
           _logs.read('_MRE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
             // --------------------------------------------
             // IF GETTING NO DATA. USE THE LAST 100 RECORDS
             // --------------------------------------------
             if (err) {
+              ObjData['WISensor'] = sensorPlotData;
               ObjData['sensorData'] = sensorData;
               _logs.read('_MREALERTS',1000,_today0,_today1,false,function(err,AlertData){
                 ObjData['alerts'] = AlertData;
