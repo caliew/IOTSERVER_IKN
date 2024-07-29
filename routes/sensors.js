@@ -213,19 +213,21 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
     _today1.setHours(23,59,59);    
     //  -----------------------
     let nCOUNT = 0;
-    Object.keys(settingData).forEach((key,index)=>{
+    let sensorPlotData = {};
+    Object.keys(settingData?.["IOT_SENSORS"]).forEach((key,index)=>{
       _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
         // ---------
         nCOUNT += 1;
-        if (err) ObjData[key] = sensorData;
-        if (nCOUNT == Object.keys(settingData).length) {
+        if (err) sensorPlotData[key] = sensorData;
+        if (nCOUNT == Object.keys(settingData["IOT_SENSORS"]).length) {
           _logs.read('_SNOWCITY',nTotalLines,_date0,_date1,false,function(err,sensorData) {
             // --------------------------------------------
             // IF GETTING NO DATA. USE THE LAST 100 RECORDS
             // --------------------------------------------
             if (err) {
+              ObjData['WISensor'] = sensorPlotData;
               ObjData['sensorData'] = sensorData;
-              _logs.read('_SHINKOALERTS',1000,_today0,_today1,false,function(err,AlertData){
+              _logs.read('_SNOWCITYALERTS',1000,_today0,_today1,false,function(err,AlertData){
                 ObjData['alerts'] = AlertData;
                 res.status(200).send(ObjData);
               })
@@ -322,12 +324,12 @@ router.get('/mre/rawdata', auth, async(req,res) => {
     //  -----------------------
     let nCOUNT = 0;
     let sensorPlotData = {};
-    Object.keys(settingData).forEach((key,index)=>{
+    settingData?.["IOT_SENSORS"] && Object.keys(settingData["IOT_SENSORS"]).forEach((key,index)=>{
       _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
         // ---------
         nCOUNT += 1;
         if (err) sensorPlotData[key] = sensorData;
-        if (nCOUNT == Object.keys(settingData).length) {
+        if (nCOUNT == Object.keys(settingData["IOT_SENSORS"]).length) {
           // ------------------------------------
           // ALL READ FULLFILLED TO RETURN STATUS
           // ------------------------------------
@@ -392,7 +394,7 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
             // --------------------------------------------
             if (err) {
               ObjData['sensorData'] = sensorData;
-              _logs.read('_SHINKOALERTS',1000,_today0,_today1,false,function(err,AlertData){
+              _logs.read('_NIPPONGLASSALERTS',1000,_today0,_today1,false,function(err,AlertData){
                 ObjData['alerts'] = AlertData;
                 res.status(200).send(ObjData);
               })
@@ -413,6 +415,50 @@ router.put('/nipponglass/settings',auth,async(req,res) => {
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
 })
+// ---------
+// CMMS DATA
+// ---------
+router.get('/nipponglass/data', auth, async(req,res) => {
+  let ObjData = req.query;
+  console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  // ---------
+  _data.read('nipponglass','data',function(err,CMMSData) {
+    // --------------------
+    ObjData['data'] = CMMSData;
+    res.status(200).send(ObjData);
+  });
+})
+router.put('/nipponglass/data',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.read('nipponglass','data',function(err,CMMSData) {
+    _data.update('nipponglass','data', {...CMMSData,...ObjData}, function (err) { })
+  });
+
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
+})
+router.get('/nipponglass/CMMSdata', auth, async(req,res) => {
+  let ObjData = req.query;
+  console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  // ---------
+  _data.read('nipponglass','data',function(err,CMMSData) {
+    // --------------------
+    ObjData['data'] = CMMSData;
+    res.status(200).send(ObjData);
+  });
+})
+router.put('/nipponglass/CMMSdata',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.read('nipponglass','data',function(err,CMMSData) {
+    _data.update('nipponglass','data', {...CMMSData,...ObjData}, function (err) { })
+  });
+
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
+})
+
 // ------------
 // TEAWAREHOUSE
 // ------------

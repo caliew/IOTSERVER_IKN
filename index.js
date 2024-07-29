@@ -20,12 +20,14 @@ app.init = function () {
   // ----------------
   console.log('... ... ...... .... ....');
   console.log('... TCP SERVER INIT ....');
-  console.log('... 1. INIT SERVER')
-  console.log('... 2. INIT EXPRESS SERVER')
-  console.log('... 3. CONNECT DB')
-  console.log('... 4. INIT WORKERS')
+  console.log('... 1. INIT SERVER');
+  console.log('... 2. INIT EXPRESS SERVER');
+  console.log('... 3. CONNECT DB');
+  console.log('... 4. INIT WORKERS');
+  // ----------
   server.init();
   expressServer.init();
+  // -----------------
   console.log('... ... ...... .... ....');
   // ----------------
   // CONNECT DATABASE
