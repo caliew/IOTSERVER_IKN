@@ -14,6 +14,9 @@ const afterDate = [];
 let dateSET;
 let paramSET;
 let filterSET = {}; // Change filterSET to an object to hold key-value pairs
+let convertHex = false;
+let linesToDelete = []; // Global array to store lines marked for deletion
+
 // --------
 // COMMANDS
 // --------
@@ -32,6 +35,7 @@ const COMMANDS = [
   { command: 'SAVE', description: 'Save the modified content back to the original file.' },
   { command: 'SAVE BEF', description: 'Save the BEFORE BREAK POINT to the NEW FILE.' },
   { command: 'SAVE AFT', description: 'Save the AFTER  BREAK POINT to the NEW FILE.' },
+  { command: 'CONVERTHEX input', description: 'UTILITY to convert HEX to Decimal.' },
   { command: 'HELP', description: 'List all available commands.' }
 ];
 // ------------------
@@ -73,14 +77,16 @@ readLine
           readLine.prompt(); // Display the prompt again
         }
         break;
+
       case 'DELETE':
         if (fileContent) {
           const lines = fileContent.split('\n');
-          if (args[1]) {
-            const N1 = parseInt(args[1], 10);
+          if (args[1] || linesToDelete.length > 0) {
+            const N1 = args[1] ? parseInt(args[1], 10) : null;
             const N2 = args[2] ? parseInt(args[2], 10) : N1; // Use N1 as N2 if only N1 is provided
             let hide = args[3] === 'HIDE'; // Check if the third input is 'HIDE'
-            if (!isNaN(N1) && !isNaN(N2) && N1 <= N2 && N1 > 0) {
+            
+            if (N1 && !isNaN(N1) && (N2 && !isNaN(N2) && N1 <= N2 && N1 > 0)) {
               const maxLines = lines.length;
               if (N2 > maxLines) {
                 outputResponse(`N2 exceeds the total number of lines (${maxLines}). Setting N2 to ${maxLines}.`);
@@ -98,6 +104,19 @@ readLine
               // Display the updated total line count after deletion
               const updatedLineCount = fileContent.split('\n').length;
               outputResponse(`Total lines after deletion: ${updatedLineCount}`);
+            } else if (linesToDelete.length > 0) {
+              // Delete lines marked by SCAN
+              const uniqueLinesToDelete = [...new Set(linesToDelete)].sort((a, b) => b - a);
+              uniqueLinesToDelete.forEach(lineNumber => {
+                lines.splice(lineNumber - 1, 1);
+              });
+              fileContent = lines.join('\n');
+              linesToDelete.length = 0;
+              // outputResponse(`Deleted lines: ${uniqueLinesToDelete.join(', ')}`);
+              outputResponse(`Deleted lines: ${uniqueLinesToDelete.length}`);
+              // Display the updated total line count after deletion
+              const updatedLineCount = fileContent.split('\n').length;
+              outputResponse(`Total lines after deletion: ${updatedLineCount}`);
             } else {
               outputResponse(`INVALID LINE RANGE : ${N1} to ${N2}`);
             }
@@ -109,6 +128,7 @@ readLine
         }
         readLine.prompt(); // Display the prompt again
         break;
+
       case 'COPY':
         if (fileContent) {
           const dirname = path.dirname(absolutePath);
@@ -207,15 +227,17 @@ readLine
         readLine.prompt(); // Display the prompt again
         break;
       case 'SETPARAM':
-        if (args[1]) {
-          paramSET = args[1];
-          convertHex = args[2] && args[2].toUpperCase() === 'HEX'; // Check if HEX keyword is present
+        if (input.split(' ').length > 1) {
+          const param = input.split(' ')[1];
+          paramSET = param.includes('.') ? param.split('.')[0] : param;
+          convertHex = input.split(' ')[2] === 'HEX'; // Check if HEX keyword is present
           outputResponse(`Parameter set to: ${paramSET} ${convertHex ? '(Hexadecimal)' : ''}`);
         } else {
           outputResponse('Please provide a parameter to set.');
         }
         readLine.prompt();
         break;
+      
       case 'SETFILTER':
         if (args[1]) {
           if (args[1].toUpperCase() === 'NULL') {
@@ -237,12 +259,15 @@ readLine
         }
         readLine.prompt(); // Display the prompt again
         break;
+
       case 'SCAN':
         if (!paramSET) {
           outputResponse('No parameter has been set. Please use SETPARAM first.');
           readLine.prompt();
           break;
         }
+        linesToDelete = []; // Reset the array at the beginning of each scan
+      
         if (args[1] && (args[1].toUpperCase() === 'MAX' || args[1].toUpperCase() === 'MIN')) {
           const operation = args[1].toUpperCase();
           if (fileContent) {
@@ -250,26 +275,26 @@ readLine
             let resultObjects = [];
             let resultValue = operation === 'MAX' ? -Infinity : Infinity;
             let resultLines = [];
-  
+      
             lines.forEach((line, index) => {
               if (line.trim() === '') return;
               try {
                 const lineData = JSON.parse(line);
-  
+      
                 // Apply filter if filterSET is defined and is an object
                 if (filterSET && typeof filterSET === 'object' && Object.keys(filterSET).length > 0) {
                   const matchesFilter = Object.entries(filterSET).every(([key, value]) => {
                     return lineData[key] && lineData[key].toString() === value;
                   });
-  
+      
                   if (!matchesFilter) return;
                 }
-  
+      
                 let value = lineData[paramSET];
                 if (convertHex && typeof value === 'string') {
                   value = parseInt(value, 16); // Convert hex string to decimal
                 }
-  
+      
                 if (typeof value === 'number') {
                   const comparison = operation === 'MAX' ? value > resultValue : value < resultValue;
                   if (comparison) {
@@ -285,7 +310,7 @@ readLine
                 outputResponse(`ERROR PARSING LINE: ${line} - ${e.message}`);
               }
             });
-  
+      
             if (resultObjects.length > 0) {
               outputResponse(`${operation === 'MAX' ? 'Maximum' : 'Minimum'} value for '${paramSET}' is ${resultValue}:`);
               resultObjects.slice(0, 3).forEach((obj, idx) => {
@@ -295,6 +320,9 @@ readLine
               if (resultObjects.length > 3) {
                 outputResponse(`...and ${resultObjects.length - 3} more with the same value.`);
               }
+      
+              // Update linesToDelete array
+              linesToDelete = resultLines;
             } else {
               outputResponse(`No valid entries found for parameter '${paramSET}'.`);
             }
@@ -308,26 +336,26 @@ readLine
               const lines = fileContent.split('\n');
               let resultObjects = [];
               let resultLines = [];
-  
+      
               lines.forEach((line, index) => {
                 if (line.trim() === '') return;
                 try {
                   const lineData = JSON.parse(line);
-  
+      
                   // Apply filter if filterSET is defined and is an object
                   if (filterSET && typeof filterSET === 'object' && Object.keys(filterSET).length > 0) {
                     const matchesFilter = Object.entries(filterSET).every(([key, value]) => {
                       return lineData[key] && lineData[key].toString() === value;
                     });
-  
+      
                     if (!matchesFilter) return;
                   }
-  
+      
                   let value = lineData[paramSET];
                   if (convertHex && typeof value === 'string') {
                     value = parseInt(value, 16);
                   }
-  
+      
                   if (typeof value === 'number' && value > threshold) {
                     resultObjects.push(lineData);
                     resultLines.push(index + 1);
@@ -336,16 +364,76 @@ readLine
                   outputResponse(`ERROR PARSING LINE: ${line} - ${e.message}`);
                 }
               });
-  
+      
               if (resultObjects.length > 0) {
                 outputResponse(`Objects with '${paramSET}' greater than ${threshold}:`);
-                resultObjects.slice(0, 3).forEach((obj, idx) => {
+                resultObjects.slice(0, 1).forEach((obj, idx) => {
                   outputResponse(`Found on line ${resultLines[idx]}:`);
                   outputResponse(JSON.stringify(obj, null, 2));
                 });
-                if (resultObjects.length > 3) {
-                  outputResponse(`...and ${resultObjects.length - 3} more with the same value.`);
+                if (resultObjects.length > 1) {
+                  outputResponse(`...and ${resultObjects.length - 1} more with the same value.`);
                 }
+      
+                // Update linesToDelete array
+                linesToDelete = resultLines;
+              } else {
+                outputResponse(`No valid entries found for parameter '${paramSET}' greater than ${threshold}.`);
+              }
+            } else {
+              outputResponse('No file content stored.');
+            }
+          } else {
+            outputResponse('Please provide a valid number to compare.');
+          }
+        } else if (args[1] === '<') {
+          if (args[2] && !isNaN(args[2])) {
+            const threshold = parseFloat(args[2]);
+            if (fileContent) {
+              const lines = fileContent.split('\n');
+              let resultObjects = [];
+              let resultLines = [];
+      
+              lines.forEach((line, index) => {
+                if (line.trim() === '') return;
+                try {
+                  const lineData = JSON.parse(line);
+      
+                  // Apply filter if filterSET is defined and is an object
+                  if (filterSET && typeof filterSET === 'object' && Object.keys(filterSET).length > 0) {
+                    const matchesFilter = Object.entries(filterSET).every(([key, value]) => {
+                      return lineData[key] && lineData[key].toString() === value;
+                    });
+      
+                    if (!matchesFilter) return;
+                  }
+      
+                  let value = lineData[paramSET];
+                  if (convertHex && typeof value === 'string') {
+                    value = parseInt(value, 16);
+                  }
+      
+                  if (typeof value === 'number' && value < threshold) {
+                    resultObjects.push(lineData);
+                    resultLines.push(index + 1);
+                  }
+                } catch (e) {
+                  outputResponse(`ERROR PARSING LINE: ${line} - ${e.message}`);
+                }
+              });
+      
+              if (resultObjects.length > 0) {
+                outputResponse(`Objects with '${paramSET}' less than ${threshold}:`);
+                resultObjects.slice(0, 1).forEach((obj, idx) => {
+                  outputResponse(`Found on line ${resultLines[idx]}:`);
+                  outputResponse(JSON.stringify(obj, null, 2));
+                });
+                if (resultObjects.length > 1) {
+                  outputResponse(`...and ${resultObjects.length - 1} more with the same value.`);
+                }
+      
+                // Update linesToDelete array
+                linesToDelete = resultLines;
               } else {
                 outputResponse(`No valid entries found for parameter '${paramSET}' greater than ${threshold}.`);
               }
@@ -360,6 +448,7 @@ readLine
         }
         readLine.prompt();
         break;
+
       case 'BREAK':
         if (fileContent) {
           const lines = fileContent.split('\n');
@@ -411,10 +500,12 @@ readLine
         }
         readLine.prompt(); // Display the prompt again
         break;
+
       case 'LIST':
         if (fileContent) {
           const lines = fileContent.split('\n');
           outputResponse(`${filepath} HAS TOTAL LINES ${lines.length}`);
+      
           // Apply filtering if filterSET is defined and is an object
           let filteredLines = [];
           let filterDetails = '';
@@ -439,12 +530,14 @@ readLine
           } else {
             filteredLines = lines; // If no filters, show all lines
           }
+      
           // Display total filtered lines along with filter details
           outputResponse(`Total lines after applying${filterDetails} = ${filteredLines.length}`);
-          // Check for line range input (N1 and optionally N2)
+          // Check for line range input (N1 and N2)
+          const N1 = args[1] ? parseInt(args[1], 10) : null; // Parse N1 if provided
+          const N2 = args[2] ? parseInt(args[2], 10) : N1; // Parse N2 if provided
+
           if (args[1]) {
-            const N1 = parseInt(args[1], 10);
-            const N2 = args[2] ? parseInt(args[2], 10) : N1; // If N2 is not provided, use N1
             if (!isNaN(N1) && !isNaN(N2) && N1 <= N2 && N1 > 0 && N2 <= filteredLines.length) {
               const selectedLines = filteredLines.slice(N1 - 1, N2).map((line, index) => {
                 const originalIndex = lines.indexOf(line); // Get the original line index
@@ -463,7 +556,8 @@ readLine
           outputResponse('No file content stored.');
         }
         readLine.prompt(); // Display the prompt again
-        break;
+        break;       
+        
       case 'DATE':
         if (dateSET) { 
           outputResponse(dateSET);
@@ -471,6 +565,21 @@ readLine
           outputResponse('DATE WAS NOT SET');
         }
         readLine.prompt(); // Display the prompt again
+        break;
+      case 'CONVERTHEX':
+        let hexString = args[1];
+        const byteArray = [];
+        hexString = hexString.toUpperCase().replace(/\s+/g, '');
+        if (hexString.length % 4 !== 0) {
+          throw new Error('Invalid HEX string length. Must be a multiple of 8 characters.');
+        }
+        // Split the hex string into an array of 4-byte segments
+        for (let i = 0; i < hexString.length; i += 4) {
+          byteArray.push(hexString.substr(i, 4));
+        }
+        const valueArray = byteArray.map(hex=>parseInt(hex,16))
+        outputResponse(`CONVERT HEX ${args[1]} BREAK UP [${byteArray}] CONVERTED [${valueArray}]`);
+        readLine.prompt();
         break;
       case 'HELP':
         outputResponse('AVAILABLE COMMANDS:');
