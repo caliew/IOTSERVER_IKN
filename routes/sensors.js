@@ -367,12 +367,15 @@ router.put('/mre/settings',auth,async(req,res) => {
 router.get('/nipponglass/rawdata', auth, async(req,res) => {
   // ---------
   let ObjData = req.query;
+  let SettingFile = 'NIPPONGLASS';
+  let LOGFile = '_NIPPONGLASS';
+  let ALERTFile = '_NIPPONGLASSALERTS';
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
   // console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
   // ---------
-  _data.read('nipponglass','settings',function(err,settingData) {
+  _data.read(SettingFile,'settings',function(err,settingData) {
     // --------------------
     ObjData['settings'] = settingData;
     //  ---------------------
@@ -388,13 +391,13 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
         nCOUNT += 1;
         if (err) ObjData[key] = sensorData;
         if (nCOUNT == Object.keys(settingData).length) {
-          _logs.read('_NIPPONGLASS',nTotalLines,_date0,_date1,false,function(err,sensorData) {
+          _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
             // --------------------------------------------
             // IF GETTING NO DATA. USE THE LAST 100 RECORDS
             // --------------------------------------------
             if (err) {
               ObjData['sensorData'] = sensorData;
-              _logs.read('_NIPPONGLASSALERTS',1000,_today0,_today1,false,function(err,AlertData){
+              _logs.read(ALERTFile,1000,_today0,_today1,false,function(err,AlertData){
                 ObjData['alerts'] = AlertData;
                 res.status(200).send(ObjData);
               })
@@ -409,7 +412,63 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
 router.put('/nipponglass/settings',auth,async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
-  _data.update('nipponglass','settings', ObjData, function (err) { 
+  let SettingFile = 'NIPPONGLASS';
+  _data.update(SettingFile,'settings', ObjData, function (err) { 
+    // console.log(err);
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
+})
+// ------
+// AEROSOFT
+// ------
+router.get('/aerosoft/rawdata', auth, async(req,res) => {
+  // ---------
+  let ObjData = req.query;
+  let SettingFile = 'AEROSOFT';
+  let LOGFile = '_AEROSOFT';
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  // ---------
+  _data.read(SettingFile,'settings',function(err,settingData) {
+    // --------------------
+    ObjData['settings'] = settingData;
+    //  ---------------------
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0,0,0);
+    _today1.setHours(23,59,59);    
+    //  -----------------------
+    let nCOUNT = 0;
+    Object.keys(settingData).forEach((key,index)=>{
+      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
+        // ---------
+        nCOUNT += 1;
+        if (err) ObjData[key] = sensorData;
+        if (nCOUNT == Object.keys(settingData).length) {
+          _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
+            // --------------------------------------------
+            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
+            // --------------------------------------------
+            if (err) {
+              ObjData['sensorData'] = sensorData;
+              _logs.read(LOGFile,1000,_today0,_today1,false,function(err,AlertData){
+                ObjData['alerts'] = AlertData;
+                res.status(200).send(ObjData);
+              })
+            }
+          });
+        }        
+      })
+    })
+  });
+})
+router.put('/aerosoft/settings',auth,async(req,res) => {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let ObjData = req.body;
+  _data.update('aerosoft','settings', ObjData, function (err) { 
     // console.log(err);
   })
   // _data.read('teawarehouse','settings'
