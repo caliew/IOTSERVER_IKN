@@ -78,6 +78,32 @@ readLine
         }
         break;
 
+      case 'FIX':
+        if (fileContent) {
+          // Fix the file content by splitting on '}{' and joining with '\n'
+          const fixedContent = fileContent.split('}{').join('}\n{');  
+          // Update the fileContent with fixed content
+          fileContent = fixedContent;  
+          // Write the fixed content back to the file (optional)
+          if (filepath) {
+            fs.writeFile(absolutePath, fixedContent, 'utf8', (err) => {
+              if (err) {
+                outputResponse(`Error writing file to disk: ${err}`);
+              } else {
+                outputResponse('File content fixed and written successfully.');
+              }
+              readLine.prompt(); // Display the prompt again
+            });
+          } else {
+            outputResponse('File path not set. Use SETFILE command first.');
+            readLine.prompt(); // Display the prompt again
+          }
+        } else {
+          outputResponse('No file content to fix. Use SETFILE command first.');
+          readLine.prompt(); // Display the prompt again
+        }
+        break;
+
       case 'DELETE':
         if (fileContent) {
           const lines = fileContent.split('\n');
