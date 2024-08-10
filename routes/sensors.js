@@ -184,8 +184,8 @@ router.get('/IJN/rawdata',auth,async(req,res)=>{
   });
 })
 router.put('/IJN/settings',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   _data.update('IJN','settings', ObjData, function (err) { 
     // console.log(err);
   })
@@ -240,8 +240,8 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   });
 })
 router.put('/snowcity/settings',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   _data.update('snowcity','settings', ObjData, function (err) { 
     // console.log(err);
   })
@@ -294,8 +294,8 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
   });
 })
 router.put('/shinko/settings',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   _data.update('shinko','settings', ObjData, function (err) { 
     // console.log(err);
   })
@@ -353,8 +353,8 @@ router.get('/mre/rawdata', auth, async(req,res) => {
   });
 })
 router.put('/mre/settings',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   _data.update('mre','settings', ObjData, function (err) { 
     // console.log(err);
   })
@@ -410,9 +410,9 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
   });
 })
 router.put('/nipponglass/settings',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
   let SettingFile = 'NIPPONGLASS';
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   _data.update(SettingFile,'settings', ObjData, function (err) { 
     // console.log(err);
   })
