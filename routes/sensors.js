@@ -2,32 +2,16 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const {check, validationResult} = require('express-validator');
-
+// ------------------------------------
 const User = require('../models/User');
 const Sensor = require('../models/Sensor');
 const SensorStats = require('../models/SensorStats');
 const Contact = require('../models/Contact');
 const cors = require('cors');
-
+// --------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
 // ----------
-// FORMATTING
-// ----------
-const formatDate = (date) => {
-  let d = new Date(date);
-  let month = String(d.getMonth() + 1)();
-  let day = String(d.getDate());
-  let year = d.getFullYear();
-  if (month.length < 2) {
-    month = '0' + month;
-  }
-  if (day.length < 2) {
-    day = '0' + day;
-  }
-  return [year, month, day].join('-');
-}
-
 router.use( cors({origin:'*'}) );
 // @route     GET api/sensors
 // @desc      Get all sensors
@@ -83,7 +67,6 @@ router.get('/', auth, async (req, res) => {
     // ----------------------------------
   }
 });
-
 // @route     GET api/sensors/nipponglass
 // @desc      GET TEST DATA ON NIPPON GLASS
 // @access    PRIVATE
@@ -111,8 +94,7 @@ router.get('/nipponglass', auth, async(req,res) => {
     // ------------------------------
   });
   // res.status(200).send(data);
-})
-
+});
 router.get('/testsite',async(req,res)=>{
   //  -------------------
   //  READING CONFI FILE
@@ -137,8 +119,7 @@ router.get('/testsite',async(req,res)=>{
   
   })  
   //  ----------------------------------
-})
-
+});
 // ---
 // IJN
 // ---
@@ -182,7 +163,7 @@ router.get('/IJN/rawdata',auth,async(req,res)=>{
     })
 
   });
-})
+});
 router.put('/IJN/settings',auth,async(req,res) => {
   let ObjData = req.body;
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
@@ -191,8 +172,7 @@ router.put('/IJN/settings',auth,async(req,res) => {
   })
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
-})
-
+});
 // ---------
 // SNOW CITY
 // ---------
@@ -238,7 +218,7 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
     })
 
   });
-})
+});
 router.put('/snowcity/settings',auth,async(req,res) => {
   let ObjData = req.body;
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
@@ -247,8 +227,7 @@ router.put('/snowcity/settings',auth,async(req,res) => {
   })
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
-})
-
+});
 // ------
 // SHINKO
 // ------
@@ -292,7 +271,7 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
       })
     }
   });
-})
+});
 router.put('/shinko/settings',auth,async(req,res) => {
   let ObjData = req.body;
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
@@ -301,7 +280,7 @@ router.put('/shinko/settings',auth,async(req,res) => {
   })
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
-})
+});
 // ---
 // MRE
 // ---
@@ -361,9 +340,9 @@ router.put('/mre/settings',auth,async(req,res) => {
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
 })
-// ------
+// ------------
 // NIPPON GLASS
-// ------
+// ------------
 router.get('/nipponglass/rawdata', auth, async(req,res) => {
   // ---------
   let ObjData = req.query;
@@ -408,7 +387,7 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
     })
 
   });
-})
+});
 router.put('/nipponglass/settings',auth,async(req,res) => {
   let ObjData = req.body;
   let SettingFile = 'NIPPONGLASS';
@@ -418,7 +397,65 @@ router.put('/nipponglass/settings',auth,async(req,res) => {
   })
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
-})
+});
+// ------------
+// EPSON
+// ------------
+router.get('/EPSON/rawdata', auth, async(req,res) => {
+  // ---------
+  let ObjData = req.query;
+  let SettingFile = 'EPSON';
+  let LOGFile = '_EPSON';
+  let ALERTFile = '_EPSONALERTS';
+  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
+  let _date0 = ObjData.date0 ? ObjData.date0 : null;
+  let _date1 = ObjData.date1 ? ObjData.date1 : null;
+  // console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  // ---------
+  _data.read(SettingFile,'settings',function(err,settingData) {
+    // --------------------
+    ObjData['settings'] = settingData;
+    //  ---------------------
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0,0,0);
+    _today1.setHours(23,59,59);    
+    //  -----------------------
+    let nCOUNT = 0;
+    Object.keys(settingData).forEach((key,index)=>{
+      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
+        // ---------
+        nCOUNT += 1;
+        if (err) ObjData[key] = sensorData;
+        if (nCOUNT == Object.keys(settingData).length) {
+          _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
+            // --------------------------------------------
+            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
+            // --------------------------------------------
+            if (err) {
+              ObjData['sensorData'] = sensorData;
+              _logs.read(ALERTFile,1000,_today0,_today1,false,function(err,AlertData){
+                ObjData['alerts'] = AlertData;
+                res.status(200).send(ObjData);
+              })
+            }
+          });
+        }        
+      })
+    })
+
+  });
+});
+router.put('/EPSON/settings',auth,async(req,res) => {
+  let ObjData = req.body;
+  let SettingFile = 'EPSON';
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  _data.update(SettingFile,'settings', ObjData, function (err) { 
+    // console.log(err);
+  })
+  // _data.read('teawarehouse','settings'
+  res.status(200).send('FILE UPDATED..');
+});
 // ------
 // AEROSOFT
 // ------
@@ -464,7 +501,7 @@ router.get('/aerosoft/rawdata', auth, async(req,res) => {
       })
     })
   });
-})
+});
 router.put('/aerosoft/settings',auth,async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
@@ -473,51 +510,49 @@ router.put('/aerosoft/settings',auth,async(req,res) => {
   })
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
-})
+});
 // ---------
 // CMMS DATA
 // ---------
-router.get('/nipponglass/data', auth, async(req,res) => {
+router.get('/EPSON/data', auth, async(req,res) => {
   let ObjData = req.query;
   console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
   // ---------
-  _data.read('nipponglass','data',function(err,CMMSData) {
+  _data.read('EPSON','data',function(err,CMMSData) {
     // --------------------
     ObjData['data'] = CMMSData;
     res.status(200).send(ObjData);
   });
-})
-router.put('/nipponglass/data',auth,async(req,res) => {
+});
+router.put('/EPSON/data',auth,async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
-  _data.read('nipponglass','data',function(err,CMMSData) {
-    _data.update('nipponglass','data', {...CMMSData,...ObjData}, function (err) { })
+  _data.read('EPSON','data',function(err,CMMSData) {
+    _data.update('EPSON','data', {...CMMSData,...ObjData}, function (err) { })
   });
 
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
 })
-router.get('/nipponglass/CMMSdata', auth, async(req,res) => {
+router.get('/EPSON/CMMSdata', auth, async(req,res) => {
   let ObjData = req.query;
   console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
   // ---------
-  _data.read('nipponglass','data',function(err,CMMSData) {
+  _data.read('EPSON','data',function(err,CMMSData) {
     // --------------------
     ObjData['data'] = CMMSData;
     res.status(200).send(ObjData);
   });
-})
-router.put('/nipponglass/CMMSdata',auth,async(req,res) => {
+});
+router.put('/EPSON/CMMSdata',auth,async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
-  _data.read('nipponglass','data',function(err,CMMSData) {
+  _data.read('EPSON','data',function(err,CMMSData) {
     _data.update('nipponglass','data', {...CMMSData,...ObjData}, function (err) { })
   });
-
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
-})
-
+});
 // ------------
 // TEAWAREHOUSE
 // ------------
@@ -539,7 +574,7 @@ router.get('/teawarehouse/rawdata', auth, async(req,res) => {
     })
     // ------------------------------
   });
-})
+});
 router.put('/teawarehouse/settings',auth,async(req,res) => {
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
   let ObjData = req.body;
@@ -548,7 +583,7 @@ router.put('/teawarehouse/settings',auth,async(req,res) => {
   })
   // _data.read('teawarehouse','settings'
   res.status(200).send('FILE UPDATED..');
-})
+});
 router.get('/teawarehouse/alerts',auth,async(req,res)=>{
   let ObjData = req.query;
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 5000;
@@ -560,8 +595,7 @@ router.get('/teawarehouse/alerts',auth,async(req,res)=>{
     ObjData['alerts'] = alertsData;
     res.status(200).send(ObjData);
   })
-})
-
+});
 // ------------------------------------
 // @route     GET api/sensors/statsdata
 // @desc      Get all sensors
@@ -577,7 +611,6 @@ router.get('/statsPWRMTRdata1', auth, async (req, res) => {
   })
 
 });
-
 router.get('/statsPWRMTRdata', auth, async (req, res) => {
   // -------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
@@ -611,7 +644,6 @@ router.get('/statsPWRMTRdata', auth, async (req, res) => {
     })
   })
 });
-
 router.get('/statsDAYData', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
@@ -648,8 +680,6 @@ router.get('/statsDAYData', auth, async (req, res) => {
   })
   // -----
 });
-
-
 // @route     GET api/sensors/rawsensordata
 // @desc      Get all sensors
 // @access    Private
@@ -665,8 +695,6 @@ router.get('/rawsensordata', auth, async (req, res) => {
     res.status(200).send(data)
   })
 });
-
-
 // @route     GET api/sensors/data
 // @desc      Get all sensors
 // @access    Private
@@ -679,7 +707,6 @@ router.get('/sensordatadownload/:id', auth, async (req, res) => {
   // console.log('... .. . RESPONSE 200 - UNDER DEVELOPMENT .')
   res.status(200).send('UNDER DEVELOPMENT...')
 });
-
 // @route     GET api/sensors
 // @desc      Get all sensors
 // @access    Private
@@ -697,7 +724,6 @@ router.get('/sensorstats/:dtuId&:sensorId', auth, async (req, res) => {
   });
   // ---------------------------
 });
-
 // @route     POST api/sensors
 // @desc      Add new sensor
 // @access    Private
@@ -735,7 +761,6 @@ router.post('/',[auth,[
     }
   },
 );
-
 // @route     PUT api/sensors/:id
 // @desc      Update sensor
 // @access    Private
@@ -775,7 +800,6 @@ router.put('/:id', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 // @route     DELETE api/sensors/:id
 // @desc      Delete sensor
 // @access    Private
@@ -797,13 +821,10 @@ router.delete('/:id', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 // -------------
 // Data Download
 // -------------
-
 let app = {};
-
 // AJAX Client (for RESTful API)
 app.client = {};
 // Interface for making API calls
