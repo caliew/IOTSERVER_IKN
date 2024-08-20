@@ -2,7 +2,7 @@ node_modules/
 .data/
 .logs/
 !.logs/_app1.js
-!.logs/_app1.js
+!.logs/_app2.js
 client/node_modules/
 client/build/
 restartlog.json

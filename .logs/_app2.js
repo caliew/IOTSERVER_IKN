@@ -23,6 +23,7 @@ let linesToDelete = []; // Global array to store lines marked for deletion
 const COMMANDS = [
   { command: 'SETFILE filename', description: 'Read a file and store its content.' },
   { command: 'SETDATE mm-dd-yyyy', description: 'Set a date for the file content.' },
+  { command: 'FIX', description: 'To fix the file format potential error with 2 JSON String in 1 line.' },
   { command: 'INFO', description: 'Get the first line of the file and convert it to an object.' },
   { command: 'LIST', description: 'List the file content summary.' },
   { command: 'LIST n1', description: 'List the file content of line n1.' },
@@ -32,6 +33,10 @@ const COMMANDS = [
   { command: 'DELETE n1 n2', description: 'Delete lines from the file content between two specified line numbers.' },
   { command: 'SETFILTER filter=id', description: 'Set the KEY and VALUE to filter lines.' },
   { command: 'SETPARAM param', description: 'Set the KEY as parameters for SCAN.' },
+  { command: 'SCAN MAX', description: 'Set the KEY as parameters for SCAN.' },
+  { command: 'SCAN MIN ', description: 'Set the KEY as parameters for SCAN.' },
+  { command: 'SCAN > n ', description: 'Set the KEY as parameters for SCAN.' },
+  { command: 'SCAN < n ', description: 'Set the KEY as parameters for SCAN.' },
   { command: 'SAVE', description: 'Save the modified content back to the original file.' },
   { command: 'SAVE BEF', description: 'Save the BEFORE BREAK POINT to the NEW FILE.' },
   { command: 'SAVE AFT', description: 'Save the AFTER  BREAK POINT to the NEW FILE.' },
