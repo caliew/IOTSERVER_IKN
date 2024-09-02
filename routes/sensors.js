@@ -404,9 +404,9 @@ router.put('/nipponglass/settings',auth,async(req,res) => {
 router.get('/EPSON/rawdata', auth, async(req,res) => {
   // ---------
   let ObjData = req.query;
-  let SettingFile = 'EPSON';
-  let LOGFile = '_EPSON';
-  let ALERTFile = '_EPSONALERTS';
+  let SettingFile = 'AEROSOFT';
+  let LOGFile = '_AEROSOFT';
+  let ALERTFile = '_AEROSOFTALERTS';
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
