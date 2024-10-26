@@ -5,4 +5,4 @@ node_modules/
 !.logs/_app2.js
 client/node_modules/
 client/build/
-restartlog.json
+git rm --cached restartlog.jsonrestartlog.json

@@ -1,7 +1,7 @@
 {
-  "name": "contact-keeper",
+  "name": "TCO SERVER",
   "version": "1.0.0",
-  "description": "Contact manager app",
+  "description": "TCPSERVER 3000 AND CONNECTDB",
   "main": "server.js",
   "scripts": {
     "start": "node index.js --no-ansi --inspect",
