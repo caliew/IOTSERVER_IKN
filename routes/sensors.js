@@ -9,7 +9,7 @@ const SensorStats = require('../models/SensorStats');
 const Contact = require('../models/Contact');
 const cors = require('cors');
 // --------------------------
-const _debug = false;
+const _debug = true;
 
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
