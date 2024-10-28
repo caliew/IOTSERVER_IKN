@@ -1,10 +1,11 @@
 module.exports = {
   apps : [{
-    name: 'TCPPORT',
+    name: 'TCPSERVER',
     script: './index.js',
-    watch: true,
-    instances: 'max',
-    autorestart: true,
+    watch: false,
+    instances: 1,
+    autorestart: false,
+    max_restarts:0,
     env: {
       NODE_ENV: 'production'
     },

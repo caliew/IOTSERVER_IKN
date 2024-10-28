@@ -8,9 +8,9 @@ const Sensor = require('../models/Sensor');
 const SensorStats = require('../models/SensorStats');
 const Contact = require('../models/Contact');
 const cors = require('cors');
-// --------------------------
-const _debug = true;
-
+// -------------------------
+const _debugENDPOINT = true;
+// -------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
 // ----------
@@ -184,7 +184,7 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  _debug && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
   // ---------
   _data.read('snowcity','settings',function(err,settingData) {
     ObjData['settings'] = settingData;
@@ -235,13 +235,21 @@ router.put('/snowcity/settings',auth,async(req,res) => {
 // ------
 router.get('/shinko/rawdata', auth, async(req,res) => {
   // ---------
+  const { totalLines, date0, date1 } = req.query;
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
-  let _date0 = ObjData.date0 ? ObjData.date0 : null;
-  let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  _debug && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  let SettingFile = 'SHINKO';
+  let LOGFile = '_SHINKO';
+  let ALERTFile = '_NIPPONGLASSALERTS';
+  // ----------------------------------
+  const nTotalLines = totalLines || 1000;
+  const _date0 = date0 || null;
+  const _date1 = date1 || null;  
+  // ------------------
+  const url = req.path;
+  const queryString = req.querystring;
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
   // ---------
-  _logs.read('_SHINKO',nTotalLines,_date0,_date1,false,function(err,sensorData) {
+  _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
     // --------------------------------------------
     // IF GETTING NO DATA. USE THE LAST 100 RECORDS
     // --------------------------------------------
@@ -250,23 +258,23 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
       // ---------------
       // GET SENSOR DATA
       // ---------------
-      _logs.read('_SHINKO',1000,null,null,false,function(err,sensorData1) {
+      _logs.read(LOGFile,100,null,null,false,function(err,sensorData1) {
         ObjData['sensorData'] = sensorData1;
-        _data.read('shinko','settings',function(err,settingData) {
+        _data.read(SettingFile,'settings',function(err,settingData) {
           ObjData['settings'] = settingData;
           res.status(200).send(ObjData);
         })
       })
     } else {
       ObjData['sensorData'] = sensorData;
-      _data.read('shinko','settings',function(err,settingData) {
+      _data.read(SettingFile,'settings',function(err,settingData) {
         ObjData['settings'] = settingData;
         // ------
         let _today0 = new Date();
         let _today1 = new Date();
         _today0.setHours(0,0,0);
         _today1.setHours(23,59,59);
-        _logs.read('_SHINKOALERTS',1000,_today0,_today1,false,function(err,AlertData){
+        _logs.read(ALERTFile,1000,_today0,_today1,false,function(err,AlertData){
           ObjData['alerts'] = AlertData;
           res.status(200).send(ObjData);
         })
@@ -288,13 +296,21 @@ router.put('/shinko/settings',auth,async(req,res) => {
 // ---
 router.get('/mre/rawdata', auth, async(req,res) => {
   // ---------
+  const { totalLines, date0, date1 } = req.query;
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
-  let _date0 = ObjData.date0 ? ObjData.date0 : null;
-  let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  _debug && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  let SettingFile = 'MRE';
+  let LOGFile = '_MRE';
+  let ALERTFile = '_MREALERTS';
+  // ----------------------------------
+  const nTotalLines = totalLines || 1000;
+  const _date0 = date0 || null;
+  const _date1 = date1 || null;  
+  // ------------------
+  const url = req.path;
+  const queryString = req.querystring;
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
   // ---------
-  _data.read('mre','settings',function(err,settingData) {
+  _data.read(SettingFile,'settings',function(err,settingData) {
     // --------------------
     ObjData['settings'] = settingData;
     //  ---------------------
@@ -314,14 +330,14 @@ router.get('/mre/rawdata', auth, async(req,res) => {
           // ------------------------------------
           // ALL READ FULLFILLED TO RETURN STATUS
           // ------------------------------------
-          _logs.read('_MRE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
+          _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
             // --------------------------------------------
             // IF GETTING NO DATA. USE THE LAST 100 RECORDS
             // --------------------------------------------
             if (err) {
               ObjData['WISensor'] = sensorPlotData;
               ObjData['sensorData'] = sensorData;
-              _logs.read('_MREALERTS',1000,_today0,_today1,false,function(err,AlertData){
+              _logs.read(ALERTFile,100,_today0,_today1,false,function(err,AlertData){
                 ObjData['alerts'] = AlertData;
                 res.status(200).send(ObjData);
               })
@@ -347,17 +363,27 @@ router.put('/mre/settings',auth,async(req,res) => {
 // ------------
 router.get('/nipponglass/rawdata', auth, async(req,res) => {
   // ---------
+  const { totalLines, date0, date1 } = req.query;
   let ObjData = req.query;
   let SettingFile = 'NIPPONGLASS';
   let LOGFile = '_NIPPONGLASS';
   let ALERTFile = '_NIPPONGLASSALERTS';
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
-  let _date0 = ObjData.date0 ? ObjData.date0 : null;
-  let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  _debug && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  // ----------------------------------
+  const nTotalLines = totalLines || 1000;
+  const _date0 = date0 || null;
+  const _date1 = date1 || null;  
+  // ------------------
+  const url = req.path;
+  const queryString = req.querystring;
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // ---------
-  _data.read(SettingFile,'settings',function(err,settingData) {
-    // --------------------
+  try {
+    const settingData = await new Promise((resolve, reject) => {
+      _data.read(SettingFile, 'settings', (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    });
     ObjData['settings'] = settingData;
     //  ---------------------
     let _today0 = new Date();
@@ -365,30 +391,25 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
     _today0.setHours(0,0,0);
     _today1.setHours(23,59,59);    
     //  -----------------------
-    let nCOUNT = 0;
-    Object.keys(settingData).forEach((key,index)=>{
-      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
-        // ---------
-        nCOUNT += 1;
-        if (err) ObjData[key] = sensorData;
-        if (nCOUNT == Object.keys(settingData).length) {
-          _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
-            // --------------------------------------------
-            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
-            // --------------------------------------------
-            if (err) {
-              ObjData['sensorData'] = sensorData;
-              _logs.read(ALERTFile,1000,_today0,_today1,false,function(err,AlertData){
-                ObjData['alerts'] = AlertData;
-                res.status(200).send(ObjData);
-              })
-            }
-          });
-        }        
-      })
-    })
-
-  });
+    const logData = await new Promise((resolve, reject) => {
+      _logs.read(LOGFile, nTotalLines, _date0, _date1, false, (err, data) => {
+        if (!err) reject(err);
+        else resolve(data);
+      });
+    });
+    ObjData['sensorData'] = logData;
+    const alertData = await new Promise((resolve, reject) => {
+      _logs.read(ALERTFile, 100, _today0, _today1, false, (err, data) => {
+        if (!err) reject(err);
+        else resolve(data);
+      });
+    });
+    ObjData['alerts'] = alertData;
+    res.status(200).send(ObjData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({error:'Internal Server Error'})
+  }
 });
 router.put('/nipponglass/settings',auth,async(req,res) => {
   let ObjData = req.body;
@@ -412,7 +433,7 @@ router.get('/EPSON/rawdata', auth, async(req,res) => {
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  _debug && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
   // ---------
   _data.read(SettingFile,'settings',function(err,settingData) {
     // --------------------
