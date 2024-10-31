@@ -179,47 +179,78 @@ router.put('/IJN/settings',auth,async(req,res) => {
 // SNOW CITY
 // ---------
 router.get('/snowcity/rawdata',auth,async(req,res)=>{
-  // ---------
+  // --------------------------
+  const { totalLines, date0, date1 } = req.query;
+  // --------------------------
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
-  let _date0 = ObjData.date0 ? ObjData.date0 : null;
-  let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
-  // ---------
-  _data.read('snowcity','settings',function(err,settingData) {
+  let SettingFile = 'SNOWCITY';
+  let LOGFile = '_SNOWCITY';
+  let ALERTFile = '_SNOWCITYALERTS';
+  // --------------------------
+  const nTotalLines = totalLines || 1000;
+  const _date0 = date0 || null;
+  const _date1 = date1 || null;
+  const url = req.path;
+  const queryString = req.querystring;
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
+  // --------------------------
+  try {
+    //  --------------------
+    //  READING SETTING DATA
+    //  --------------------
+    const settingData = await new Promise((resolve, reject) => {
+      _data.read(SettingFile, 'settings', (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    });
     ObjData['settings'] = settingData;
+    //  -----------------------------------------
+    //  READING SETTING IOT SENSORS DATA FOR PLOT
+    //  -----------------------------------------
+    let sensorPlotData = {};
+    if (settingData?.["IOT_SENSORS"]) {
+      const sensorDataPromises = Object.keys(settingData["IOT_SENSORS"]).map((key) => {
+        return new Promise((resolve, reject) => {
+          _logs.read(key, 50, _date0, _date1, false, (err, data) => {
+            resolve(data);
+          });
+        });
+      });
+      const sensorData = await Promise.all(sensorDataPromises);
+      Object.keys(settingData["IOT_SENSORS"]).forEach((key, index) => {
+        sensorPlotData[key] = sensorData[index];
+      });
+    }
     //  ---------------------
     let _today0 = new Date();
     let _today1 = new Date();
-    _today0.setHours(0,0,0);
-    _today1.setHours(23,59,59);    
-    //  -----------------------
-    let nCOUNT = 0;
-    let sensorPlotData = {};
-    Object.keys(settingData?.["IOT_SENSORS"]).forEach((key,index)=>{
-      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
-        // ---------
-        nCOUNT += 1;
-        if (err) sensorPlotData[key] = sensorData;
-        if (nCOUNT == Object.keys(settingData["IOT_SENSORS"]).length) {
-          _logs.read('_SNOWCITY',nTotalLines,_date0,_date1,false,function(err,sensorData) {
-            // --------------------------------------------
-            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
-            // --------------------------------------------
-            if (err) {
-              ObjData['WISensor'] = sensorPlotData;
-              ObjData['sensorData'] = sensorData;
-              _logs.read('_SNOWCITYALERTS',1000,_today0,_today1,false,function(err,AlertData){
-                ObjData['alerts'] = AlertData;
-                res.status(200).send(ObjData);
-              })
-            }
-          });          
-        }        
-      })
-    })
-
-  });
+    _today0.setHours(0, 0, 0);
+    _today1.setHours(23, 59, 59);
+    //  -----------------
+    //  READING LOGS DATA
+    //  -----------------
+    const logData = await new Promise((resolve, reject) => {
+      _logs.read(LOGFile, nTotalLines, _date0, _date1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['WISensor'] = sensorPlotData;
+    ObjData['sensorData'] = logData;
+    //  --------------
+    //  READING ALERTS
+    //  --------------
+    const alertData = await new Promise((resolve, reject) => {
+      _logs.read(ALERTFile, 100, _today0, _today1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['alerts'] = alertData;
+    res.status(200).send(ObjData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
 });
 router.put('/snowcity/settings',auth,async(req,res) => {
   let ObjData = req.body;
@@ -234,8 +265,9 @@ router.put('/snowcity/settings',auth,async(req,res) => {
 // SHINKO
 // ------
 router.get('/shinko/rawdata', auth, async(req,res) => {
-  // ---------
+  // --------------------------
   const { totalLines, date0, date1 } = req.query;
+  // --------------------------
   let ObjData = req.query;
   let SettingFile = 'SHINKO';
   let LOGFile = '_SHINKO';
@@ -248,39 +280,64 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
   const url = req.path;
   const queryString = req.querystring;
   _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
-  // ---------
-  _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
-    // --------------------------------------------
-    // IF GETTING NO DATA. USE THE LAST 100 RECORDS
-    // --------------------------------------------
-    let ObjData = {};
-    if (sensorData.length < 15 ) {
-      // ---------------
-      // GET SENSOR DATA
-      // ---------------
-      _logs.read(LOGFile,100,null,null,false,function(err,sensorData1) {
-        ObjData['sensorData'] = sensorData1;
-        _data.read(SettingFile,'settings',function(err,settingData) {
-          ObjData['settings'] = settingData;
-          res.status(200).send(ObjData);
-        })
-      })
-    } else {
-      ObjData['sensorData'] = sensorData;
-      _data.read(SettingFile,'settings',function(err,settingData) {
-        ObjData['settings'] = settingData;
-        // ------
-        let _today0 = new Date();
-        let _today1 = new Date();
-        _today0.setHours(0,0,0);
-        _today1.setHours(23,59,59);
-        _logs.read(ALERTFile,1000,_today0,_today1,false,function(err,AlertData){
-          ObjData['alerts'] = AlertData;
-          res.status(200).send(ObjData);
-        })
-      })
+  // --------------------------
+  try {
+    //  --------------------
+    //  READING SETTING DATA
+    //  --------------------
+    const settingData = await new Promise((resolve, reject) => {
+      _data.read(SettingFile, 'settings', (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    });
+    ObjData['settings'] = settingData;
+    //  -----------------------------------------
+    //  READING SETTING IOT SENSORS DATA FOR PLOT
+    //  -----------------------------------------
+    let sensorPlotData = {};
+    if (settingData?.["IOT_SENSORS"]) {
+      const sensorDataPromises = Object.keys(settingData["IOT_SENSORS"]).map((key) => {
+        return new Promise((resolve, reject) => {
+          _logs.read(key, 50, _date0, _date1, false, (err, data) => {
+            resolve(data);
+          });
+        });
+      });
+      const sensorData = await Promise.all(sensorDataPromises);
+      Object.keys(settingData["IOT_SENSORS"]).forEach((key, index) => {
+        sensorPlotData[key] = sensorData[index];
+      });
     }
-  });
+    //  ---------------------
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0, 0, 0);
+    _today1.setHours(23, 59, 59);
+    //  -----------------
+    //  READING LOGS DATA
+    //  -----------------
+    const logData = await new Promise((resolve, reject) => {
+      _logs.read(LOGFile, nTotalLines, _date0, _date1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['WISensor'] = sensorPlotData;
+    ObjData['sensorData'] = logData;
+    //  --------------
+    //  READING ALERTS
+    //  --------------
+    const alertData = await new Promise((resolve, reject) => {
+      _logs.read(ALERTFile, 100, _today0, _today1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['alerts'] = alertData;
+    res.status(200).send(ObjData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
 });
 router.put('/shinko/settings',auth,async(req,res) => {
   let ObjData = req.body;
@@ -294,61 +351,80 @@ router.put('/shinko/settings',auth,async(req,res) => {
 // ---
 // MRE
 // ---
-router.get('/mre/rawdata', auth, async(req,res) => {
-  // ---------
+router.get('/mre/rawdata', auth, async (req, res) => {
+  // --------------------------
   const { totalLines, date0, date1 } = req.query;
+  // --------------------------
   let ObjData = req.query;
   let SettingFile = 'MRE';
   let LOGFile = '_MRE';
   let ALERTFile = '_MREALERTS';
-  // ----------------------------------
+  // --------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
-  const _date1 = date1 || null;  
-  // ------------------
+  const _date1 = date1 || null;
   const url = req.path;
   const queryString = req.querystring;
   _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
-  // ---------
-  _data.read(SettingFile,'settings',function(err,settingData) {
-    // --------------------
+  // --------------------------
+  try {
+    //  --------------------
+    //  READING SETTING DATA
+    //  --------------------
+    const settingData = await new Promise((resolve, reject) => {
+      _data.read(SettingFile, 'settings', (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    });
     ObjData['settings'] = settingData;
+    //  -----------------------------------------
+    //  READING SETTING IOT SENSORS DATA FOR PLOT
+    //  -----------------------------------------
+    let sensorPlotData = {};
+    if (settingData?.["IOT_SENSORS"]) {
+      const sensorDataPromises = Object.keys(settingData["IOT_SENSORS"]).map((key) => {
+        return new Promise((resolve, reject) => {
+          _logs.read(key, 50, _date0, _date1, false, (err, data) => {
+            resolve(data);
+          });
+        });
+      });
+      const sensorData = await Promise.all(sensorDataPromises);
+      Object.keys(settingData["IOT_SENSORS"]).forEach((key, index) => {
+        sensorPlotData[key] = sensorData[index];
+      });
+    }
     //  ---------------------
     let _today0 = new Date();
     let _today1 = new Date();
-    _today0.setHours(0,0,0);
-    _today1.setHours(23,59,59);    
-    //  -----------------------
-    let nCOUNT = 0;
-    let sensorPlotData = {};
-    settingData?.["IOT_SENSORS"] && Object.keys(settingData["IOT_SENSORS"]).forEach((key,index)=>{
-      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
-        // ---------
-        nCOUNT += 1;
-        if (err) sensorPlotData[key] = sensorData;
-        if (nCOUNT == Object.keys(settingData["IOT_SENSORS"]).length) {
-          // ------------------------------------
-          // ALL READ FULLFILLED TO RETURN STATUS
-          // ------------------------------------
-          _logs.read(LOGFile,nTotalLines,_date0,_date1,false,function(err,sensorData) {
-            // --------------------------------------------
-            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
-            // --------------------------------------------
-            if (err) {
-              ObjData['WISensor'] = sensorPlotData;
-              ObjData['sensorData'] = sensorData;
-              _logs.read(ALERTFile,100,_today0,_today1,false,function(err,AlertData){
-                ObjData['alerts'] = AlertData;
-                res.status(200).send(ObjData);
-              })
-            }
-          });
-        }        
-      })
-    })
-
-  });
-})
+    _today0.setHours(0, 0, 0);
+    _today1.setHours(23, 59, 59);
+    //  -----------------
+    //  READING LOGS DATA
+    //  -----------------
+    const logData = await new Promise((resolve, reject) => {
+      _logs.read(LOGFile, nTotalLines, _date0, _date1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['WISensor'] = sensorPlotData;
+    ObjData['sensorData'] = logData;
+    //  --------------
+    //  READING ALERTS
+    //  --------------
+    const alertData = await new Promise((resolve, reject) => {
+      _logs.read(ALERTFile, 100, _today0, _today1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['alerts'] = alertData;
+    res.status(200).send(ObjData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+});
 router.put('/mre/settings',auth,async(req,res) => {
   let ObjData = req.body;
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
@@ -362,7 +438,7 @@ router.put('/mre/settings',auth,async(req,res) => {
 // NIPPON GLASS
 // ------------
 router.get('/nipponglass/rawdata', auth, async(req,res) => {
-  // ---------
+  // --------------------------
   const { totalLines, date0, date1 } = req.query;
   let ObjData = req.query;
   let SettingFile = 'NIPPONGLASS';
@@ -378,6 +454,9 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
   _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // ---------
   try {
+    //  ----------------
+    //  READING SETTINGS
+    //  ----------------
     const settingData = await new Promise((resolve, reject) => {
       _data.read(SettingFile, 'settings', (err, data) => {
         if (err) reject(err);
@@ -385,23 +464,44 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
       });
     });
     ObjData['settings'] = settingData;
+    //  -----------------------------------------
+    //  READING SETTING IOT SENSORS DATA FOR PLOT
+    //  -----------------------------------------
+    let sensorPlotData = {};
+    if (settingData?.["IOT_SENSORS"]) {
+      const sensorDataPromises = Object.keys(settingData["IOT_SENSORS"]).map((key) => {
+        return new Promise((resolve, reject) => {
+          _logs.read(key, 50, _date0, _date1, false, (err, data) => {
+            resolve(data);
+          });
+        });
+      });
+      const sensorData = await Promise.all(sensorDataPromises);
+      Object.keys(settingData["IOT_SENSORS"]).forEach((key, index) => {
+        sensorPlotData[key] = sensorData[index];
+      });
+    } 
     //  ---------------------
     let _today0 = new Date();
     let _today1 = new Date();
     _today0.setHours(0,0,0);
     _today1.setHours(23,59,59);    
     //  -----------------------
+    //  READING LOGS - RAW DATA
+    //  -----------------------
     const logData = await new Promise((resolve, reject) => {
       _logs.read(LOGFile, nTotalLines, _date0, _date1, false, (err, data) => {
-        if (!err) reject(err);
-        else resolve(data);
+        resolve(data);
       });
     });
+    ObjData['WISensor'] = sensorPlotData;
     ObjData['sensorData'] = logData;
+    //  --------------
+    //  READING ALERTS
+    //  --------------
     const alertData = await new Promise((resolve, reject) => {
       _logs.read(ALERTFile, 100, _today0, _today1, false, (err, data) => {
-        if (!err) reject(err);
-        else resolve(data);
+        resolve(data);
       });
     });
     ObjData['alerts'] = alertData;
