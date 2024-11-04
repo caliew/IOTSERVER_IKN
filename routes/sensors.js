@@ -192,7 +192,7 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   const _date1 = date1 || null;
   const url = req.path;
   const queryString = req.querystring;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
     //  --------------------
@@ -279,7 +279,7 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
   // ------------------
   const url = req.path;
   const queryString = req.querystring;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
     //  --------------------
@@ -365,7 +365,7 @@ router.get('/mre/rawdata', auth, async (req, res) => {
   const _date1 = date1 || null;
   const url = req.path;
   const queryString = req.querystring;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
     //  --------------------
