@@ -1,0 +1,27 @@
+{
+     "IOT_SENSORS": {
+        "13046" :{"1":{"TYPE":"AC CURRENT","NAME":"13046","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":600}},
+        "13047" :{"1":{"TYPE":"AC CURRENT","NAME":"13047","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":300}},
+        "13048" :{"1":{"TYPE":"AC CURRENT","NAME":"13048","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":400}},
+        "13049" :{"1":{"TYPE":"AC CURRENT","NAME":"13049","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":400}},
+        "13050" :{"1":{"TYPE":"AC CURRENT","NAME":"13050","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":400}},
+        "13051" :{"1":{"TYPE":"AC CURRENT","NAME":"13051","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":400}},
+        "13052" :{"1":{"TYPE":"AC CURRENT","NAME":"13052","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":600}},
+        "13053" :{"1":{"TYPE":"AC CURRENT","NAME":"13053","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":600}},
+        "13054" :{"1":{"TYPE":"AC CURRENT","NAME":"13054","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":600}},
+        "13055" :{"1":{"TYPE":"AC CURRENT","NAME":"13055","AMP_MIN":"1","AMP_MAX":"20",
+                "GROUP":"NA","ALERT":true,"CTRATIO":600}}
+     },
+     "IOT_CMSS":{}
+
+
+}

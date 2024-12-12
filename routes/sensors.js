@@ -9,7 +9,7 @@ const SensorStats = require('../models/SensorStats');
 const Contact = require('../models/Contact');
 const cors = require('cors');
 // -------------------------
-const _debugENDPOINT = true;
+const _debugENDPOINT = false;
 // -------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
@@ -23,7 +23,7 @@ router.get('/', auth, async (req, res) => {
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
   let ObjData = req.query;
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] [${req.query.id}]..`)
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] [${String(ObjData.id).red}]..`)
   // -------
   try {
     // ----------
@@ -125,51 +125,85 @@ router.get('/testsite',async(req,res)=>{
 // ---
 // IJN
 // ---
-router.get('/IJN/rawdata',auth,async(req,res)=>{
-  // ---------
+router.get('/ikn/rawdata',auth,async(req,res)=>{
+  // --------------------------
+  const { totalLines, date0, date1 } = req.query;
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
-  let _date0 = ObjData.date0 ? ObjData.date0 : null;
-  let _date1 = ObjData.date1 ? ObjData.date1 : null;
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
-  // ---------
-  _data.read('IJN','settings',function(err,settingData) {
+  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] [${String(ObjData.id).red}]..`)
+  // --------------------------
+  let SettingFile = 'IKN_OPROOM';
+  let LOGFile = '_IKN_OPROOM';
+  let ALERTFile = '_IKN_OPROOMALERTS';
+  // --------------------------
+  const nTotalLines = totalLines || 1000;
+  const _date0 = date0 || null;
+  const _date1 = date1 || null;
+  const url = req.path;
+  const queryString = req.querystring;
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
+  // --------------------------
+  try {
+    //  --------------------
+    //  READING SETTING DATA
+    //  --------------------
+    const settingData = await new Promise((resolve, reject) => {
+      _data.read(SettingFile, 'settings', (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    });
     ObjData['settings'] = settingData;
+    //  -----------------------------------------
+    //  READING SETTING IOT SENSORS DATA FOR PLOT
+    //  -----------------------------------------
+    let sensorPlotData = {};
+    if (settingData?.["IOT_SENSORS"]) {
+      const sensorDataPromises = Object.keys(settingData["IOT_SENSORS"]).map((key) => {
+        return new Promise((resolve, reject) => {
+          _logs.read(key, 50, _date0, _date1, false, (err, data) => {
+            resolve(data);
+          });
+        });
+      });
+      const sensorData = await Promise.all(sensorDataPromises);
+      Object.keys(settingData["IOT_SENSORS"]).forEach((key, index) => {
+        sensorPlotData[key] = sensorData[index];
+      });
+    }
     //  ---------------------
     let _today0 = new Date();
     let _today1 = new Date();
-    _today0.setHours(0,0,0);
-    _today1.setHours(23,59,59);    
-    //  -----------------------
-    let nCOUNT = 0;
-    Object.keys(settingData).forEach((key,index)=>{
-      _logs.read(key,50,_date0,_date1,false,function(err,sensorData) {
-        // ---------
-        nCOUNT += 1;
-        if (err) ObjData[key] = sensorData;
-        if (nCOUNT == Object.keys(settingData).length) {
-          _logs.read('_IJN',nTotalLines,_date0,_date1,false,function(err,sensorData) {
-            // --------------------------------------------
-            // IF GETTING NO DATA. USE THE LAST 100 RECORDS
-            // --------------------------------------------
-            if (err) {
-              ObjData['sensorData'] = sensorData;
-              _logs.read('_IJNALERTS',1000,_today0,_today1,false,function(err,AlertData){
-                ObjData['alerts'] = AlertData;
-                res.status(200).send(ObjData);
-              })
-            }
-          });          
-        }        
-      })
-    })
-
-  });
+    _today0.setHours(0, 0, 0);
+    _today1.setHours(23, 59, 59);
+    //  -----------------
+    //  READING LOGS DATA
+    //  -----------------
+    const logData = await new Promise((resolve, reject) => {
+      _logs.read(LOGFile, nTotalLines, _date0, _date1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['WISensor'] = sensorPlotData;
+    ObjData['sensorData'] = logData;
+    //  --------------
+    //  READING ALERTS
+    //  --------------
+    const alertData = await new Promise((resolve, reject) => {
+      _logs.read(ALERTFile, 100, _today0, _today1, false, (err, data) => {
+        resolve(data);
+      });
+    });
+    ObjData['alerts'] = alertData;
+    res.status(200).send(ObjData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
 });
-router.put('/IJN/settings',auth,async(req,res) => {
+router.put('/ikn/settings',auth,async(req,res) => {
   let ObjData = req.body;
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  _data.update('IJN','settings', ObjData, function (err) { 
+  _data.update('ikn','settings', ObjData, function (err) { 
     // console.log(err);
   })
   // _data.read('teawarehouse','settings'
@@ -192,7 +226,7 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   const _date1 = date1 || null;
   const url = req.path;
   const queryString = req.querystring;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
     //  --------------------
@@ -279,7 +313,7 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
   // ------------------
   const url = req.path;
   const queryString = req.querystring;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
     //  --------------------
@@ -365,7 +399,7 @@ router.get('/mre/rawdata', auth, async (req, res) => {
   const _date1 = date1 || null;
   const url = req.path;
   const queryString = req.querystring;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow}`);
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
     //  --------------------

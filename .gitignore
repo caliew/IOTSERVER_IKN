@@ -1,5 +1,11 @@
 node_modules/
-.data/
+.data/gateways
+.data/stats
+.data/tokens
+.data/DEBUG.json
+.data/sensors
+.data/uploads
+.data/users
 .logs/
 !.logs/_app1.js
 !.logs/_app2.js
