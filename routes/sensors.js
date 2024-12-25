@@ -9,11 +9,25 @@ const SensorStats = require('../models/SensorStats');
 const Contact = require('../models/Contact');
 const cors = require('cors');
 // -------------------------
-const _debugENDPOINT = false;
+const _debugENDPOINT = true;
 // -------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
 // ----------
+const formatDate = (date) => {
+  let d = new Date(date);
+  let month = (d.getMonth() + 1).toString();
+  let day = d.getDate().toString();
+  let year = d.getFullYear()% 100;
+  if (month.length < 2) {
+    month = '0' + month;
+  }
+  if (day.length < 2) {
+    day = '0' + day;
+  }
+  return [day, month, year].join('/');
+}
+// -----
 router.use( cors({origin:'*'}) );
 // @route     GET api/sensors
 // @desc      Get all sensors
@@ -22,15 +36,15 @@ router.get('/', auth, async (req, res) => {
   // -------------------------------------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
-  let ObjData = req.query;
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] [${String(ObjData.id).red}]..`)
+  let userId = req.query.id;
+  const url = req.path;
   // -------
   try {
     // ----------
     const user = await User.findById(req.query.id).select('-password');
-    let companyname = user?.companyname;
-    // -------------
-    const sensors = await Sensor.find({dtuId : {$gte:-1}}).sort({
+    let username = user.name ?? '';
+    let companyname = user.companyname?? '';
+    const sensors = await Sensor.find({ company: { $in:[`${companyname}`]}}).sort({
       date: -1,
     });
     //  --------------------
@@ -41,9 +55,11 @@ router.get('/', auth, async (req, res) => {
     // --------------------
     let totalLines = Number(req.query.totalLines);
     totalLines = isNaN(parseFloat(totalLines)) ? 10 : totalLines;
-    let date0 = req.query.date0 ? req.query.date0 : null;
-    let date1 = req.query.date1 ? req.query.date1 : null;
-    // ----------------
+    let date1 = req.query.date1 ?? new Date();
+    let date0 = req.query.date0 ?? new Date();
+    // ------------
+    _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${String(userId).red}>..${String(username).blue}|${String(companyname).yellow}|${String(sensors.length).green} ..${formatDate(date0)} ${formatDate(date1)}`);
+    // -------------
     sensors.forEach( (sensor,_index)  => {
       // -----------------
       let nIndex = (user.name === 'superuser') ? 99 : sensor.company.indexOf(companyname);
@@ -57,6 +73,7 @@ router.get('/', auth, async (req, res) => {
         if (nIndex > -1) updatedSensors.push(sensor);
         // -------------------------
         if ( nCOUNT === sensors.length) {
+          console.log(`[${String('SENSOR.JS').yellow}] LINE:61 ..TOTAL SENSORS READ:${sensors.length}/${updatedSensors.length}`);
           res.status(200).json(updatedSensors);
         }
       })
@@ -129,7 +146,6 @@ router.get('/ikn/rawdata',auth,async(req,res)=>{
   // --------------------------
   const { totalLines, date0, date1 } = req.query;
   let ObjData = req.query;
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] [${String(ObjData.id).red}]..`)
   // --------------------------
   let SettingFile = 'IKN_OPROOM';
   let LOGFile = '_IKN_OPROOM';
@@ -139,7 +155,6 @@ router.get('/ikn/rawdata',auth,async(req,res)=>{
   const _date0 = date0 || null;
   const _date1 = date1 || null;
   const url = req.path;
-  const queryString = req.querystring;
   _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
@@ -225,7 +240,6 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   const _date0 = date0 || null;
   const _date1 = date1 || null;
   const url = req.path;
-  const queryString = req.querystring;
   _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // --------------------------
   try {
@@ -845,9 +859,12 @@ router.get('/rawsensordata', auth, async (req, res) => {
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   //  ------------------------------------
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
+  let SettingFile = '_485SENSORS';
+  const url = req.path;
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
   // ------
   let data;
-  _data.read('rawData','_485SENSORS',function(err,data) {
+  _data.read('rawData',SettingFile,function(err,data) {
     // ---------------
     res.status(200).send(data)
   })

@@ -3,6 +3,7 @@ import {
   SET_SENSORS,
   SET_PLOTSENSORDATA,
   CLEAR_PLOTSENSORDATA,
+  FETCH_SENSORSDATA,
   SET_RAWSENSORS,
   SENSOR_ERROR,
   ADD_SENSOR,
@@ -311,6 +312,15 @@ const sensorReducer = (state, action) => {
         plotSensorMap : _plotsensormap,
         loading: false
       };
+    case FETCH_SENSORSDATA:
+      console.log('..FETCH SENSORSDATA...')
+      return {
+        ...state,
+        sensors:null,
+        wisensors:null,
+        rawsensors:null,
+        loading: true
+      };      
     case SET_RAWSENSORS:
       return {
         ...state,

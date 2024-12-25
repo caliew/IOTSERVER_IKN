@@ -22,7 +22,7 @@ const HomePage = () => {
   const history = useHistory();
 	// --------------------------
   const authContext = useContext(AuthContext);
-  const { isAuthenticated, user, loadUser, getAllCompanies } = authContext;
+  const { isAuthenticated, user, getAllCompanies } = authContext;
 	// ------------------------
 	const notificationContext = useContext(NotificationContext);
 	const { getNotification } = notificationContext;

@@ -104,11 +104,11 @@ const sensorData = (sensor) => {
 // -----------------------
 const renderLabel = d => d.toFixed(1);
 const getBATTIcon = (batt) => {
-	if (batt >75)	return (<MDBIcon icon="battery-full" size="2x"/>)
-	if (batt >50)	return (<MDBIcon icon="battery-three-quarters" size="2x"/>)
-	if (batt >25)	return (<MDBIcon icon="battery-half" size="2x"/>)
-	if (batt >25)	return (<MDBIcon icon="battery-quarter" size="2x" style={{ background: 'yellow' }}/>)
-	return (<MDBIcon icon="battery-quarter" size="2x" style={{ color: 'red' }}/>)
+	if (batt > 75)	return (<MDBIcon icon="battery-full" size="2x"/>)
+	if (batt > 50)	return (<MDBIcon icon="battery-three-quarters" size="2x"/>)
+	if (batt > 25)	return (<MDBIcon icon="battery-half" size="2x"/>)
+	if (batt > 5)		return (<MDBIcon icon="battery-quarter" size="2x" style={{ background: 'yellow' }}/>)
+	return (<MDBIcon icon="battery-empty" size="2x" style={{ color: 'red' }}/>)
 }
 // ------------
 const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
@@ -118,14 +118,16 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 	const getTableRow = (index,sensor) => {
 		const { name,logsdata,sensorId,dtuId } = sensor
 		let reading,limits;
-		const _date = sensor.logsdata.length > 0 ? new Date(logsdata[0].TIMESTAMP) : null;
+		let nDATA = logsdata.length;
+		const _date = nDATA > 0 ? new Date(logsdata[nDATA-1].TIMESTAMP) : null;
+		const batt = nDATA > 0 ? logsdata[nDATA-1].BATT : 1;
 		let mm = _date && _date.getMonth()+1;
 		let dd = _date && _date.getDate();
-		let batt = sensor.logsdata.length > 0 ? logsdata[0].BATT : null;
 		let hours = _date && ("0" + _date.getHours()).slice(-2);
 		let minutes = _date && ("0" + _date.getMinutes()).slice(-2);
 		let _timediff = _date && (new Date().getTime()  - _date.getTime());
 		_timediff = _date && _timediff/ (1000 * 60 * 60);
+		if (nDATA == 0) _timediff = 100.0;
 		// ------------------
 		switch (sensor.type)
 		{
@@ -159,15 +161,18 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 				limits = '';
 				break;
 			case 'WISENSOR':
-				reading = (logsdata.length > 0 && logsdata[0].Temperature) ? `${logsdata[0].Temperature.toFixed(1)}°C`: '°C';
-				//  ${logsdata[0].Humidity.toFixed(1)}%
-				// ABSOLUTE HUMIDITY = 6.112 x ( e^((17.67xT)/(T+243.50)) ) x R H x2.1674 / (273.15+T)
-				let _Temp = Number(logsdata[0].Temperature);
-				let _RH = Number(logsdata[0].Humidity);
-				// --------
-				let absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
-				reading = ( logsdata[0].Humidity && logsdata[0].Humidity > 0) ? reading = `${reading} RH:${logsdata[0].Humidity.toFixed(1)}%  ABS:${absRH.toFixed(1)}g.m-3` : reading;
-				limits = sensor.limits ? `${sensor.limits.TEMPERATURE_MIN}°C/${sensor.limits.TEMPERATURE_MAX}°C` : `NA/NA`			
+				try {
+					let _Temp, _RH, absRH;
+					reading = (nDATA > 0 && logsdata[nDATA-1].Temperature) ? `${logsdata[nDATA-1].Temperature}°C`: '°C';
+					_Temp = (nDATA > 0) ? Number(logsdata[nDATA-1]?.Temperature): 0;
+					_RH = (nDATA > 0) ? Number(logsdata[nDATA-1]?.Humidity) : 0;
+					// --------
+					absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
+					reading = `${reading} RH:${_RH.toFixed(0)}%\nABS:${absRH.toFixed(2)}g.m-3`;
+					limits = sensor.limits ? `${sensor.limits.TEMPERATURE_MIN}°C/${sensor.limits.TEMPERATURE_MAX}°C` : `NA/NA`;
+				} catch (error) {
+					console.log(error);
+				}
 				break;
 			default:
 				reading = null
@@ -176,17 +181,18 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 		// -----
 		return (
 			<tr>
-				<td>{index}</td><td>{name}<br/>SENSOR ID:{sensorId}<br/>
+				<td>{index+1}</td><td>{name}<br/>SENSOR ID:{sensorId}<br/>
 				{ dtuId > 0 && getDTUID(dtuId) }
 				</td>
 				<td>{`${dd}/${mm}`}<br/>{`${hours}:${minutes}`}</td>
 				<td>
-					{reading}<br/>
+					<div style={{whiteSpace:'pre-line'}}>
+					{reading}
+					</div>
 					{limits}<br/>
 				</td>
 				<td>
 					{batt && getBATTIcon(batt)} <br/>
-					&nbsp;&nbsp;
 				</td>
 				<td><MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/></td>
 				<td>
@@ -219,13 +225,13 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 	// --------------	
 	return (
 		<MDBTableBody>
-			{ sensor.type === 'AIRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'AIRFLW(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WTRPRS(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WTRTEMP(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WTRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'PWRMTR(485)' && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WISENSOR' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
+			{ sensor.type === 'AIRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'AIRFLW(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'WTRPRS(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'WTRTEMP(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'WTRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'PWRMTR(485)' && getTableRow(index,sensor) }
+			{ sensor.type === 'WISENSOR' && getTableRow(index,sensor) }
 		</MDBTableBody>
 	)
 

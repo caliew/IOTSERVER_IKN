@@ -8,6 +8,7 @@ import {
   SET_SENSORS,
   SET_PLOTSENSORDATA,
   CLEAR_PLOTSENSORDATA,
+  FETCH_SENSORSDATA,
   SET_RAWSENSORS,
   ADD_SENSOR,
   SENSOR_ERROR,
@@ -49,6 +50,7 @@ const SensorState = props => {
   const getSensors = async (datasets,date0,date1) => {
     try {
       // --------------------------------
+      dispatch({ type:FETCH_SENSORSDATA });
       console.log('API/SENSOR',user)
       const params = { totalLines : datasets, id: user._id, date0, date1 };
       axios.get('/api/sensors', { params } ).then (res => {

@@ -37,7 +37,7 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
     const [toggleOverview,setOverview] = useState(false);
 		// --------------------------------------------
     const sensorContext = useContext(SensorContext);
-    const { sensors, getSensors } = sensorContext;
+    const { loading, sensors, getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
         if (sensors === null) getSensors(30,null,null);
@@ -54,23 +54,28 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
 			let _wiSensors = [];
 			let _tempDatas = [];
       // ----------------------
-			sensors.forEach( sensor => {
+      console.log(`..TOTAL SENSORS TO PROCESED = ${sensors.length}`);
+			sensors.forEach( (sensor,index) => {
         // -----------------------
+        let _DATAS = sensor.logsdata;
+        let _TEMP, _HUMD;
         if (sensor.type === 'WISENSOR') {
           // ----------------------------
           _wiSensors.push(sensor);
+          _TEMP = (_DATAS.length > 0) ? Number(_DATAS[_DATAS.length-1].Temperature).toFixed(2) : null;
+          _HUMD = (_DATAS.length > 0) ? Number(_DATAS[_DATAS.length-1].Humidity).toFixed(0) : null;
           // -----------------
           let _sensorObj = {
             name : sensor.name,
-            temperature : (sensor.logsdata[0] && sensor.logsdata[0].Temperature) ? Number(sensor.logsdata[0].Temperature.toFixed(1)) : null,
-            humidity : (sensor.logsdata[0] && sensor.logsdata[0].Humidity) ? Number(sensor.logsdata[0].Humidity) : null
+            temperature : _TEMP,
+            humidity : _HUMD
           }
-          sensor.logsdata[0] && _tempDatas.push(_sensorObj);
+          _tempDatas.push(_sensorObj);
         };
         // ---------
         let ObjSensor = sensorLocationMap[sensor.sensorId];
         if (ObjSensor && sensor.logsdata && sensor.logsdata.length > 1 && ObjSensor.hasOwnProperty("reading")) {
-          ObjSensor["reading"] = Number(sensor.logsdata[0].Temperature.toFixed(1));
+          ObjSensor["reading"] = _TEMP;
           delete sensorLocationMap[sensor.name];
         }
         sensorLocationMap[sensor.sensorId] = ObjSensor;
@@ -79,6 +84,7 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
       // --------------------
       setSensorType(_wiSensors[0].type)
 			setWiSensor(_wiSensors.sort(compareByName));
+      console.log(`..TOTAL WISENSORS SET = ${_wiSensors.length}`);
 			setTempData(_tempDatas.sort(compareByName));
     }
     const getWISENSORSList = () => {
@@ -89,7 +95,11 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
             sensor={sensor} index={index} toggleSparkline={toggleSparkline}
           />)
         }) 
-      if (wiSensors.length === 0) _wiSensorsList = <h5>.. NO SENSOR DATA AVAILABLE ..</h5>
+      if (wiSensors.length === 0) _wiSensorsList = (
+        <div>
+          <h5>.. NO SENSOR DATA AVAILABLE ..</h5>
+          { loading && <h5>LOADING...</h5>}
+        </div>)
       return _wiSensorsList;
     }
     // ----
