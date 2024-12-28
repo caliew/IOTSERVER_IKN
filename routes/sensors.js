@@ -216,9 +216,12 @@ router.get('/ikn/rawdata',auth,async(req,res)=>{
   }
 });
 router.put('/ikn/settings',auth,async(req,res) => {
+  let SettingFile = 'IKN_OPROOM';
   let ObjData = req.body;
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  _data.update('ikn','settings', ObjData, function (err) { 
+  const url = req.path;
+  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
+  _data.update(SettingFile,'settings', ObjData, function (err) { 
     // console.log(err);
   })
   // _data.read('teawarehouse','settings'
