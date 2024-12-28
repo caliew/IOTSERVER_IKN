@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react';
 const colors = ['#5470C6', '#91CC75', '#EE6666'];
 
 const Page = ({title,data,type}) => {
+  // -------
   const getLegends = () => {
     let _legend0 = ['TEMP','RH'];
     let _legend1 = ['SPEED'];
@@ -28,12 +29,14 @@ const Page = ({title,data,type}) => {
     let _dataSet = [];
     data.map((item,index)=>{
       // {name: 'L1- FREEZER MS', temperature: -21, humidity: -959.04}
-      let _NAME = item['name'] ? item['name'] : 'NA'
-      let _TEMP = item['temperature'] ? item['temperature'].toFixed(2) : null;
-      let _HUMD = item['humidity'] ? (item['humidity'] > -900 ? item['humidity'].toFixed(2) : null) : null;
-      let _SPEED = item['velocity'] ? item['velocity'] : null;
-      let _PRESSURE = item['pressure'] ? item['pressure'] : null;
+      console.log(index,item);
+      let _NAME = item['name'] ?? 'NA'
+      let _TEMP = item['temperature'] ?? 0;
+      let _HUMD = item['humidity'] ?? 0;
+      let _SPEED = item['velocity'] ?? 0;
+      let _PRESSURE = item['pressure'] ?? 0;
       let _data;
+      console.log(_NAME,_TEMP._HUMD,_SPEED,_PRESSURE);
       switch (type) {
         case "AIRRH(485)":
           _data = [_NAME,_TEMP];
