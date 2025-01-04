@@ -9,7 +9,7 @@ const SensorStats = require('../models/SensorStats');
 const Contact = require('../models/Contact');
 const cors = require('cors');
 // -------------------------
-const _debugENDPOINT = true;
+const _debugENDPOINT = false;
 // -------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
@@ -73,7 +73,7 @@ router.get('/', auth, async (req, res) => {
         if (nIndex > -1) updatedSensors.push(sensor);
         // -------------------------
         if ( nCOUNT === sensors.length) {
-          console.log(`[${String('SENSOR.JS').yellow}] LINE:61 ..TOTAL SENSORS READ:${sensors.length}/${updatedSensors.length}`);
+          false && console.log(`[${String('SENSOR.JS').yellow}] LINE:61 ..TOTAL SENSORS READ:${sensors.length}/${updatedSensors.length}`);
           res.status(200).json(updatedSensors);
         }
       })
