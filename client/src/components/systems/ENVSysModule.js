@@ -88,19 +88,21 @@ function ENVSysModule({ systemComponent, handleComponetSelection, type, userComp
 			setTempData(_tempDatas.sort(compareByName));
     }
     const getWISENSORSList = () => {
-      let _wiSensorsList = wiSensors.map( (sensor,index) => { 
+      if (wiSensors.length === 0) {
         return (
-          <SensorList 
-            batt={true} companyName={userCompanyName} 
-            sensor={sensor} index={index} toggleSparkline={toggleSparkline}
-          />)
-        }) 
-      if (wiSensors.length === 0) _wiSensorsList = (
         <div>
           <h5>.. NO SENSOR DATA AVAILABLE ..</h5>
-          { loading && <h5>LOADING...</h5>}
+          { loading && <h5>LOADING DATA...</h5>}
         </div>)
-      return _wiSensorsList;
+      } else {
+        return wiSensors.map( (sensor,index) => { 
+          return (
+            <SensorList 
+              batt={true} companyName={userCompanyName} 
+              sensor={sensor} index={index} toggleSparkline={toggleSparkline}
+            />)
+          })
+      }
     }
     // ----
     function ToggleListing(title) {

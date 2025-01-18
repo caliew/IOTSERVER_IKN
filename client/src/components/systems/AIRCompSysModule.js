@@ -24,7 +24,7 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
     const [toggleOverview,setOverview] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
-    const { sensors, getSensors } = sensorContext;
+    const { loading, sensors, getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
       if (sensors === null) getSensors(30,null,null);
@@ -133,6 +133,23 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
         </div>  
       )
     }
+    const getairCompSENSORSList = () => {
+      if (airFlowSensors.length === 0) {
+        return (
+        <div>
+          <h5>.. NO SENSOR DATA AVAILABLE ..</h5>
+          { loading && <h5>LOADING DATA...</h5>}
+        </div>)
+      } else {
+        return airFlowSensors.map( (sensor,index) => { 
+          return (
+            <SensorList 
+              batt={true} companyName={''} 
+              sensor={sensor} index={index} toggleSparkline={toggleSparkline}
+            />)
+          })
+      }
+    }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
@@ -156,8 +173,9 @@ function AIRCompSysModule({ model, color, systemComponent, handleComponetSelecti
                 <MDBTable striped small autoWidth responsive>
                   <MDBTableBody>
                   {
-                      airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} 
-                        index={index} toggleSparkline={toggleSparkline}/>)})
+                    airFlowSensors == null ? <h4>LOADING</h4> : getairCompSENSORSList()
+                    // airFlowSensors && airFlowSensors.sort().map( (sensor,index) => { return (<SensorList sensor={sensor} 
+                    //     index={index} toggleSparkline={toggleSparkline}/>)})
                   }
                   </MDBTableBody>
                 </MDBTable>

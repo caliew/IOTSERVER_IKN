@@ -167,8 +167,10 @@ const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 					_Temp = (nDATA > 0) ? Number(logsdata[nDATA-1]?.Temperature): 0;
 					_RH = (nDATA > 0) ? Number(logsdata[nDATA-1]?.Humidity) : 0;
 					// --------
-					absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
-					reading = `${reading} RH:${_RH.toFixed(0)}%\nABS:${absRH.toFixed(2)}g.m-3`;
+					if ( _RH > 0) {
+						absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
+						reading = `${reading} RH:${_RH.toFixed(0)}%\nABS:${absRH.toFixed(2)}g.m-3`;
+					}
 					limits = sensor.limits ? `${sensor.limits.TEMPERATURE_MIN}°C/${sensor.limits.TEMPERATURE_MAX}°C` : `NA/NA`;
 				} catch (error) {
 					console.log(error);
