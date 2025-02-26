@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const currentDirectory = process.cwd(); // Get the current working directory
-const directoryPath = '/path/to/your/directory'; // Replace with the path to your directory
 
 // Declare the app
 const app = {};

@@ -578,9 +578,9 @@ router.put('/nipponglass/settings',auth,async(req,res) => {
 router.get('/EPSON/rawdata', auth, async(req,res) => {
   // ---------
   let ObjData = req.query;
-  let SettingFile = 'AEROSOFT';
-  let LOGFile = '_AEROSOFT';
-  let ALERTFile = '_AEROSOFTALERTS';
+  let SettingFile = 'EPSON';
+  let LOGFile = '_EPSON';
+  let ALERTFile = '_EPSONALERTS';
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
@@ -611,13 +611,13 @@ router.get('/EPSON/rawdata', auth, async(req,res) => {
               _logs.read(ALERTFile,1000,_today0,_today1,false,function(err,AlertData){
                 ObjData['alerts'] = AlertData;
                 res.status(200).send(ObjData);
+                console.log(sensorData.length);
               })
             }
           });
         }        
       })
     })
-
   });
 });
 router.put('/EPSON/settings',auth,async(req,res) => {
@@ -774,7 +774,7 @@ router.get('/teawarehouse/alerts',auth,async(req,res)=>{
 // @route     GET api/sensors/statsdata
 // @desc      Get all sensors
 // @access    Private
-router.get('/statsPWRMTRdata1', auth, async (req, res) => {
+router.get('/statsPWRMTRdata', auth, async (req, res) => {
   // ----
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   // ----
@@ -785,7 +785,7 @@ router.get('/statsPWRMTRdata1', auth, async (req, res) => {
   })
 
 });
-router.get('/statsPWRMTRdata', auth, async (req, res) => {
+router.get('/statsPWRMTRdata1', auth, async (req, res) => {
   // -------
   // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
   // -------
@@ -809,7 +809,7 @@ router.get('/statsPWRMTRdata', auth, async (req, res) => {
           // ----------------
           if (objData.length == countSTAT) {
             // ---------------------------
-            _data.create('stats','DATA_PWRMTER',objData,function(err) { console.log('...FILE APPENED...',err)})
+            _data.create('stats','DATA_PWRMTER',objData,function(err) { })
             res.status(200).send(objData);
             // ---------------------------
           }
