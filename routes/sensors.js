@@ -149,7 +149,7 @@ router.get('/iknhospital/rawdata',auth,async(req,res)=>{
   // --------------------------
   let SettingFile = 'IKN_HOSPITAL';
   let LOGFile = '_IKN_HOSPITAL';
-  let ALERTFile = '_IKN_HOSPITALALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   // --------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -237,7 +237,7 @@ router.get('/iknOpsRoom/rawdata',auth,async(req,res)=>{
   // --------------------------
   let SettingFile = 'IKN_OPROOM';
   let LOGFile = '_IKN_OPROOM';
-  let ALERTFile = '_IKN_OPROOMALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   // --------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -325,7 +325,7 @@ router.get('/CAMPBELL/rawdata',auth,async(req,res)=>{
   // --------------------------
   let SettingFile = 'CAMPBELL';
   let LOGFile = '_CAMPBELL';
-  let ALERTFile = '_CAMPBELLALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   // --------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -413,7 +413,7 @@ router.get('/snowcity/rawdata',auth,async(req,res)=>{
   let ObjData = req.query;
   let SettingFile = 'SNOWCITY';
   let LOGFile = '_SNOWCITY';
-  let ALERTFile = '_SNOWCITYALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   // --------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -498,7 +498,7 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
   let ObjData = req.query;
   let SettingFile = 'SHINKO';
   let LOGFile = '_SHINKO';
-  let ALERTFile = '_NIPPONGLASSALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';
   // ----------------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -585,7 +585,7 @@ router.get('/mre/rawdata', auth, async (req, res) => {
   let ObjData = req.query;
   let SettingFile = 'MRE';
   let LOGFile = '_MRE';
-  let ALERTFile = '_MREALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   // --------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -670,7 +670,7 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
   let ObjData = req.query;
   let SettingFile = 'NIPPONGLASS';
   let LOGFile = '_NIPPONGLASS';
-  let ALERTFile = '_NIPPONGLASSALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';
   // ----------------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -757,7 +757,7 @@ router.get('/negmwgt/rawdata', auth, async(req,res) => {
   let ObjData = req.query;
   let SettingFile = 'NIPPONGLASS_BOILER';
   let LOGFile = '_NIPPONGLASS_BOILER';
-  let ALERTFile = '_NIPPONGLASSBOILDERALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   // ----------------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
@@ -843,7 +843,7 @@ router.get('/EPSON/rawdata', auth, async(req,res) => {
   let ObjData = req.query;
   let SettingFile = 'EPSON';
   let LOGFile = '_EPSON';
-  let ALERTFile = '_EPSONALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   let nTotalLines = ObjData.totalLines ? ObjData.totalLines : 1000;
   let _date0 = ObjData.date0 ? ObjData.date0 : null;
   let _date1 = ObjData.date1 ? ObjData.date1 : null;
@@ -902,7 +902,7 @@ router.get('/TDKJOHOR/rawdata', auth, async(req,res) => {
   // --------------------------
   let SettingFile = 'TDKJOHOR';
   let LOGFile = '_TDKJOHOR';
-  let ALERTFile = '_TDKJOHORALERTS';
+  let ALERTFile = LOGFile + 'ALERTS';;
   // --------------------------
   const nTotalLines = totalLines || 1000;
   const _date0 = date0 || null;
