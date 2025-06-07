@@ -1,0 +1,6 @@
+{
+  "logFile": {
+    "format": "json",
+    "singleLine": true
+  }
+}

@@ -14,7 +14,7 @@ const config = JSON.parse(configFileContent);
 
 // Function to extract data from files
 app.extract = function() {
-  const filePaths = config.filesnames.map(filename => path.join(config.path, `${filename}${config.fileExtension}`));
+  const filePaths = config.filesnames2.map(filename => path.join(config.path, `${filename}${config.fileExtension}`));
 
   filePaths.forEach(filePath => {
     // READ FILE TO DO SPLIT
