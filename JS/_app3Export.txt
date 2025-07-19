@@ -1,0 +1,82 @@
+
+Power Meter: AIR COMPR C1
+Filter Date: 01/01/2025
+File Path: ./111-9.log
+Week 19 (Mon-Fri): 0 kWh
+Week 19 (Sat-Sun): 495817 kWh
+Week 20 (Mon-Fri): 929918 kWh
+Week 20 (Sat-Sun): 62052 kWh
+Week 21 (Mon-Fri): 1676368 kWh
+Week 21 (Sat-Sun): 0 kWh
+Week 22 (Mon-Fri): 373100 kWh
+Week 22 (Sat-Sun): 62215 kWh
+Week 23 (Mon-Fri): 746922 kWh
+Week 23 (Sat-Sun): 809860 kWh
+Week 24 (Mon-Fri): 623415 kWh
+Week 24 (Sat-Sun): 0 kWh
+Week 25 (Mon-Fri): 6554230 kWh
+Week 25 (Sat-Sun): 187397 kWh
+Week 26 (Mon-Fri): 3625718 kWh
+Week 26 (Sat-Sun): 0 kWh
+Week 27 (Mon-Fri): 7450179 kWh
+Week 27 (Sat-Sun): 2129546 kWh
+SUMMARY BY MONTH:
+2025-05: 62215 kWh (Net: 0 kWh)
+2025-06: 62576 kWh (Net: 361 kWh)
+2025-07: 62634 kWh (Net: 58 kWh)
+
+Power Meter: AIR COMPR C3
+Filter Date: 01/01/2025
+File Path: ./113-6.log
+Week 19 (Mon-Fri): 0 kWh
+Week 19 (Sat-Sun): 2317728 kWh
+Week 20 (Mon-Fri): 7627095 kWh
+Week 20 (Sat-Sun): 1334283 kWh
+Week 21 (Mon-Fri): 10681625 kWh
+Week 21 (Sat-Sun): 0 kWh
+Week 22 (Mon-Fri): 1001553 kWh
+Week 22 (Sat-Sun): 333857 kWh
+Week 23 (Mon-Fri): 2674765 kWh
+Week 23 (Sat-Sun): 6042587 kWh
+Week 24 (Mon-Fri): 3026730 kWh
+Week 24 (Sat-Sun): 0 kWh
+Week 25 (Mon-Fri): 33119206 kWh
+Week 25 (Sat-Sun): 339525 kWh
+Week 26 (Mon-Fri): 17022668 kWh
+Week 26 (Sat-Sun): 0 kWh
+Week 27 (Mon-Fri): 40257080 kWh
+Week 27 (Sat-Sun): 12282840 kWh
+Week 28 (Mon-Fri): 31179224 kWh
+Week 28 (Sat-Sun): 1377832 kWh
+Week 29 (Mon-Fri): 24885451 kWh
+Week 29 (Sat-Sun): 346974 kWh
+SUMMARY BY MONTH:
+2025-05: 333857 kWh (Net: 0 kWh)
+2025-06: 340769 kWh (Net: 6912 kWh)
+2025-07: 346974 kWh (Net: 6205 kWh)
+
+Power Meter: AIR COMPR C2
+Filter Date: 01/01/2025
+File Path: ./111-4.log
+Week 19 (Mon-Fri): 0 kWh
+Week 19 (Sat-Sun): 3984112 kWh
+Week 20 (Mon-Fri): 9637872 kWh
+Week 20 (Sat-Sun): 997308 kWh
+Week 21 (Mon-Fri): 14722399 kWh
+Week 21 (Sat-Sun): 0 kWh
+Week 22 (Mon-Fri): 1705718 kWh
+Week 22 (Sat-Sun): 344656 kWh
+Week 23 (Mon-Fri): 5527865 kWh
+Week 23 (Sat-Sun): 8661150 kWh
+Week 24 (Mon-Fri): 3133835 kWh
+Week 24 (Sat-Sun): 0 kWh
+Week 25 (Mon-Fri): 35510590 kWh
+Week 25 (Sat-Sun): 703180 kWh
+Week 26 (Mon-Fri): 17639538 kWh
+Week 26 (Sat-Sun): 0 kWh
+Week 27 (Mon-Fri): 43474601 kWh
+Week 27 (Sat-Sun): 15200897 kWh
+SUMMARY BY MONTH:
+2025-05: 344656 kWh (Net: 0 kWh)
+2025-06: 356144 kWh (Net: 11488 kWh)
+2025-07: 361990 kWh (Net: 5846 kWh)
