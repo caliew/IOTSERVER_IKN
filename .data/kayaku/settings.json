@@ -1,0 +1,5 @@
+{
+  "IOT_SENSORS":{
+    "300":{"1":{"TYPE":"AC CURRENT","NAME":"DEMO","AMP_MIN":"0","AMP_MAX":"120","GROUP":"TEST","ALERT":true,"UNITSYSTEM":"AMP","ALERTFLAG":1,"ALERTGROUP":"KAYAKU IOT Monitoring System"}}
+  }
+}
