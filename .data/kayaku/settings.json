@@ -1,5 +1,4 @@
-{
-  "IOT_SENSORS":{
-    "300":{"1":{"TYPE":"AC CURRENT","NAME":"DEMO","AMP_MIN":"0","AMP_MAX":"120","GROUP":"TEST","ALERT":true,"UNITSYSTEM":"AMP","ALERTFLAG":1,"ALERTGROUP":"KAYAKU IOT Monitoring System"}}
+{"IOT_SENSORS":{
+  "300":{"1":{"TYPE":"AC CURRENT","NAME":" Air dryer","AMP_MIN":"1","AMP_MAX":"120","GROUP":"plant 203","ALERT":true,"UNITSYSTEM":"AMP","ALERTFLAG":0,"ALERTGROUP":"KAYAKU IOT Monitoring System"}}
   }
 }

@@ -19,6 +19,7 @@
   },
   "license": "ISC",
   "dependencies": {
+    "@green-api/whatsapp-api-client": "^0.4.4",
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
     "commander": "^12.1.0",

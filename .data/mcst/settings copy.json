@@ -20,7 +20,7 @@
   "CHECKLIST": [
     {
       "PHASE 1 SUAC NO-7": {
-        "DESCRIPTION":"CHECKLIST FOR PHASE 1 SUAC NO.7",
+        "DESCRIPTION":"CHECKLIST FOR PHASE 1 SUAC NO-7",
         "FIELDS":{
           "BLOWER":{
             "TYPE":"string",
@@ -32,32 +32,16 @@
             "DESCRIPTION":"COMPRESSOR",
             "ENUM": ["YES", "NO"]
           },
-          "VERIFICATION": {
-            "TYPE": "object",
-            "DESCRIPTION": "VERIFICATION",
-            "PROPERTIES": {
-              "VERIFIED_BY": {
-                "TYPE": "string",
-                "DESCRIPTION": "VERIFIED BY",                
-                "ENUM": ["USER 1", "USER 2"]
-              },
-              "SIGN_OFF": {
-                "TYPE": "object",
-                "DESCRIPTION": "SIGN OFF",
-                "PROPERTIES": {
-                  "SIGNATURE": {
-                    "TYPE": "string",
-                    "DESCRIPTION": "SIGNATURE"
-                  },
-                  "DATE": {
-                    "DESCRIPTION": "DATE",
-                    "TYPE": "string",
-                    "FORMAT": "date"
-                  }
-                }
-              }
-            }
-          }          
+          "PROOF" : {
+            "TYPE":"photo",
+            "DESCRIPTION":"UPLOAD PHOTO",
+            "REQUIRED":false
+          },
+          "SIGN_OFF": {
+            "TYPE": "string",
+            "DESCRIPTION": "SIGN OFF",
+            "REQUIRED":false
+          }
         }
       }
     },
@@ -75,31 +59,10 @@
             "DESCRIPTION":"RUN AMP < 32A",
             "ENUM": ["YES", "NO"]
           },
-          "VERIFICATION": {
-            "TYPE": "object",
-            "DESCRIPTION": "VERIFICATION",
-            "PROPERTIES": {
-              "VERIFIED_BY": {
-                "TYPE": "string",
-                "DESCRIPTION": "VERIFIED BY",                
-                "ENUM": ["USER 1", "USER 2"]
-              },
-              "SIGN_OFF": {
-                "TYPE": "object",
-                "DESCRIPTION": "SIGN OFF",
-                "PROPERTIES": {
-                  "SIGNATURE": {
-                    "TYPE": "string",
-                    "DESCRIPTION": "SIGNATURE"
-                  },
-                  "DATE": {
-                    "DESCRIPTION": "DATE",
-                    "TYPE": "string",
-                    "FORMAT": "date"
-                  }
-                }
-              }
-            }
+          "PROOF" : {
+            "TYPE":"photo",
+            "DESCRIPTION":"UPLOAD PHOTO",            
+            "REQUIRED":true
           }
         }        
       }
@@ -118,31 +81,15 @@
             "DESCRIPTION":"RUN AMP < 30A",
             "ENUM": ["YES", "NO"]
           },
-          "VERIFICATION": {
-            "TYPE": "object",
-            "DESCRIPTION": "VERIFICATION",
-            "PROPERTIES": {
-              "VERIFIED_BY": {
-                "TYPE": "string",
-                "DESCRIPTION": "VERIFIED BY",                
-                "ENUM": ["USER 1", "USER 2"]
-              },
-              "SIGN_OFF": {
-                "TYPE": "object",
-                "DESCRIPTION": "SIGN OFF",
-                "PROPERTIES": {
-                  "SIGNATURE": {
-                    "TYPE": "string",
-                    "DESCRIPTION": "SIGNATURE"
-                  },
-                  "DATE": {
-                    "DESCRIPTION": "DATE",
-                    "TYPE": "string",
-                    "FORMAT": "date"
-                  }
-                }
-              }
-            }
+          "VERIFIED_BY": {
+            "TYPE": "string",
+            "DESCRIPTION": "VERIFIED BY",                
+            "ENUM": ["USER 1", "USER 2"]
+          },
+          "SIGN_OFF": {
+            "TYPE": "string",
+            "DESCRIPTION": "SIGN OFF",
+            "REQUIRED":false
           }
         }        
       }
@@ -222,31 +169,9 @@
               }
             }
           },
-          "VERIFICATION": {
-            "TYPE": "object",
-            "DESCRIPTION": "VERIFICATION",
-            "PROPERTIES": {
-              "VERIFIED_BY": {
-                "TYPE": "string",
-                "DESCRIPTION": "VERIFIED BY",                
-                "ENUM": ["USER 1", "USER 2"]
-              },
-              "SIGN_OFF": {
-                "TYPE": "object",
-                "DESCRIPTION": "SIGN OFF",
-                "PROPERTIES": {
-                  "SIGNATURE": {
-                    "TYPE": "string",
-                    "DESCRIPTION": "SIGNATURE"
-                  },
-                  "DATE": {
-                    "DESCRIPTION": "DATE",
-                    "TYPE": "string",
-                    "FORMAT": "date"
-                  }
-                }
-              }
-            }
+          "SIGN_OFF": {
+            "TYPE": "string",
+            "DESCRIPTION": "SIGN OFF"
           }
         }
       }
@@ -287,31 +212,15 @@
               }              
             }
           },
-          "VERIFICATION": {
-            "TYPE": "object",
-            "DESCRIPTION": "VERIFICATION",
-            "PROPERTIES": {
-              "VERIFIED_BY": {
-                "TYPE": "string",
-                "DESCRIPTION": "VERIFIED BY",
-                "ENUM": ["USER 1", "USER 2"]
-              },
-              "SIGN_OFF": {
-                "TYPE": "object",
-                "DESCRIPTION": "SIGN OFF",
-                "PROPERTIES": {
-                  "SIGNATURE": {
-                    "TYPE": "string",
-                    "DESCRIPTION": "SIGNATURE"
-                  },
-                  "DATE": {
-                    "DESCRIPTION": "DATE",
-                    "TYPE": "string",
-                    "FORMAT": "date"
-                  }
-                }
-              }
-            }
+          "PROOF" : {
+            "TYPE":"photo",
+            "DESCRIPTION":"UPLOAD PHOTO",
+            "REQUIRED":false
+          },
+          "SIGN_OFF": {
+            "TYPE": "string",
+            "DESCRIPTION": "SIGN OFF",
+            "REQUIRED":false
           }
         }
       }
@@ -397,31 +306,10 @@
               }
             }
           },
-          "VERIFICATION": {
-            "TYPE": "object",
-            "DESCRIPTION": "VERIFICATION",
-            "PROPERTIES": {
-              "VERIFIED_BY": {
-                "TYPE": "string",
-                "DESCRIPTION": "VERIFIED BY",
-                "ENUM": ["USER 1", "USER 2"]
-              },
-              "SIGN_OFF": {
-                "TYPE": "object",
-                "DESCRIPTION": "SIGN OFF",
-                "PROPERTIES": {
-                  "SIGNATURE": {
-                    "TYPE": "string",
-                    "DESCRIPTION": "SIGNATURE"
-                  },
-                  "DATE": {
-                    "DESCRIPTION": "DATE",
-                    "TYPE": "string",
-                    "FORMAT": "date"
-                  }
-                }
-              }
-            }
+          "SIGN_OFF": {
+            "TYPE": "string",
+            "DESCRIPTION": "SIGN OFF",
+            "REQUIRED":false
           }
         }
       }
@@ -458,31 +346,10 @@
             "DESCRIPTION":"TREATED WATER PRESS > 1.7 BAR" ,
             "ENUM": ["YES", "NO"]
           },
-          "VERIFICATION": {
+          "SIGN_OFF": {
             "TYPE": "object",
-            "DESCRIPTION": "VERIFICATION",
-            "PROPERTIES": {
-              "VERIFIED_BY": {
-                "TYPE": "string",
-                "DESCRIPTION": "VERIFIED BY",                
-                "ENUM": ["USER 1", "USER 2"]
-              },
-              "SIGN_OFF": {
-                "TYPE": "object",
-                "DESCRIPTION": "SIGN OFF",
-                "PROPERTIES": {
-                  "SIGNATURE": {
-                    "TYPE": "string",
-                    "DESCRIPTION": "SIGNATURE"
-                  },
-                  "DATE": {
-                    "DESCRIPTION": "DATE",
-                    "TYPE": "string",
-                    "FORMAT": "date"
-                  }
-                }
-              }
-            }
+            "DESCRIPTION": "SIGN OFF",
+            "REQUIRED":false
           }
         }
       }

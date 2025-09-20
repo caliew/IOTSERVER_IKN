@@ -10,6 +10,7 @@ const cors = require('cors');
 const lodash = require('lodash');
 // -------------------------
 const _debugENDPOINT = false;
+const maxLOGS = 9000;
 // -------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
@@ -52,7 +53,6 @@ const updateSettings = async (file,body) => {
       });
     });
 
-    console.log(`Settings deep-merged successfully for ${file}`);
   } catch (err) {
     console.error(err);
     throw new Error(`Error updating settings for ${file}`);
@@ -72,6 +72,26 @@ const readLogs = async (fileName, nTotalLines, date0, date1) =>{
       resolve(data);
     });
   });
+}
+const debugLog = (fileName,date0,date1,ObjData) => {
+  const keys = Object.keys(ObjData);
+  console.log(`${fileName} ${date0} ${date1} <${keys}>`);
+  console.log('[0]',keys[0],ObjData[keys[0]]);
+  console.log('[1]',keys[1],ObjData[keys[1]]);
+  console.log('[2]',keys[2],ObjData[keys[2]]);
+  const _Settings = ObjData[keys[3]];
+  console.log('[3]',keys[3],Object.keys(_Settings));
+  const _WISensors = ObjData[keys[4]];
+  const _WISensorKeys = Object.keys(_WISensors);
+  _WISensorKeys.forEach((key, index) => {
+    console.log(
+      `[${index}]`,
+      key,
+      `length: ${Array.isArray(_WISensors[key]) ? _WISensors[key].length : 'not an array'}`
+    );
+  });  
+  const _DTUSensors = ObjData[keys[5]];
+  console.log('[5]',keys[5],_DTUSensors.length);
 }
 // -----
 router.use( cors({origin:'*'}) );
@@ -194,7 +214,7 @@ router.get('/iknhospital/rawdata',auth,async(req,res)=>{
     const SettingFile = 'IKN_HOSPITAL';
     const LOGFile = '_IKN_HOSPITAL';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -245,7 +265,7 @@ router.get('/iknOpsRoom/rawdata',auth,async(req,res)=>{
     const SettingFile = 'IKN_OPROOM';
     const LOGFile = '_IKN_OPROOM';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -296,7 +316,7 @@ router.get('/CAMPBELL/rawdata',auth,async(req,res)=>{
     const SettingFile = 'CAMPBELL';
     const LOGFile = '_CAMPBELL';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -347,7 +367,7 @@ router.get('/snowcity/rawdata', auth, async (req, res) => {
     const SettingFile = 'SNOWCITY';
     const LOGFile = '_SNOWCITY';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -366,6 +386,7 @@ router.get('/snowcity/rawdata', auth, async (req, res) => {
     ObjData.WISensor = sensorPlotData;
     // Read logs
     ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
+    false && debugLog(SettingFile,_date0,_date1,ObjData);
     // Read alerts (today only)
     let _today0 = new Date();
     let _today1 = new Date();
@@ -398,7 +419,7 @@ router.get('/shinko/rawdata', auth, async(req,res) => {
     const SettingFile = 'SHINKO';
     const LOGFile = '_SHINKO';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -449,7 +470,7 @@ router.get('/mre/rawdata', auth, async (req, res) => {
     const SettingFile = 'MRE';
     const LOGFile = '_MRE';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -500,7 +521,7 @@ router.get('/kayaku/rawdata', auth, async(req,res) => {
     const SettingFile = 'KAYAKU';
     const LOGFile = '_KAYAKU';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -551,7 +572,7 @@ router.get('/nipponglass/rawdata', auth, async(req,res) => {
     const SettingFile = 'NIPPONGLASS_TRANSF';
     const LOGFile = '_NIPPONGLASS';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -603,7 +624,7 @@ router.get('/negmwgt/rawdata', auth, async(req,res) => {
     const LOGFile_OLD = '_NIPPONGLASS_BOILER';
     const LOGFile = '_NIPPONGLASS';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -646,6 +667,79 @@ router.put('/negmwgt/settings', auth, async (req, res) => {
   }
 });
 // ------------
+// MCST
+// ------------
+router.get('/MCST/rawdata', auth, async(req,res) => {
+  try {
+    const ObjData = req.query;
+    const SettingFile = 'MCST';
+    const LOGFile = '_MCST';
+    const ALERTFile = LOGFile + 'ALERTS';
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
+    const _date0 = ObjData.date0 ?? null;
+    const _date1 = ObjData.date1 ?? null;
+    const settingData = await readSettings(SettingFile);
+    ObjData.settings = settingData;
+    // Read sensor plot data
+    let sensorPlotData = {};
+    if (settingData?.IOT_SENSORS) {
+      const keys = Object.keys(settingData.IOT_SENSORS);
+      const sensorData = await Promise.all(
+        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
+      );
+      keys.forEach((key, index) => {
+        sensorPlotData[key] = sensorData[index];
+      });
+    }
+    ObjData.WISensor = sensorPlotData;
+    // Read logs
+    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
+    // Read alerts (today only)
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0, 0, 0);
+    _today1.setHours(23, 59, 59);
+    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
+    res.status(200).send(ObjData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+});  
+router.put('/MCST/settings',auth,async(req,res) => {
+  const { body } = req;
+  const settingFiles = ['MCST'];
+  try {
+    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
+    res.status(200).send({ message: 'Settings updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Error updating settings' });
+  }
+});
+router.get('/MCST/Checklist',auth,async(req,res) => {  
+  try {
+    const ObjData = req.query;
+    const SettingFile = 'MCST_CHECKLIST';
+    const ChecklistHistory = await readSettings(SettingFile);
+    res.status(200).send(ChecklistHistory);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+})
+router.put('/MCST/Checklist',auth,async(req,res) => {
+  const { body } = req;
+  const settingFiles = ['MCST_CHECKLIST'];
+  try {
+    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
+    res.status(200).send({ message: 'Settings updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Error updating settings' });
+  }
+});
+// ------------
 // EPSON
 // ------------
 router.get('/EPSON/rawdata', auth, async(req,res) => {  
@@ -654,7 +748,7 @@ router.get('/EPSON/rawdata', auth, async(req,res) => {
     const SettingFile = 'EPSON';
     const LOGFile = '_EPSON';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -705,7 +799,7 @@ router.get('/TDKJOHOR/rawdata', auth, async(req,res) => {
     const SettingFile = 'TDKJOHOR';
     const LOGFile = '_TDKJOHOR';
     const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -757,7 +851,7 @@ router.get('/aerosoft/rawdata', auth, async(req,res) => {
     const LOGFile = '_AEROSOFT';
     const ALERTFile = LOGFile + 'ALERTS';
     const nTotalLines =
-      ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+      ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
     const settingData = await readSettings(SettingFile);
@@ -846,7 +940,7 @@ router.put('/EPSON/CMMSdata',auth,async(req,res) => {
 // ------------
 router.get('/teawarehouse/rawdata', auth, async(req,res) => {
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+  let nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
   let _date0 = ObjData.date0 ?? null;
   let _date1 = ObjData.date1 ?? null;
   // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
@@ -874,7 +968,7 @@ router.put('/teawarehouse/settings',auth,async(req,res) => {
 });
 router.get('/teawarehouse/alerts',auth,async(req,res)=>{
   let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : 1000;
+  let nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
   let _date0 = ObjData.date0 ?? null;
   let _date1 = ObjData.date1 ?? null;
   _logs.read('_TEAWAREHOUSEALERTS',nTotalLines,_date0,_date1,false,function(err,alertsData){
@@ -883,6 +977,32 @@ router.get('/teawarehouse/alerts',auth,async(req,res)=>{
     ObjData['alerts'] = alertsData;
     res.status(200).send(ObjData);
   })
+});
+//  ---------
+//  CHECKLIST
+//  ---------
+router.put('/CHECKLIST', (req, res) => {
+  const { payload } = req.body; // { [title]: { [date]: {...} } }
+  consoel.log('/CHECKLIST',payload);
+  const CHECKLIST_FILE = path.join(__dirname, 'checklist.json');
+  if (!payload) {
+    return res.status(400).json({ error: 'Missing payload' });
+  }
+
+  // Read existing checklist data
+  let existingData = {};
+  if (fs.existsSync(CHECKLIST_FILE)) {
+    const raw = fs.readFileSync(CHECKLIST_FILE, 'utf-8');
+    existingData = raw ? JSON.parse(raw) : {};
+  }
+
+  // Merge incoming payload
+  const mergedData = deepMerge(existingData, payload);
+
+  // Save back to file
+  fs.writeFileSync(CHECKLIST_FILE, JSON.stringify(mergedData, null, 2), 'utf-8');
+
+  res.json({ success: true, data: mergedData });
 });
 // ------------------------------------
 // @route     GET api/sensors/statsdata
