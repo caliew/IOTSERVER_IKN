@@ -1,19 +1,89 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const {check, validationResult} = require('express-validator');
 // ------------------------------------
 const User = require('../models/User');
 const Sensor = require('../models/Sensor');
-const SensorStats = require('../models/SensorStats');
 const cors = require('cors');
 const lodash = require('lodash');
+const fs = require('fs');
+const path = require('path');
 // -------------------------
 const _debugENDPOINT = false;
-const maxLOGS = 9000;
+const maxLOGS = 100000;
 // -------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
+// 
+const endpointConfigs = {  
+  AEROSOFT : {
+    settingFiles: ['AEROSOFT'],
+    logFile: '_AEROSOFT',
+    alertFile: '_AEROSOFTALERTS',
+  },
+  TEAWAREHOUSE: {
+    settingFiles: ['TEAWAREHOUSE'],
+    logFile: '_TEAWAREHOUSE',
+    alertFile: '_TEAWAREHOUSEALERTS',
+  },
+  TDKJOHOR : {
+    settingFiles: ['TDKJOHOR'],
+    logFile: '_TDKJOHOR',
+    alertFile: '_TDKJOHORALERTS',
+  },
+  EPSON: {
+    settingFiles: ['EPSON'],
+    logFile: '_EPSON',
+    alertFile: '_EPSONALERTS',
+  },
+  SNOWCITY: {
+    settingFiles: ['SNOWCITY'],
+    logFile: '_SNOWCITY',
+    alertFile: '_SNOWCITYALERTS',
+  },
+  IKNOPSROOM: {
+    settingFiles: ['IKN_OPROOM'],
+    logFile: '_IKN_OPROOM',
+    alertFile: '_IKN_OPROOMALERTS',
+  },
+  IKNHOSPITAL: {
+    settingFiles: ['IKN_HOSPITAL'],
+    logFile: '_IKN_HOSPITAL',
+    alertFile: '_IKN_HOSPITALALERTS',
+  },
+  SHINKO: {
+    settingFiles: ['SHINKO'],
+    logFile: '_SHINKO',
+    alertFile: '_SHINKOALERTS',
+  },
+  MRE: {
+    settingFiles: ['MRE'],
+    logFile: '_MRE',
+    alertFile: '_MREALERTS',
+  },
+  KAYAKU: {
+    settingFiles: ['KAYAKU'],
+    logFile: '_KAYAKU',
+    alertFile: '_KAYAKUALERTS',
+  },
+  MCST: {
+    settingFiles: ['MCST'],
+    logFile: '_MCST',
+    alertFile: '_MCSTALERTS',
+  },
+  NEGMWGT: {
+    settingFiles: ['NIPPONGLASS_BOILER'],
+    logFile: '_NIPPONGLASS',
+    alertFile: '_NIPPONGLASSALERTS',
+    updateFiles: ['NIPPONGLASS', 'NIPPONGLASS_BOILER'],
+  },
+  NIPPONGLASS: {
+    settingFiles: ['NIPPONGLASS_TRANSF'],
+    logFile: '_NIPPONGLASS',
+    alertFile: '_NIPPONGLASSALERTS',
+    updateFiles: ['NIPPONGLASS', 'NIPPONGLASS_TRANSF'],
+  }
+};
 // ----------
 const formatDate = (date) => {
   let d = new Date(date);
@@ -28,13 +98,25 @@ const formatDate = (date) => {
   }
   return [day, month, year].join('/');
 }
+
+// Deep merge function for CHECKLIST route
+const deepMerge = (target, source) => {
+  for (const key in source) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      if (!target[key]) target[key] = {};
+      deepMerge(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+  return target;
+}
+
 const updateSettings = async (file,body) => {
   try {
-    // 1. Read existing settings
     const existingData = await new Promise((resolve, reject) => {
       _data.read(file, 'settings', (err, data) => {
         if (err) {
-          // If file not found, treat as empty object
           if (err.code === 'ENOENT') return resolve({});
           return reject(err);
         }
@@ -42,10 +124,8 @@ const updateSettings = async (file,body) => {
       });
     });
 
-    // 2. Deep merge old + new
     const mergedData = lodash.merge({}, existingData, body);
 
-    // 3. Save merged settings back
     await new Promise((resolve, reject) => {
       _data.update(file, 'settings', mergedData, (err) => {
         if (err) return reject(err);
@@ -58,6 +138,7 @@ const updateSettings = async (file,body) => {
     throw new Error(`Error updating settings for ${file}`);
   }
 }
+
 const readSettings = async (fileName) => {
   return new Promise((resolve, reject) => {
     _data.read(fileName, 'settings', (err, data) => {
@@ -66,925 +147,275 @@ const readSettings = async (fileName) => {
     });
   });
 }
-const readLogs = async (fileName, nTotalLines, date0, date1) =>{
+
+// SAFE readLogs function - prevents multiple callbacks
+const readLogs = (fileName, nTotalLines, date0, date1) => {
   return new Promise((resolve) => {
+    let callbackCalled = false;
+
+    const timer = setTimeout(() => {
+      if (!callbackCalled) {
+        _debugENDPOINT && console.log(`⏰ Timeout reading logs for ${fileName}`);
+        callbackCalled = true;
+        resolve([]);
+      }
+    }, 30000);
+
     _logs.read(fileName, nTotalLines, date0, date1, false, (err, data) => {
-      resolve(data);
+      clearTimeout(timer);
+
+      if (callbackCalled) {
+        _debugENDPOINT && console.warn(`⚠️ Duplicate callback for ${fileName}, ignoring`);
+        return;
+      }
+
+      callbackCalled = true;
+
+      _debugENDPOINT && console.log(`✅ Read logs for ${fileName}   err=${err}  data=${data ? 'TRUE':'FALSE'}`);
+
+      // ✅ Use data if present even when err is truthy
+      if (data && data.length > 0) {
+        if (err) _debugENDPOINT && console.warn(`⚠️ Non-fatal read error for ${fileName}, using available data`);
+        resolve(data);
+      } else {
+        if (err) _debugENDPOINT && console.error(`❌ Error reading logs for ${fileName}:`, err);
+        resolve([]);
+      }
     });
   });
-}
-const debugLog = (fileName,date0,date1,ObjData) => {
-  const keys = Object.keys(ObjData);
-  console.log(`${fileName} ${date0} ${date1} <${keys}>`);
-  console.log('[0]',keys[0],ObjData[keys[0]]);
-  console.log('[1]',keys[1],ObjData[keys[1]]);
-  console.log('[2]',keys[2],ObjData[keys[2]]);
-  const _Settings = ObjData[keys[3]];
-  console.log('[3]',keys[3],Object.keys(_Settings));
-  const _WISensors = ObjData[keys[4]];
-  const _WISensorKeys = Object.keys(_WISensors);
-  _WISensorKeys.forEach((key, index) => {
-    console.log(
-      `[${index}]`,
-      key,
-      `length: ${Array.isArray(_WISensors[key]) ? _WISensors[key].length : 'not an array'}`
-    );
-  });  
-  const _DTUSensors = ObjData[keys[5]];
-  console.log('[5]',keys[5],_DTUSensors.length);
-}
+};
+
+
 // -----
-router.use( cors({origin:'*'}) );
+router.use(cors({origin:'*'}));
+
 // @route     GET api/sensors
 // @desc      Get all sensors
 // @access    Private
 router.get('/', auth, async (req, res) => {
-  // -------------------------------------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  //  ------------------------------------
-  let userId = req.query.id;
-  const url = req.path;
-  // -------
   try {
-    // ----------
     const user = await User.findById(req.query.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
     let username = user.name ?? '';
-    let companyname = user.companyname?? '';
-    const sensors = await Sensor.find({ company: { $in:[`${companyname}`]}}).sort({
+    let companyname = user.companyname ?? '';
+    const sensors = await Sensor.find({ company: { $in: [`${companyname}`] } }).sort({
       date: -1,
     });
-    //  --------------------
-    //  ABSTRACT SENSOR DATA
-    //  --------------------
-    let nCOUNT = 0;
-    let updatedSensors = [];
-    // --------------------
+    
+    if (sensors.length === 0) {
+      return res.status(200).json([]);
+    }
+    
     let totalLines = Number(req.query.totalLines);
     totalLines = isNaN(parseFloat(totalLines)) ? 10 : totalLines;
     let date1 = req.query.date1 ?? new Date();
     let date0 = req.query.date0 ?? new Date();
-    // ------------
-    _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${String(userId).red}>..${String(username).blue}|${String(companyname).yellow}|${String(sensors.length).green} ..${formatDate(date0)} ${formatDate(date1)}`);
-    // -------------
-    sensors.forEach( (sensor,_index)  => {
-      // -----------------
+    
+    // Process sensors sequentially to avoid issues
+    const updatedSensors = [];
+    
+    for (const sensor of sensors) {
+      let key = sensor.dtuId === '-1' ? `${sensor.sensorId}` : `${sensor.dtuId}-${sensor.sensorId}`;
       let nIndex = (user.name === 'superuser') ? 99 : sensor.company.indexOf(companyname);
-      let key = sensor.dtuId === '-1' ? `${sensor.sensorId}` : `${sensor.dtuId}-${sensor.sensorId}`
-      // -------------------------------------------------
-      _logs.read(key,totalLines,date0,date1,false,function(err,sensorData) {
-        // -------
-        nCOUNT ++;
-        sensor['logsdata'] = sensorData;
-        // -----------------------------
-        if (nIndex > -1) updatedSensors.push(sensor);
-        // -------------------------
-        if ( nCOUNT === sensors.length) {
-          false && console.log(`[${String('SENSOR.JS').yellow}] LINE:61 ..TOTAL SENSORS READ:${sensors.length}/${updatedSensors.length}`);
-          res.status(200).json(updatedSensors);
-        }
-      })
-    })
-    // -------------
+      
+      if (nIndex > -1) {
+        const logs = await readLogs(key, totalLines, date0, date1);
+        sensor.logsdata = logs;
+        updatedSensors.push(sensor);
+      }
+    }
+    
+    res.status(200).json(updatedSensors);
+    
   } catch (err) {
-    // ------------------------
-    console.error(err.message);
-    res.status(500).send('Server Error');
-    // ----------------------------------
+    console.error('Error in main sensor route:', err.message);
+    if (!res.headersSent) {
+      res.status(500).send('Server Error');
+    }
   }
 });
-// @route     GET api/sensors/nipponglass
-// @desc      GET TEST DATA ON NIPPON GLASS
-// @access    PRIVATE
-router.get('/nipponglass', auth, async(req,res) => {
-  // -----
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] `)
-  // -----
-  _logs.read('_NIPPONDEMO',10,null,null,false,function(err,sensorData) {
-    // -----------------------------
-    let ObjData = {};
-    ObjData['sensorData'] = sensorData;
-    // console.log(sensorData)
-    // -------------------------
-    _logs.read('50-101',10,null,null,false,function(err1,pwrmtrData) {
-      // ---------------------------
-      ObjData['PWRMTR'] = pwrmtrData;
-      // ---------------------------
-      _logs.read('50-101_STATE',10,null,null,false,function(err2,pwrmtrDataState) {
-        // ------
-        ObjData['PWRMTR1'] = pwrmtrDataState;
-        // res.status(200).json({ sensorData });
-        res.status(200).json( ObjData);
-      })
-    })
-    // ------------------------------
-  });
-  // res.status(200).send(data);
-});
-router.get('/testsite',async(req,res)=>{
-  //  -------------------
-  //  READING CONFI FILE
-  //  ------------------
-  let SiteData = {};
-  _data.read('sites','snowcity',function(err,settingData) {
-    let nCount = 0;
-    // let fileNames = ['BA-10-F6-DE-16-1E'];
-    let fileNames = Object.keys(settingData);
-    console.log(fileNames);
-    SiteData['config'] = settingData;
-    SiteData['data'] = {};
-    fileNames.forEach((fileName,index)=>{
-      _logs.read(fileName,200,null,null,false,function(err,sensorData) {
-        nCount += 1;
-        SiteData.data[fileName] = sensorData;
-        if (nCount == fileNames.length) {
-          res.status(200).send(SiteData);
-        }
-      });
-    })
+
+// FIXED handleRawData function
+// In your sensors.js, update the handleRawData function:
+async function handleRawData(req, res, config) {
+  _debugENDPOINT && console.log(`=== START handleRawData for ${req.path} ===`);
   
-  })  
-  //  ----------------------------------
-});
-// ---
-// IJN-HOSPITAL
-// ---
-router.get('/iknhospital/rawdata',auth,async(req,res)=>{
+  // CRITICAL FIX: Check if response already sent
+  if (res.headersSent || res.finished) {
+    _debugENDPOINT && console.log('⚠️ Response already sent, aborting');
+    return;
+  }
+  
   try {
     const ObjData = req.query;
-    const SettingFile = 'IKN_HOSPITAL';
-    const LOGFile = '_IKN_HOSPITAL';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
+    const SettingFile = config.settingFiles[0];
+    const LOGFile = config.logFile;
+
+    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1
+      ? ObjData.totalLines
+      : maxLOGS;
+
     const _date0 = ObjData.date0 ?? null;
     const _date1 = ObjData.date1 ?? null;
+
+    _debugENDPOINT && console.log(`Reading settings from ${SettingFile}`);
     const settingData = await readSettings(SettingFile);
     ObjData.settings = settingData;
+
     // Read sensor plot data
     let sensorPlotData = {};
     if (settingData?.IOT_SENSORS) {
       const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
+      _debugENDPOINT && console.log(`Reading ${keys.length} sensor logs`);
+      
+      for (const key of keys) {
+        const data = await readLogs(key, nTotalLines, _date0, _date1);
+        sensorPlotData[key] = data;
+      }
     }
     ObjData.WISensor = sensorPlotData;
-    // Read logs
+
+    // Read main logs
+    _debugENDPOINT && console.log(`Reading main logs from ${LOGFile}`);
     ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/iknhospital/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['IKN_HOSPITAL'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ---
-// IJN
-// ---
-router.get('/iknOpsRoom/rawdata',auth,async(req,res)=>{
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'IKN_OPROOM';
-    const LOGFile = '_IKN_OPROOM';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
+
+    _debugENDPOINT && console.log(`Successfully processed ${req.path}, sending response...`);
+    
+    // FINAL CHECK before sending
+    if (!res.headersSent && !res.finished) {
+      res.status(200).send(ObjData);
+      _debugENDPOINT && console.log(`✅ Response sent for ${req.path}`);
+    } else {
+      _debugENDPOINT && console.log(`⚠️ Cannot send - response already sent`);
     }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
+    
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/iknOpsRoom/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['IKN_OPROOM'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ---
-// CAMPBELL
-// ---
-router.get('/CAMPBELL/rawdata',auth,async(req,res)=>{
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'CAMPBELL';
-    const LOGFile = '_CAMPBELL';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
+    _debugENDPOINT && console.error(`Error in handleRawData for ${req.path}:`, err.message);
+    if (!res.headersSent && !res.finished) {
+      res.status(500).send({ error: 'Internal Server Error' });
     }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
   }
-});
-router.put('/CAMPBELL/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['CAMPBELL'];
+}
+
+// FIXED handleUpdateSettings function
+async function handleUpdateSettings(req, res, config) {
+  _debugENDPOINT && console.log(`=== START handleUpdateSettings for ${req.path} ===`);
+  
+  if (res.headersSent) {
+    _debugENDPOINT && console.log('⚠️ Response already sent, aborting handleUpdateSettings');
+    return;
+  }
+
   try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
+    const { body } = req;
+    const files = config.updateFiles ?? config.settingFiles;
+
+    await Promise.all(files.map(file => updateSettings(file, body)));
+    
+    _debugENDPOINT && console.log(`✅ Settings updated for ${req.path}`);
     res.status(200).send({ message: 'Settings updated successfully' });
+    
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ---------
-// SNOW CITY
-// ---------
-router.get('/snowcity/rawdata', auth, async (req, res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'SNOWCITY';
-    const LOGFile = '_SNOWCITY';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
+    _debugENDPOINT && console.error(`Error updating settings for ${req.path}:`, err);
+    if (!res.headersSent) {
+      res.status(500).send({ message: 'Error updating settings' });
     }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    false && debugLog(SettingFile,_date0,_date1,ObjData);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
   }
-});
-router.put('/snowcity/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['SNOWCITY'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ------
-// SHINKO
-// ------
-router.get('/shinko/rawdata', auth, async(req,res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'SHINKO';
-    const LOGFile = '_SHINKO';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
+}
+
+// Register routes with simple handlers
+Object.entries(endpointConfigs).forEach(([routeName, config]) => {
+
+  router.get(`/${routeName}/rawdata`, auth, async (req, res) => {
+    _debugENDPOINT && console.log(`\n📞 REQUEST: ${req.path}`);
+    try {
+      await handleRawData(req, res, config);
+    } catch (err) {
+      _debugENDPOINT && console.error(`Unhandled error for ${req.path}:`, err);
+      if (!res.headersSent) res.status(500).send({ error: 'Internal Server Error' });
     }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/shinko/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['SHINKO'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ---
-// MRE
-// ---
-router.get('/mre/rawdata', auth, async (req, res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'MRE';
-    const LOGFile = '_MRE';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/mre/settings',auth,async(req,res) => {
-  let ObjData = req.body;
-  const settingFiles = ['MRE'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-})
-// ------------
-// NIPPON GLASS
-// ------------
-router.get('/kayaku/rawdata', auth, async(req,res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'KAYAKU';
-    const LOGFile = '_KAYAKU';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});  
-router.put('/kayaku/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['kayaku'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ------------
-// NIPPON GLASS
-// ------------
-router.get('/nipponglass/rawdata', auth, async(req,res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'NIPPONGLASS_TRANSF';
-    const LOGFile = '_NIPPONGLASS';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/nipponglass/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['NIPPONGLASS', 'NIPPONGLASS_TRANSF'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ------------
-// NIPPON GLASS BOILDER DEPARTMENT
-// ------------
-router.get('/negmwgt/rawdata', auth, async(req,res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'NIPPONGLASS_BOILER';
-    const LOGFile_OLD = '_NIPPONGLASS_BOILER';
-    const LOGFile = '_NIPPONGLASS';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/negmwgt/settings', auth, async (req, res) => {
-  const { body } = req;
-  const settingFiles = ['NIPPONGLASS', 'NIPPONGLASS_BOILER'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ------------
-// MCST
-// ------------
-router.get('/MCST/rawdata', auth, async(req,res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'MCST';
-    const LOGFile = '_MCST';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});  
-router.put('/MCST/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['MCST'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-router.get('/MCST/Checklist',auth,async(req,res) => {  
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'MCST_CHECKLIST';
-    const ChecklistHistory = await readSettings(SettingFile);
-    res.status(200).send(ChecklistHistory);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-})
-router.put('/MCST/Checklist',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['MCST_CHECKLIST'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ------------
-// EPSON
-// ------------
-router.get('/EPSON/rawdata', auth, async(req,res) => {  
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'EPSON';
-    const LOGFile = '_EPSON';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});  
-router.put('/EPSON/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['EPSON'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ------
-// TDK JOHOR
-// ------
-router.get('/TDKJOHOR/rawdata', auth, async(req,res) => { 
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'TDKJOHOR';
-    const LOGFile = '_TDKJOHOR';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/TDKJOHOR/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['TDKJOHOR'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ------
-// AEROSOFT
-// ------
-router.get('/aerosoft/rawdata', auth, async(req,res) => {
-  try {
-    const ObjData = req.query;
-    const SettingFile = 'AEROSOFT';
-    const LOGFile = '_AEROSOFT';
-    const ALERTFile = LOGFile + 'ALERTS';
-    const nTotalLines =
-      ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-    const _date0 = ObjData.date0 ?? null;
-    const _date1 = ObjData.date1 ?? null;
-    const settingData = await readSettings(SettingFile);
-    ObjData.settings = settingData;
-    // Read sensor plot data
-    let sensorPlotData = {};
-    if (settingData?.IOT_SENSORS) {
-      const keys = Object.keys(settingData.IOT_SENSORS);
-      const sensorData = await Promise.all(
-        keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
-      );
-      keys.forEach((key, index) => {
-        sensorPlotData[key] = sensorData[index];
-      });
-    }
-    ObjData.WISensor = sensorPlotData;
-    // Read logs
-    ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
-    // Read alerts (today only)
-    let _today0 = new Date();
-    let _today1 = new Date();
-    _today0.setHours(0, 0, 0);
-    _today1.setHours(23, 59, 59);
-    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
-    res.status(200).send(ObjData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-});
-router.put('/aerosoft/settings',auth,async(req,res) => {
-  const { body } = req;
-  const settingFiles = ['AEROSOFT'];
-  try {
-    await Promise.all(settingFiles.map(file => updateSettings(file,body)));
-    res.status(200).send({ message: 'Settings updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating settings' });
-  }
-});
-// ---------
-// CMMS DATA
-// ---------
-router.get('/EPSON/data', auth, async(req,res) => {
-  let ObjData = req.query;
-  console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
-  // ---------
-  _data.read('EPSON','data',function(err,CMMSData) {
-    // --------------------
-    ObjData['data'] = CMMSData;
-    res.status(200).send(ObjData);
-  });
-});
-router.put('/EPSON/data',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  let ObjData = req.body;
-  _data.read('EPSON','data',function(err,CMMSData) {
-    _data.update('EPSON','data', {...CMMSData,...ObjData}, function (err) { })
   });
 
-  // _data.read('teawarehouse','settings'
-  res.status(200).send('FILE UPDATED..');
-})
-router.get('/EPSON/CMMSdata', auth, async(req,res) => {
-  let ObjData = req.query;
-  console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${req.originalUrl.toUpperCase().yellow}`);
-  // ---------
-  _data.read('EPSON','data',function(err,CMMSData) {
-    // --------------------
-    ObjData['data'] = CMMSData;
-    res.status(200).send(ObjData);
+  router.put(`/${routeName}/settings`, auth, async (req, res) => {
+    _debugENDPOINT && console.log(`\n📞 REQUEST: ${req.path}`);
+    try {
+      await handleUpdateSettings(req, res, config);
+    } catch (err) {
+      console.error(`Unhandled error for ${req.path}:`, err);
+      if (!res.headersSent) res.status(500).send({ error: 'Internal Server Error' });
+    }
   });
+  
 });
-router.put('/EPSON/CMMSdata',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  let ObjData = req.body;
-  _data.read('EPSON','data',function(err,CMMSData) {
-    _data.update('nipponglass','data', {...CMMSData,...ObjData}, function (err) { })
-  });
-  // _data.read('teawarehouse','settings'
-  res.status(200).send('FILE UPDATED..');
-});
+
 // ------------
-// TEAWAREHOUSE
+// MCST Routes
 // ------------
-router.get('/teawarehouse/rawdata', auth, async(req,res) => {
-  let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-  let _date0 = ObjData.date0 ?? null;
-  let _date1 = ObjData.date1 ?? null;
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
-  // -------
-  _logs.read('_TEAWAREHOUSE',nTotalLines,_date0,_date1,false,function(err,sensorData) {
-    // -----------------------------
-    let ObjData = {};
-    ObjData['sensorData'] = sensorData;
-    // console.log('TEAMWAREHOUSE/RAWDATA...',nTotalLines,_date0,_date1,'..FILTERED...',sensorData.length);
-    _data.read('teawarehouse','settings',function(err,settingData) {
-      ObjData['settings'] = settingData;
-      res.status(200).send(ObjData);
-    })
-    // ------------------------------
-  });
+router.get('/MCST/Checklist', auth, async (req, res) => {
+  _debugENDPOINT && console.log(`\n📞 REQUEST: GET /MCST/Checklist`);
+  
+  if (res.headersSent) {
+    _debugENDPOINT && console.log('⚠️ Response already sent');
+    return;
+  }
+
+  try {
+    const SettingFile = 'MCST_CHECKLIST';
+    const ChecklistHistory = await readSettings(SettingFile);
+    
+    _debugENDPOINT && console.log(`✅ Sending checklist data`);
+    res.status(200).send(ChecklistHistory);
+    
+  } catch (err) {
+    _debugENDPOINT && console.error(err);
+    if (!res.headersSent) {
+      res.status(500).send({ error: 'Internal Server Error' });
+    }
+  }
 });
-router.put('/teawarehouse/settings',auth,async(req,res) => {
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  let ObjData = req.body;
-  _data.update('teawarehouse','settings', ObjData, function (err) { 
-    // console.log(err);
-  })
-  // _data.read('teawarehouse','settings'
-  res.status(200).send('FILE UPDATED..');
+
+router.put('/MCST/Checklist', auth, async (req, res) => {
+  _debugENDPOINT && console.log(`\n📞 REQUEST: PUT /MCST/Checklist`);
+  
+  if (res.headersSent) {
+    _debugENDPOINT && console.log('⚠️ Response already sent');
+    return;
+  }
+
+  try {
+    const { body } = req;
+    const settingFiles = ['MCST_CHECKLIST'];
+
+    await Promise.all(settingFiles.map(file => updateSettings(file, body)));
+    
+    _debugENDPOINT && console.log(`✅ Checklist updated`);
+    res.status(200).send({ message: 'Settings updated successfully' });
+    
+  } catch (err) {
+    console.error(err);
+    if (!res.headersSent) {
+      res.status(500).send({ message: 'Error updating settings' });
+    }
+  }
 });
-router.get('/teawarehouse/alerts',auth,async(req,res)=>{
-  let ObjData = req.query;
-  let nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1 ? ObjData.totalLines : maxLOGS;
-  let _date0 = ObjData.date0 ?? null;
-  let _date1 = ObjData.date1 ?? null;
-  _logs.read('_TEAWAREHOUSEALERTS',nTotalLines,_date0,_date1,false,function(err,alertsData){
-    // console.log(`../TEAWAREHOUSE/ALERTS...${nTotalLines}..${_date0}..${_date1}..${alertsData.length}`)
-    let ObjData = {};
-    ObjData['alerts'] = alertsData;
-    res.status(200).send(ObjData);
-  })
-});
+
 //  ---------
 //  CHECKLIST
 //  ---------
 router.put('/CHECKLIST', (req, res) => {
-  const { payload } = req.body; // { [title]: { [date]: {...} } }
-  consoel.log('/CHECKLIST',payload);
+  _debugENDPOINT && console.log(`\n📞 REQUEST: PUT /CHECKLIST`);
+  
+  if (res.headersSent) {
+    _debugENDPOINT && console.log('⚠️ Response already sent');
+    return;
+  }
+
+  const { payload } = req.body;
   const CHECKLIST_FILE = path.join(__dirname, 'checklist.json');
+  
   if (!payload) {
     return res.status(400).json({ error: 'Missing payload' });
   }
@@ -992,246 +423,29 @@ router.put('/CHECKLIST', (req, res) => {
   // Read existing checklist data
   let existingData = {};
   if (fs.existsSync(CHECKLIST_FILE)) {
-    const raw = fs.readFileSync(CHECKLIST_FILE, 'utf-8');
-    existingData = raw ? JSON.parse(raw) : {};
+    try {
+      const raw = fs.readFileSync(CHECKLIST_FILE, 'utf-8');
+      existingData = raw ? JSON.parse(raw) : {};
+    } catch (err) {
+      console.error('Error reading checklist file:', err);
+      existingData = {};
+    }
   }
 
   // Merge incoming payload
   const mergedData = deepMerge(existingData, payload);
 
   // Save back to file
-  fs.writeFileSync(CHECKLIST_FILE, JSON.stringify(mergedData, null, 2), 'utf-8');
-
-  res.json({ success: true, data: mergedData });
-});
-// ------------------------------------
-// @route     GET api/sensors/statsdata
-// @desc      Get all sensors
-// @access    Private
-router.get('/statsPWRMTRdata', auth, async (req, res) => {
-  // ----
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  // ----
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
-  // -----
-  _data.read('stats','DATA_PWRMTER',function(err,data) {
-    res.status(200).send(data);
-  })
-
-});
-router.get('/statsPWRMTRdata1', auth, async (req, res) => {
-  // -------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  // -------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}] ..`)
-  // --------
-  _data.list('stats',function(err,files) {
-    // ---------------
-    let objData = [];
-    // --------------
-    const countSTAT = files.filter(file=>file.includes('STAT')).length;
-    Object.entries(files).map(([index, file]) => {
-      // --------
-      if (file.includes('STAT')) {
-        // -------
-        _data.read('stats',file,function(err,data) {
-          // ----------------
-          const keysToRemoved = ['DAYDATA'];
-          let objNewData = {...data};
-          keysToRemoved.forEach(key=>delete objNewData[key]);
-          objData.push(objNewData);
-          // ----------------
-          if (objData.length == countSTAT) {
-            // ---------------------------
-            _data.create('stats','DATA_PWRMTER',objData,function(err) { })
-            res.status(200).send(objData);
-            // ---------------------------
-          }
-        })
-      } 
-    })
-  })
-});
-router.get('/statsDAYData', auth, async (req, res) => {
-  // -------------------------------------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.yellow}> ..${req.originalUrl.toUpperCase().red} [${req.method.green}]`)
-  const user = await User.findById(req.query.id).select('-password');
-    // ------
-  _data.list('stats',function(err,files) {
-    // ---------------
-    let objData = [];
-    let nINVALID = 0;
-    // --------
-    const countSTAT = files.filter(file=>file.includes('STAT')).length;
-    // console.log(`.. <${'SENSORS.JS'.yellow}> ..STATS DIRECTORY FILE READ <${String(files.length).yellow}> ..STATS FILES <${countSTAT}>`);
-    Object.entries(files).map(([index, file]) => {
-      // ------
-      _data.read('stats',file,function(err,data) {
-        // ------
-        if (file.includes('STAT')) {
-          // ----------------
-          objData.push(data);
-          // --------
-          if (objData.length == countSTAT) {
-            // ----------
-            // FILTER SENSOR IS BELONG TO THE USER COMPANY GROUP..
-            res.status(200).send(objData);
-            // -------
-          }
-        } else {
-          nINVALID += 1;
-        }
-      })
-    })
-  })
-  // -----
-});
-// @route     GET api/sensors/rawsensordata
-// @desc      Get all sensors
-// @access    Private
-router.get('/rawsensordata', auth, async (req, res) => {
-  // -------------------------------------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]`)
-  let SettingFile = '_485SENSORS';
-  const url = req.path;
-  _debugENDPOINT && console.log(`<${'SENSORS.JS'.magenta}> [${req.method.green}] ${url.toUpperCase().yellow} ..<${SettingFile}>`);
-  // ------
-  let data;
-  _data.read('rawData',SettingFile,function(err,data) {
-    // ---------------
-    res.status(200).send(data)
-  })
-});
-// @route     GET api/sensors/data
-// @desc      Get all sensors
-// @access    Private
-router.get('/sensordatadownload/:id', auth, async (req, res) => {
-  // -------------------------------------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}>`)
-  DownLoadData(req.params.id);
-  // console.log('... .. . RESPONSE 200 - UNDER DEVELOPMENT .')
-  res.status(200).send('UNDER DEVELOPMENT...')
-});
-// @route     GET api/sensors
-// @desc      Get all sensors
-// @access    Private
-router.get('/sensorstats/:dtuId&:sensorId', auth, async (req, res) => {
-  // -------------------------------------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  //  ------------------------------------
-  let query = {
-    dtuId : req.params.dtuId,
-    sensorId : req.params.sensorId
-  }
-  // ----------------
-  SensorStats.find(query).exec( (error,_sensorStats) => {
-    res.status(200).send(_sensorStats)
-  });
-  // ---------------------------
-});
-// @route     POST api/sensors
-// @desc      Add new sensor
-// @access    Private
-router.post('/',[auth,[
-    check('name', 'Please add name').not().isEmpty(),
-    check('dtuId', 'Please add DTU ID').not().isEmpty(),
-    check('sensorId', 'Please add SENSOR ID').not().isEmpty(),
-    check('type', 'Please define SENSOR TYPE').not().isEmpty() ],],
-  async (req, res) => {
-    // ----------------------------------
-    // console.log(`... API/SENSORS [POST]`)
-    // ----------------------------------
-    const errors = validationResult(req);
-    // ---------------------
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-    const {name, dtuId, sensorId, type, ratingMin, ratingMax,variables,limits } = req.body;
-    try {
-      const newSensor = new Sensor({
-        name,
-        dtuId,
-        sensorId,
-        type,
-        ratingMin,
-        ratingMax,
-        variables,
-        limits
-      });
-      const sensor = await newSensor.save();
-      res.json(sensor);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server Error');
-    }
-  },
-);
-// @route     PUT api/sensors/:id
-// @desc      Update sensor
-// @access    Private
-router.put('/:id', auth, async (req, res) => {
-  // ----------------------------------
-  const {name, dtuId, sensorId, type, ratingMin, ratingMax,variables,company,limits,location } = req.body;
-  // --------------------
-  // BUILD SENSOR OBJECT
-  // --------------------
-  const sensorFields = {};
-  if (type)       sensorFields.type = type;
-  if (name)       sensorFields.name = name;
-  if (dtuId)      sensorFields.dtuId = dtuId;
-  if (limits)     sensorFields.limits = limits;
-  if (location)   sensorFields.location = location;
-  if (sensorId)   sensorFields.sensorId = sensorId;
-  if (ratingMin)  sensorFields.ratingMin = ratingMin;
-  if (ratingMax)  sensorFields.ratingMax = ratingMax;
-  if (variables)  sensorFields.variables = variables;
-  if (company)    sensorFields.company = company;
-  
   try {
-    let sensor = await Sensor.findById(req.params.id);
-    // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id.yellow}>`)
-
-    if (!sensor) return res.status(404).json({msg: 'Sensor not found'});
-    sensor = await Sensor.findByIdAndUpdate(
-      req.params.id,
-      {$set: sensorFields},
-      {new: true},
-    );
-    // console.log(sensor)
-
-    res.json(sensor);
+    fs.writeFileSync(CHECKLIST_FILE, JSON.stringify(mergedData, null, 2), 'utf-8');
+    _debugENDPOINT && console.log(`✅ Checklist saved`);
+    res.json({ success: true, data: mergedData });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error writing checklist file:', err);
+    res.status(500).json({ error: 'Failed to save checklist' });
   }
 });
-// @route     DELETE api/sensors/:id
-// @desc      Delete sensor
-// @access    Private
-router.delete('/:id', auth, async (req, res) => {
-  // -------------------------------------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  //  ------------------------------------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}> USER OBJECT <${req.user.id}>`)
-  // ------------------------------------
-  try {
-    // -------
-    let sensor = await Sensor.findById(req.params.id);
-    if (!sensor) return res.status(404).json({msg: 'Sensor not found'});
-    await Sensor.findByIdAndRemove(req.params.id);
-    res.json({msg: 'Sensor removed'});
-    // ------
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
+
 // -------------
 // Data Download
 // -------------
@@ -1240,233 +454,30 @@ let app = {};
 app.client = {};
 // Interface for making API calls
 app.client.request = function (headers,path,method,queryStringObject,payload,callback) {
-  // ------------
   // Set defaults
-  // app.client.request(undefined,"api/sensors","GET",sensorDataQueryString,undefined,function
-  //----------------------------------------------------------------------
   headers = typeof headers == "object" && headers !== null ? headers : {};
   path = typeof path == "string" ? path : "/";
   method = typeof method == "string" && ["POST", "GET", "PUT", "DELETE"].indexOf(method.toUpperCase()) > -1 ? method.toUpperCase() : "GET";
   queryStringObject = typeof queryStringObject == "object" && queryStringObject !== null ? queryStringObject : {};
   payload = typeof payload == "object" && payload !== null ? payload : {};
   callback = typeof callback == "function" ? callback : false;
-  // --------------
-  // console.log(`.. <${'SENSORS.JS'.magenta}> ..${req.baseUrl.toUpperCase().yellow} [${req.method.green}]  PARAMS ID <${req.params.id}>`)
-  // console.log('.....CHECK POINT (1).....')
+
   // For each query string parameter sent, add it to the path
   var requestUrl = path + "?";
   var counter = 0;
-  // -------------
+  
   for (var queryKey in queryStringObject) {
     if (queryStringObject.hasOwnProperty(queryKey)) {
       counter++;
-      // If at least one query string parameter has already been added, preprend new ones with an ampersand
       if (counter > 1) {
         requestUrl += "&";
       }
-      // Add the key and value
       requestUrl += queryKey + "=" + queryStringObject[queryKey];
     }
   }
-  // ------------------------------------
-  // Form the http request as a JSON type
-  // ------------------------------------
-  // console.log('.....CHECK POINT (2).....')
-  // --------------------------------
-  //  XMLHttpRequest is built-in in browsers environments, but it's not built-in in a Node environment, 
-  //  so it's not defined, thus the error. You'll have to install the xmlhttprequest package 
-  //  through NPM to use it with Node.
-  // ---------------------------------
-  // var xhr = new XMLHttpRequest();
-  // xhr.open(method, requestUrl, true);
-  // xhr.setRequestHeader("Content-type", "application/json");
-  // -------------------------------------------
-  // For each header sent, add it to the request
-  // -------------------------------------------
-  // for (var headerKey in headers) {
-  //   if (headers.hasOwnProperty(headerKey)) {
-  //     xhr.setRequestHeader(headerKey, headers[headerKey]);
-  //   }
-  // }
-  // console.log('.....CHECK POINT (3).....')
-  // -------------------------------------------------------------
-  // If there is a current session token set, add that as a header
-  // -------------------------------------------------------------
-  // if (app.config.sessionToken) {
-  //   xhr.setRequestHeader("token", app.config.sessionToken.id);
-  // }
-  // console.log('.....CHECK POINT (4).....')
-  // ------------------------------------------------
-  // When the request comes back, handle the response
-  // ------------------------------------------------
-  // xhr.onreadystatechange = function () {
-  //   if (xhr.readyState == XMLHttpRequest.DONE) {
-  //     var statusCode = xhr.status;
-  //     var responseReturned = xhr.responseText;
-  //     // Callback if requested
-  //     if (callback) {
-  //       try {
-  //         var parsedResponse = JSON.parse(responseReturned);
-  //         callback(statusCode, parsedResponse);
-  //       } catch (e) {
-  //         callback(statusCode, false);
-  //       }
-  //     }
-  //   }
-  // };
-  // ------------------------
-  // Send the payload as JSON
-  // ------------------------
-  // var payloadString = JSON.stringify(payload);
-  // xhr.send(payloadString);
+  
+  // Note: This function seems incomplete - it doesn't actually make a request
+  // You might want to implement the actual HTTP request logic here
 };
-function DownLoadData(strSensorLabel) {
-  // ------------------------
-  let downloadDataQueryString = { id: strSensorLabel };
-  // console.log('...ROUTES/SENSORS.JS.... DOWNLOADDATA CALLING API/SENSORSTATS/DATA',strSensorLabel);
-  app.client.request(undefined,"api/sensorstats/data","GET",downloadDataQueryString,undefined,function (statusCode, sensorData) {
-    // -------------
-    if (!sensorData && statusCode != 200)
-      return;
-    // -----------------
-    let exportData = [];
-    let sensor = sensorTypeMap[strSensorLabel];
-    let factor = (sensor.ratingMIN && sensor.ratingMAX) ? sensor.ratingMAX/sensor.ratingMIN : 1.0;
-    // console.log('....[' + sensor.sensortype + ']....');
-    // -----------------
-    if (sensorData.data) {
-      sensorData.data.forEach((data) => {
-        var _Date = new Date(data.TIMESTAMP);
-        _Date = _Date.toLocaleDateString([], {
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-        // -----------
-        let variables = [];
-        let readings = [];
-        // --------------------
-        switch (sensor.sensortype) {
-          case 'POWER METER SENSOR (485)':        // 485 POWER METER
-            // PConsumption = (responsePayload1.DATAS1[1]/100*100/5).toFixed(2);
-            // P  = `${responsePayload1.DATAS2[9]}${responsePayload1.DATAS2[10]}`;
-            // Q  = `${responsePayload1.DATAS2[11]}${responsePayload1.DATAS2[12]}`;
-            // S  = `${responsePayload1.DATAS2[13]}${responsePayload1.DATAS2[14]}`;
-            // PF = `${responsePayload1.DATAS2[15]}`;
-            // F  = `${responsePayload1.DATAS2[16]}`;
-            // PA = `${responsePayload1.DATAS2[17]}${responsePayload1.DATAS2[18]}`;
-            // PB = `${responsePayload1.DATAS2[19]}${responsePayload1.DATAS2[20]}`;
-            // PC = `${responsePayload1.DATAS2[21]}${responsePayload1.DATAS2[22]}`;
-            variables.push("A-VOLTAGE");
-            variables.push("B-VOLTAGE");
-            variables.push("C-VOLTAGE");
-            variables.push("A-CURRENT");
-            variables.push("B-CURRENT");
-            variables.push("C-CURRENT");
-            variables.push("ELECT.ENERGY");
-            variables.push("FREQ");
-            variables.push("POWER FACTOR");
-            readings.push(data.DATAS2[0] / 10.0);
-            readings.push(data.DATAS2[1] / 10.0);
-            readings.push(data.DATAS2[2] / 10.0);
-            readings.push(((data.DATAS2[3] * 100 + data.DATAS2[4]) / 1000) * factor);
-            readings.push(((data.DATAS2[5] * 100 + data.DATAS2[6]) / 1000) * factor);
-            readings.push(((data.DATAS2[7] * 100 + data.DATAS2[8]) / 1000) * factor);
-            readings.push(((data.DATAS1[1] / 100) * 100) / 5);
-            readings.push(data.DATAS2[16] / 10.0);
-            readings.push(data.DATAS2[15] / 100.0);
-            break;
-          case 'ADC CONVERTOR (485)':             // 485 ADC
-            variables.push("GPIO1");
-            variables.push("GPIO2");
-            variables.push("GPIO3");
-            variables.push("GPIO4");
-            readings.push(data.DATAS[0]);
-            readings.push(data.DATAS[1]);
-            readings.push(data.DATAS[2]);
-            readings.push(data.DATAS[3]);
-            break;
-          case 'WI-SENSOR RH SENSOR (LORA)':
-            variables.push("TEMPERATURE");
-            variables.push("HUMIDITY");
-            readings.push(data.Temperature);
-            readings.push(data.Humidity);       
-            break;
-          case 'RH SENSOR (485)':                 // 485 RH SENSORS
-            variables.push("TEMPERATURE C");
-            variables.push("HUMIDITY %");
-            readings.push(data.DATAS[0] / 10.0);
-            readings.push(data.DATAS[1] / 10.0);
-            break;
-          case 'AIR FLOW RH SENSOR (485)':        // 485 AIRFLOW TEMPERATURE
-            variables.push("TEMPERATURE C");
-            variables.push("HUMIDITY %");
-            readings.push(data.DATAS[1] / 10.0);
-            readings.push(data.DATAS[0] / 10.0);
-            break;
-          case 'AIR FLOW VELOCITY SENSOR (485)':  // 485 AIRFLOW VELOCITY
-            variables.push('VELOCITY [1]m/s');
-            variables.push('FLOW RATE[2]m3/hr');
-            readings.push(data.DATAS[0] / 10.0);
-            readings.push(data.DATAS[1] / 10.0);
-            break;
-          case 'WATER LEAK SENSOR (485)':         // 485 WATER LEAK DETECTOR
-            variables.push("WATER DETECTED");
-            readings.push(data.DATAS[0]);
-            break;
-          case 'WATER TEMPERATURE (485)':         // 485 WATER TEMPERATURE
-            variables.push('TEMPERATURE[1]');
-            variables.push('TEMPERATURE[2]');
-            readings.push(data.DATAS[0] / 10.0);
-            readings.push(data.DATAS[1] / 10.0);
-            break;
-          case 'WATER PRESSURE (485)':            // 485 WATER PRESSURE
-            variables.push('PRESSURE[1]');
-            variables.push('PRESSURE[2]');
-            readings.push(data.DATAS[0] / 10.0);
-            readings.push(data.DATAS[1] / 10.0);
-            break;
-          default:
-            break;
-        }
-        // -----------------------------
-        let count = 0;
-        let dataObject = {};
-        dataObject["TIMESTAMP"] = _Date;
-        variables.forEach((variable) => {
-          dataObject[variable] = readings[count];
-          count += 1;
-        });
-        // -------------------------
-        exportData.push(dataObject);
-      });
-      // -------------
-      // console.log(exportData[0]);
-      var stringData = JSON.stringify(exportData);
-      var csv = this.convertToCSV(stringData);
-      // -------------
-      var exportedFilenmae = strSensorLabel + ".csv" || "export.csv";
-      // -------------
-      var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      if (navigator.msSaveBlob) {
-        // IE 10+
-        navigator.msSaveBlob(blob, exportedFilenmae);
-      } else {
-        var link = document.createElement("a");
-        if (link.download !== undefined) {
-          // feature detection
-          // Browsers that support HTML5 download attribute
-          var url = URL.createObjectURL(blob);
-          link.setAttribute("href", url);
-          link.setAttribute("download", exportedFilenmae);
-          link.style.visibility = "hidden";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
-      }
-    }
-  });
-}
 
 module.exports = router;

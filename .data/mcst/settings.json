@@ -1,1 +1,177 @@
-{"IOT_SENSORS":{"BA-5B-12-17-99-31":{"1":{"TYPE":"WISENSOR","NAME":"SENSOR T1","GROUP":"NEW GROUP","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":700,"LOC-Y":110,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},"BA-7E-90-1D-49-13":{"1":{"TYPE":"WISENSOR","NAME":"NEWGROUP T2","GROUP":"NEW GROUP","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":390,"LOC-Y":110,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},"BA-B3-DA-AD-84-32":{"1":{"TYPE":"WISENSOR","NAME":"S2-DOOR T3","GROUP":"NEW GROUP","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":380,"LOC-Y":395,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},"BA-EB-68-CC-51-18":{"1":{"TYPE":"WISENSOR","NAME":"ROOM1 S1","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":710,"LOC-Y":395,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},"BA-E1-67-EC-C9-B1":{"1":{"TYPE":"WISENSOR","NAME":"S2-MIDDLE 1","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":470,"LOC-Y":260,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},"BA-66-BB-35-34-7A":{"1":{"TYPE":"WISENSOR","NAME":"Najima Freezer","GROUP":"Najima Freezer","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":300,"LOC-Y":50,"TEMP_MAX":"35","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},"BA-B5-7B-6B-7E-D1":{"1":{"TYPE":"WISENSOR","NAME":"SHREDDING RM","GROUP":"PRODUCTION DVF","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":400,"LOC-Y":50,"TEMP_MAX":"25","TEMP_MIN":"-25","RH_MAX":"57","RH_MIN":"42"}},"BA-91-0E-88-0E-2E":{"1":{"TYPE":"WISENSOR","NAME":"ROOM1 S2","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":550,"LOC-Y":260,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},"BA-79-3E-E2-78-78":{"1":{"TYPE":"WISENSOR","NAME":"BF 1 (X)","GROUP":"BLAST FREEZER","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":100,"LOC-Y":50,"TEMP_MAX":"30","TEMP_MIN":"-35","RH_MAX":"90","RH_MIN":"0"}},"BA-B9-36-8A-5C-E1":{"1":{"TYPE":"WISENSOR","NAME":"BF 2 (X)","GROUP":"BLAST FREEZER","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":200,"LOC-Y":50,"TEMP_MAX":"30","TEMP_MIN":"-35","RH_MAX":"100","RH_MIN":"0"}},"BA-14-AD-14-CA-C1":{"1":{"TYPE":"WISENSOR","NAME":"S2-DOOR 1","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":470,"LOC-Y":395,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},"BA-81-EC-6E-80-47":{"1":{"TYPE":"WISENSOR","NAME":"S2-BLOWER 1","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":470,"LOC-Y":110,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},"BA-80-B6-C5-D4-A6":{"1":{"TYPE":"WISENSOR","NAME":"S2-MIDDLE 2","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":380,"LOC-Y":260,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},"BA-8B-71-8B-21-BE":{"1":{"TYPE":"WISENSOR","NAME":"S1-BLOWER 2","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":620,"LOC-Y":110,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},"BA-19-13-B7-5D-E8":{"1":{"TYPE":"WISENSOR","NAME":"S1-DOOR 2","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":530,"LOC-Y":395,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},"BA-29-4C-2C-2D-8D":{"1":{"TYPE":"WISENSOR","NAME":"S1-MIDDLE 1","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":710,"LOC-Y":260,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}}},"CHECKLIST":[{"PHASE 1 SUAC NO-7":{"DESCRIPTION":"CHECKLIST FOR PHASE 1 SUAC NO-7","FIELDS":{"BLOWER":{"TYPE":"string","DESCRIPTION":"BLOWER","ENUM":["YES","NO"]},"COMPRESS":{"TYPE":"string","DESCRIPTION":"COMPRESSOR","ENUM":["YES","NO"]},"PROOF":{"TYPE":"photo","DESCRIPTION":"UPLOAD PHOTO","REQUIRED":false},"SIGN_OFF":{"TYPE":"string","DESCRIPTION":"SIGN OFF","REQUIRED":false}}}},{"CONDENSER WATER PUMP":{"DESCRIPTION":"CHECKLIST FOR CONDENSOR WATER PPUMP","FIELDS":{"WATER_PRESS":{"TYPE":"string","DESCRIPTION":"WATER PRESS 1.0 - 2.6 BAR","ENUM":["YES","NO"]},"RUN_AMP":{"TYPE":"string","DESCRIPTION":"RUN AMP < 32A","ENUM":["YES","NO"]},"PROOF":{"TYPE":"photo","DESCRIPTION":"UPLOAD PHOTO","REQUIRED":true}}}},{"CHILLER WATER PUMP":{"DESCRIPTION":"CHECKLIST FOR CHILLER WATER PPUMP","FIELDS":{"WATER_PRESS":{"TYPE":"string","DESCRIPTION":"WATER PRESS 2.0 - 4.0 BAR","ENUM":["YES","NO"]},"RUN_AMP":{"TYPE":"string","DESCRIPTION":"RUN AMP < 30A","ENUM":["YES","NO"]},"VERIFIED_BY":{"TYPE":"string","DESCRIPTION":"VERIFIED BY","ENUM":["USER 1","USER 2"]},"SIGN_OFF":{"TYPE":"string","DESCRIPTION":"SIGN OFF","REQUIRED":false}}}},{"M8 MIURA BOILER":{"DESCRIPTION":"CHECKLIST FOR M8 MIURA BOILER","FIELDS":{"BOILER":{"TYPE":"object","DESCRIPTION":"BOILER DETAILS","PROPERTIES":{"TYPE":{"TYPE":"string","DESCRIPTION":"BOILER TYPE","ENUM":["1","2"]},"PRESSURE_READING":{"TYPE":"object","DESCRIPTION":"PRESSURE READING","PROPERTIES":{"VALUE":{"TYPE":"number","DESCRIPTION":"PRESSURE READING VALUE"},"UNIT":{"TYPE":"string","ENUM":["psi","bar","kPa"],"DESCRIPTION":"PRESSURE READING UNIT"}}}}},"SOFT_WATER_READING":{"TYPE":"object","DESCRIPTION":"SOFT WATER READING","PROPERTIES":{"VALUE":{"TYPE":"number","DESCRIPTION":"SOFT WATER READING VALUE"},"UNIT":{"TYPE":"string","DESCRIPTION":"SOFT WATER READING UNIT","ENUM":["ppm","mg/L"]}}},"VISUAL_INSPECTION":{"TYPE":"object","DESCRIPTION":"VISUAL INSPECTION","PROPERTIES":{"LOW_PRESS_FIRE_ONlowPressFireOn":{"TYPE":"boolean","DESCRIPTION":"LOW PRESSURE FIRE ON"},"HIGH_PRESS_FIRE_STOP":{"TYPE":"boolean","DESCRIPTION":"HIGH PRESSURE FIRE STOP"},"WATER_BLOWN_DOWN":{"TYPE":"boolean","DESCRIPTION":"WATER BLOW DOWN"},"CHEMICAL":{"TYPE":"boolean","DESCRIPTION":"CHEMICAL"},"ANOMALIES":{"TYPE":"array","DESCRIPTION":"ANOMALIES OBSERVED","ITEMS":{"TYPE":"string","DESCRIPTION":"ANOMALIES OBSERVED"}}}},"SIGN_OFF":{"TYPE":"string","DESCRIPTION":"SIGN OFF"}}}},{"MACHINE ROOM 1 VENTILATION & EXHAUST FAN":{"DESCRIPTION":"CHECKLIST FOR MACHINE ROOM 1 VENTILATION & EXHAUST FAN","FIELDS":{"FAN_OPERATION":{"TYPE":"object","DESCRIPTION":"FAN OPERATION","PROPERTIES":{"FAN_1":{"TYPE":"string","DESCRIPTION":"FAN 1","ENUM":["ON","OFF"]},"FAN_2":{"DESCRIPTION":"FAN 2","TYPE":"string","ENUM":["ON","OFF"]}}},"EXHAUST_FAN":{"TYPE":"object","DESCRIPTION":"FAN OPERATION","PROPERTIES":{"EXHAUST_FAN_COMP_1":{"TYPE":"string","DESCRIPTION":"EXHAUST FAN COMP NO 1","ENUM":["ON","OFF"]},"EXHAUST_FAN_COMP_2":{"TYPE":"string","DESCRIPTION":"EXHAUST FAN COMP NO 2","ENUM":["ON","OFF"]}}},"PROOF":{"TYPE":"photo","DESCRIPTION":"UPLOAD PHOTO","REQUIRED":false},"SIGN_OFF":{"TYPE":"string","DESCRIPTION":"SIGN OFF","REQUIRED":false}}}},{"AIR_COMPRESSOR_MC_ROOM_1":{"DESCRIPTION":"CHECKLIST FOR AIR COMPRESSOR MC ROOM 1 ","FIELDS":{"DISCHARGE_AIR":{"TYPE":"object","DESCRIPTION":"DISCHARGE AIR","PROPERTIES":{"TEMP_1":{"TYPE":"string","DESCRIPTION":"TEMP < 380","ENUM":["YES","NO"]},"PRESS_2":{"TYPE":"string","DESCRIPTION":"PRESS < 7.2","ENUM":["YES","NO"]},"PRESS_3":{"TYPE":"string","DESCRIPTION":"UNLOAD PRESS 1.0 - 2.0","ENUM":["YES","NO"]}}},"OIL":{"TYPE":"object","DESCRIPTION":"DISCHARGE AIR","PROPERTIES":{"TEMP_1":{"TYPE":"string","DESCRIPTION":"TEMP < 60","ENUM":["YES","NO"]},"PRESS_2":{"TYPE":"string","DESCRIPTION":"PRESS 1.0 - 2.0","ENUM":["YES","NO"]},"LEVEL_1":{"TYPE":"string","DESCRIPTION":"LEVEL ABOVE POINT","ENUM":["YES","NO"]}}},"COOLANT":{"TYPE":"object","DESCRIPTION":"COOLANT","PROPERTIES":{"TEMP_1":{"TYPE":"string","DESCRIPTION":"TEMP < 60","ENUM":["YES","NO"]},"PRESS_2":{"TYPE":"string","DESCRIPTION":"PRESS 1.3 - 2.8","ENUM":["YES","NO"]},"LEVEL_1":{"TYPE":"string","DESCRIPTION":"LEVEL ABOVE LINE","ENUM":["YES","NO"]}}},"DRAIN_WATER":{"TYPE":"object","DESCRIPTION":"DRAIN WATER","PROPERTIES":{"LINE_FILTER":{"TYPE":"boolean","DESCRIPTION":"CONTROL LINE FILTER"},"COOLER_VALVE":{"TYPE":"boolean","DESCRIPTION":"AFTER COOLER VALVE"}}},"SIGN_OFF":{"TYPE":"string","DESCRIPTION":"SIGN OFF","REQUIRED":false}}}},{"PURE WATER SYSTEM":{"DESCRIPTION":"CHECKLIST FOR PURE WATER SYSTEM","FIELDS":{"D1_METER_1":{"TYPE":"number","DESCRIPTION":"D1 METER 1"},"D2_METER_2":{"TYPE":"number","DESCRIPTION":"D2 METER 2"},"AFT_MIX_BED_L1":{"TYPE":"string","DESCRIPTION":"AFTER MIX BED L1 > 3MOHM","ENUM":["YES","NO"]},"AFT_DI_TANK":{"TYPE":"string","DESCRIPTION":"AFTER DI TANK > 4MOHM","ENUM":["YES","NO"]},"RAW_WATER_PRESS":{"TYPE":"string","DESCRIPTION":"RAW WATER PRESS > 2.0 BAR","ENUM":["YES","NO"]},"TREATED_WATER_PRESS":{"TYPE":"string","DESCRIPTION":"TREATED WATER PRESS > 1.7 BAR","ENUM":["YES","NO"]},"SIGN_OFF":{"TYPE":"object","DESCRIPTION":"SIGN OFF","REQUIRED":false}}}}]}
+{
+  "IOT_SENSORS":{
+    "BA-5B-12-17-99-31":{"1":{"TYPE":"WISENSOR","NAME":"S1-BLOWER 1","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":700,"LOC-Y":110,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-7E-90-1D-49-13":{"1":{"TYPE":"WISENSOR","NAME":"S2-BLOWER 2","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":390,"LOC-Y":110,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-B3-DA-AD-84-32":{"1":{"TYPE":"WISENSOR","NAME":"S2-DOOR 2","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":380,"LOC-Y":395,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-EB-68-CC-51-18":{"1":{"TYPE":"WISENSOR","NAME":"S1-DOOR 1","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":710,"LOC-Y":395,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-E1-67-EC-C9-B1":{"1":{"TYPE":"WISENSOR","NAME":"S2-MIDDLE 1","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":470,"LOC-Y":260,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-66-BB-35-34-7A":{"1":{"TYPE":"WISENSOR","NAME":"Najima Freezer","GROUP":"Najima Freezer","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":300,"LOC-Y":50,"TEMP_MAX":"35","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-B5-7B-6B-7E-D1":{"1":{"TYPE":"WISENSOR","NAME":"SHREDDING RM","GROUP":"PRODUCTION DVF","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":400,"LOC-Y":50,"TEMP_MAX":"25","TEMP_MIN":"-25","RH_MAX":"57","RH_MIN":"42"}},
+    "BA-91-0E-88-0E-2E":{"1":{"TYPE":"WISENSOR","NAME":"S1-MIDDLE 2","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":550,"LOC-Y":260,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-79-3E-E2-78-78":{"1":{"TYPE":"WISENSOR","NAME":"BF 1 (X)","GROUP":"BLAST FREEZER","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":100,"LOC-Y":50,"TEMP_MAX":"30","TEMP_MIN":"-35","RH_MAX":"90","RH_MIN":"0"}},
+    "BA-B9-36-8A-5C-E1":{"1":{"TYPE":"WISENSOR","NAME":"BF 2 (X)","GROUP":"BLAST FREEZER","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":200,"LOC-Y":50,"TEMP_MAX":"30","TEMP_MIN":"-35","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-14-AD-14-CA-C1":{"1":{"TYPE":"WISENSOR","NAME":"S2-DOOR 1","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":470,"LOC-Y":395,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-81-EC-6E-80-47":{"1":{"TYPE":"WISENSOR","NAME":"S2-BLOWER 1","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":470,"LOC-Y":110,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-80-B6-C5-D4-A6":{"1":{"TYPE":"WISENSOR","NAME":"S2-MIDDLE 2","GROUP":"ROOM S2","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":380,"LOC-Y":260,"TEMP_MAX":"22","TEMP_MIN":"14","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-8B-71-8B-21-BE":{"1":{"TYPE":"WISENSOR","NAME":"S1-BLOWER 2","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":620,"LOC-Y":110,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-19-13-B7-5D-E8":{"1":{"TYPE":"WISENSOR","NAME":"S1-DOOR 2","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":530,"LOC-Y":395,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}},
+    "BA-29-4C-2C-2D-8D":{"1":{"TYPE":"WISENSOR","NAME":"S1-MIDDLE 1","GROUP":"ROOM S1","UNITSYSTEM":"C","ALERTGROUP":"MRE IOT Monitoring System","ALERT":false,"LOC-X":710,"LOC-Y":260,"TEMP_MAX":"-15","TEMP_MIN":"-25","RH_MAX":"100","RH_MIN":"0"}}
+  },
+  "CHECKLIST": [
+    {
+      "PHASE 1 SUAC NO-7": {
+        "DESCRIPTION":"CHECKLIST FOR PHASE 1 SUAC NO-7",
+        "FIELDS":{
+          "BLOWER":{"TYPE":"string","DESCRIPTION":"BLOWER","ENUM": ["YES", "NO"]},
+          "COMPRESS":{"TYPE":"string","DESCRIPTION":"COMPRESSOR","ENUM": ["YES", "NO"]},
+          "PROOF" : {"TYPE":"photo","DESCRIPTION":"UPLOAD PHOTO","REQUIRED":false},
+          "SIGN_OFF": {"TYPE": "string","DESCRIPTION": "SIGN OFF","REQUIRED":false}
+        }
+      }
+    },
+    {
+      "CONDENSER WATER PUMP" : {
+        "DESCRIPTION":"CHECKLIST FOR CONDENSOR WATER PPUMP",
+        "FIELDS": {
+          "WATER_PRESS" : {"TYPE":"string","DESCRIPTION":"WATER PRESS 1.0 - 2.6 BAR","ENUM": ["YES", "NO"]},
+          "RUN_AMP" : {"TYPE":"string","DESCRIPTION":"RUN AMP < 32A","ENUM": ["YES", "NO"]},
+          "PROOF" : {"TYPE":"photo","DESCRIPTION":"UPLOAD PHOTO","REQUIRED":true}
+        }        
+      }
+    },
+    {
+      "CHILLER WATER PUMP" : {
+        "DESCRIPTION":"CHECKLIST FOR CHILLER WATER PPUMP",
+        "FIELDS": {
+          "WATER_PRESS" : {"TYPE":"string","DESCRIPTION":"WATER PRESS 2.0 - 4.0 BAR" ,"ENUM": ["YES", "NO"]},
+          "RUN_AMP" : {"TYPE":"string","DESCRIPTION":"RUN AMP < 30A","ENUM": ["YES", "NO"]},
+          "VERIFIED_BY": {"TYPE": "string","DESCRIPTION": "VERIFIED BY","ENUM": ["USER 1", "USER 2"]},
+          "SIGN_OFF": {"TYPE": "string","DESCRIPTION": "SIGN OFF","REQUIRED":false}
+        }        
+      }
+    },
+    {
+      "M8 MIURA BOILER": {
+        "DESCRIPTION": "CHECKLIST FOR M8 MIURA BOILER",
+        "FIELDS": {
+          "BOILER": {
+            "TYPE": "object","DESCRIPTION": "BOILER DETAILS",
+            "PROPERTIES": {
+              "TYPE": {"TYPE": "string","DESCRIPTION": "BOILER TYPE","ENUM": ["1", "2"]},
+              "PRESSURE_READING": {
+                "TYPE": "object",
+                "DESCRIPTION": "PRESSURE READING",
+                "PROPERTIES": {
+                  "VALUE": {"TYPE": "number","DESCRIPTION": "PRESSURE READING VALUE"},
+                  "UNIT": {"TYPE": "string","DESCRIPTION": "PRESSURE READING UNIT","ENUM": ["psi", "bar", "kPa"]}
+                }
+              }
+            }
+          },
+          "SOFT_WATER_READING": {
+            "TYPE": "object",
+            "DESCRIPTION": "SOFT WATER READING",
+            "PROPERTIES": {
+              "VALUE": {"TYPE": "number","DESCRIPTION": "SOFT WATER READING VALUE"},
+              "UNIT": {"TYPE": "string","DESCRIPTION": "SOFT WATER READING UNIT","ENUM": ["ppm", "mg/L"]}
+            }
+          },
+          "VISUAL_INSPECTION": {
+            "TYPE": "object",
+            "DESCRIPTION": "VISUAL INSPECTION",
+            "PROPERTIES": {
+              "LOW_PRESS_FIRE_ONlowPressFireOn": {"TYPE": "boolean","DESCRIPTION": "LOW PRESSURE FIRE ON"},
+              "HIGH_PRESS_FIRE_STOP": {"TYPE": "boolean","DESCRIPTION": "HIGH PRESSURE FIRE STOP"},
+              "WATER_BLOWN_DOWN": {"TYPE": "boolean","DESCRIPTION": "WATER BLOW DOWN"},
+              "CHEMICAL": {"TYPE": "boolean","DESCRIPTION": "CHEMICAL"},
+              "ANOMALIES": {"TYPE": "array","DESCRIPTION":"ANOMALIES OBSERVED","ITEMS": {"TYPE": "string","DESCRIPTION": "ANOMALIES OBSERVED"}}
+            }
+          },
+          "SIGN_OFF": {"TYPE": "string","DESCRIPTION": "SIGN OFF"}
+        }
+      }
+    },
+    {
+      "MACHINE ROOM 1 VENTILATION & EXHAUST FAN": {
+        "DESCRIPTION": "CHECKLIST FOR MACHINE ROOM 1 VENTILATION & EXHAUST FAN",
+        "FIELDS": {
+          "FAN_OPERATION": {
+            "TYPE": "object",
+            "DESCRIPTION": "FAN OPERATION",
+            "PROPERTIES": {
+              "FAN_1": {"TYPE": "string","DESCRIPTION": "FAN 1","ENUM": ["ON", "OFF"]},
+              "FAN_2": {"DESCRIPTION": "FAN 2","TYPE": "string","ENUM": ["ON", "OFF"]}
+            }
+          },
+          "EXHAUST_FAN": {
+            "TYPE": "object",
+            "DESCRIPTION": "FAN OPERATION",
+            "PROPERTIES": {
+              "EXHAUST_FAN_COMP_1": {"TYPE": "string","DESCRIPTION": "EXHAUST FAN COMP NO 1","ENUM": ["ON", "OFF"]},
+              "EXHAUST_FAN_COMP_2": {"TYPE": "string","DESCRIPTION": "EXHAUST FAN COMP NO 2","ENUM": ["ON", "OFF"]}              
+            }
+          },
+          "PROOF" : {"TYPE":"photo","DESCRIPTION":"UPLOAD PHOTO","REQUIRED":false},
+          "SIGN_OFF": {"TYPE": "string","DESCRIPTION": "SIGN OFF","REQUIRED":false}
+        }
+      }
+    },
+    {
+      "AIR_COMPRESSOR_MC_ROOM_1": {
+        "DESCRIPTION": "CHECKLIST FOR AIR COMPRESSOR MC ROOM 1 ",
+        "FIELDS": {
+          "DISCHARGE_AIR":{
+            "TYPE": "object",
+            "DESCRIPTION": "DISCHARGE AIR",
+            "PROPERTIES": {
+              "TEMP_1": {"TYPE": "string","DESCRIPTION": "TEMP < 380","ENUM": ["YES", "NO"]},
+              "PRESS_2": {"TYPE": "string","DESCRIPTION": "PRESS < 7.2","ENUM": ["YES", "NO"]},
+              "PRESS_3": {"TYPE": "string","DESCRIPTION": "UNLOAD PRESS 1.0 - 2.0","ENUM": ["YES", "NO"]}
+            }
+          },
+          "OIL":{
+            "TYPE": "object",
+            "DESCRIPTION": "DISCHARGE AIR",
+            "PROPERTIES": {
+              "TEMP_1": {"TYPE": "string","DESCRIPTION": "TEMP < 60","ENUM": ["YES", "NO"]},
+              "PRESS_2": {"TYPE": "string","DESCRIPTION": "PRESS 1.0 - 2.0","ENUM": ["YES", "NO"]},
+              "LEVEL_1": {"TYPE": "string","DESCRIPTION": "LEVEL ABOVE POINT","ENUM": ["YES", "NO"]}
+            }
+          },
+          "COOLANT":{
+            "TYPE": "object",
+            "DESCRIPTION": "COOLANT",
+            "PROPERTIES": {
+              "TEMP_1": {"TYPE": "string","DESCRIPTION": "TEMP < 60","ENUM": ["YES", "NO"]},
+              "PRESS_2": {"TYPE": "string","DESCRIPTION": "PRESS 1.3 - 2.8","ENUM": ["YES", "NO"]},
+              "LEVEL_1": {"TYPE": "string","DESCRIPTION": "LEVEL ABOVE LINE","ENUM": ["YES", "NO"]}
+            }
+          },
+          "DRAIN_WATER":{
+            "TYPE":"object",
+            "DESCRIPTION":"DRAIN WATER",
+            "PROPERTIES":{
+              "LINE_FILTER":{"TYPE":"boolean","DESCRIPTION":"CONTROL LINE FILTER"},
+              "COOLER_VALVE":{"TYPE":"boolean","DESCRIPTION":"AFTER COOLER VALVE"}
+            }
+          },
+          "SIGN_OFF": {"TYPE": "string","DESCRIPTION": "SIGN OFF","REQUIRED":false}
+        }
+      }
+    },
+    {
+      "PURE WATER SYSTEM" : {
+        "DESCRIPTION":"CHECKLIST FOR PURE WATER SYSTEM",
+        "FIELDS":{
+          "D1_METER_1":{"TYPE":"number","DESCRIPTION":"D1 METER 1" },
+          "D2_METER_2":{"TYPE":"number","DESCRIPTION":"D2 METER 2" },
+          "AFT_MIX_BED_L1":{"TYPE":"string","DESCRIPTION":"AFTER MIX BED L1 > 3MOHM" ,"ENUM": ["YES", "NO"]},
+          "AFT_DI_TANK":{"TYPE":"string","DESCRIPTION":"AFTER DI TANK > 4MOHM" ,"ENUM": ["YES", "NO"]},
+          "RAW_WATER_PRESS":{"TYPE":"string","DESCRIPTION":"RAW WATER PRESS > 2.0 BAR" ,"ENUM": ["YES", "NO"]},
+          "TREATED_WATER_PRESS":{"TYPE":"string","DESCRIPTION":"TREATED WATER PRESS > 1.7 BAR" ,"ENUM": ["YES", "NO"]},
+          "SIGN_OFF": {"TYPE": "object","DESCRIPTION": "SIGN OFF","REQUIRED":false}
+        }
+      }
+    }
+  ]
+}

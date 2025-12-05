@@ -6,6 +6,11 @@ node_modules/
 .data/sensors
 .data/uploads
 .data/users
+.data/aerosoft
+.data/mcst
+.data/nipponglass
+.data/nipponglass_transf
+.data/shinko
 .logs/
 !.logs/_app1.js
 !.logs/_app2.js
