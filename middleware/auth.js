@@ -6,7 +6,7 @@ const _debugENDPOINT = false;
 module.exports = function(req, res, next) {
   // ========== GLOBAL BYPASS SWITCH ==========
   // Set this to true to bypass ALL JWT checks
-  const BYPASS_ALL_JWT = true;  // ← CHANGE THIS TO true/false
+  const BYPASS_ALL_JWT = false;  // ← CHANGE THIS TO true/false
   
   if (BYPASS_ALL_JWT) {
     _debugENDPOINT && console.log('🔓 GLOBAL BYPASS: Skipping ALL JWT checks');

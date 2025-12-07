@@ -209,14 +209,26 @@ router.get('/', auth, async (req, res) => {
       return res.status(200).json([]);
     }
     
-    let totalLines = Number(req.query.totalLines);
-    totalLines = isNaN(parseFloat(totalLines)) ? 10 : totalLines;
-    let date1 = req.query.date1 ?? new Date();
-    let date0 = req.query.date0 ?? new Date();
+    // ✅ FIX: Add validation for query parameters
+    const totalLines = Math.min(Math.max(parseInt(req.query.totalLines) || 10, 1), 100000);
+    
+    const date0Param = req.query.date0 ? new Date(req.query.date0) : null;
+    const date1Param = req.query.date1 ? new Date(req.query.date1) : null;
+    
+    // Validate dates
+    if (date0Param && isNaN(date0Param.getTime())) {
+      return res.status(400).json({ error: 'Invalid date0 format (use ISO8601)' });
+    }
+    if (date1Param && isNaN(date1Param.getTime())) {
+      return res.status(400).json({ error: 'Invalid date1 format (use ISO8601)' });
+    }
+    
+    let date1 = date1Param ?? new Date();
+    let date0 = date0Param ?? new Date();
     
     // Process sensors sequentially to avoid issues
     const updatedSensors = [];
-    
+
     for (const sensor of sensors) {
       let key = sensor.dtuId === '-1' ? `${sensor.sensorId}` : `${sensor.dtuId}-${sensor.sensorId}`;
       let nIndex = (user.name === 'superuser') ? 99 : sensor.company.indexOf(companyname);
@@ -405,7 +417,7 @@ router.put('/MCST/Checklist', auth, async (req, res) => {
 //  ---------
 //  CHECKLIST
 //  ---------
-router.put('/CHECKLIST', (req, res) => {
+router.put('/CHECKLIST', auth, (req, res) => {
   _debugENDPOINT && console.log(`\n📞 REQUEST: PUT /CHECKLIST`);
   
   if (res.headersSent) {
@@ -415,9 +427,16 @@ router.put('/CHECKLIST', (req, res) => {
 
   const { payload } = req.body;
   const CHECKLIST_FILE = path.join(__dirname, 'checklist.json');
+
+  // ✅ ADD validation
+  if (!payload || typeof payload !== 'object') {
+    return res.status(400).json({ error: 'Invalid payload' });
+  }
   
-  if (!payload) {
-    return res.status(400).json({ error: 'Missing payload' });
+  // ✅ ADD size limit
+  const payloadSize = JSON.stringify(payload).length;
+  if (payloadSize > 1000000) {
+    return res.status(413).json({ error: 'Payload too large (max 1MB)' });
   }
 
   // Read existing checklist data
