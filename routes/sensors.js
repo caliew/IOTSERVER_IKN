@@ -265,6 +265,7 @@ async function handleRawData(req, res, config) {
     const ObjData = req.query;
     const SettingFile = config.settingFiles[0];
     const LOGFile = config.logFile;
+    const ALERTFile = config.alertFile; // ← MISSING: Added this back
 
     const nTotalLines = ObjData.totalLines !== undefined && Number(ObjData.totalLines) !== -1
       ? ObjData.totalLines
@@ -283,16 +284,36 @@ async function handleRawData(req, res, config) {
       const keys = Object.keys(settingData.IOT_SENSORS);
       _debugENDPOINT && console.log(`Reading ${keys.length} sensor logs`);
       
+      // You can choose either approach for reading sensor data:
+
+      // APPROACH 1: Sequential (from refactored code)
       for (const key of keys) {
         const data = await readLogs(key, nTotalLines, _date0, _date1);
         sensorPlotData[key] = data;
       }
+      
+      // OR APPROACH 2: Parallel (from original code - faster)
+      // const sensorData = await Promise.all(
+      //   keys.map((key) => readLogs(key, nTotalLines, _date0, _date1))
+      // );
+      // keys.forEach((key, index) => {
+      //   sensorPlotData[key] = sensorData[index];
+      // });
     }
     ObjData.WISensor = sensorPlotData;
+    _debugENDPOINT && console.log('Sensor plot data:', sensorPlotData); // ← Added logging back
 
     // Read main logs
     _debugENDPOINT && console.log(`Reading main logs from ${LOGFile}`);
     ObjData.sensorData = await readLogs(LOGFile, nTotalLines, _date0, _date1);
+
+    // Read alerts (today only) - ← MISSING: This entire section was missing
+    _debugENDPOINT && console.log(`Reading alerts from ${ALERTFile}`);
+    let _today0 = new Date();
+    let _today1 = new Date();
+    _today0.setHours(0, 0, 0);
+    _today1.setHours(23, 59, 59);
+    ObjData.alerts = await readLogs(ALERTFile, nTotalLines, _today0, _today1);
 
     _debugENDPOINT && console.log(`Successfully processed ${req.path}, sending response...`);
     
