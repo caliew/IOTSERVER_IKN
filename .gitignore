@@ -14,7 +14,9 @@ node_modules/
 .logs/
 !.logs/_app1.js
 !.logs/_app2.js
+!.data
 client/node_modules/
 client/build/
 socketArr.json
+.env
 git rm --cached restartlog.jsonrestartlog.json

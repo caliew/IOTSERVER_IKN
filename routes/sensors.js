@@ -66,6 +66,11 @@ const endpointConfigs = {
     logFile: '_KAYAKU',
     alertFile: '_KAYAKUALERTS',
   },
+  INDOGUNA: {
+    settingFiles: ['INDOGUNA'],
+    logFile: '_INDOGUNA',
+    alertFile: '_INDOGUNAALERTS',
+  },
   MCST: {
     settingFiles: ['MCST'],
     logFile: '_MCST',
@@ -363,7 +368,7 @@ async function handleUpdateSettings(req, res, config) {
 Object.entries(endpointConfigs).forEach(([routeName, config]) => {
 
   router.get(`/${routeName}/rawdata`, auth, async (req, res) => {
-    _debugENDPOINT && console.log(`\n📞 REQUEST: ${req.path}`);
+    _debugENDPOINT && console.log(`\n📞 ROUTE NAME: ${routeName} REQUEST: ${req.path}`);
     try {
       await handleRawData(req, res, config);
     } catch (err) {
