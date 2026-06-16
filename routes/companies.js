@@ -1,69 +1,85 @@
+/*
+ * routes/companies.js — File-based Company configuration
+ *
+ * Stores company configurations in: .data/companies/[COMPANY_NAME].json
+ */
+
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const config = require('config');
 const auth = require('../middleware/auth');
-const {check, validationResult} = require('express-validator');
-
-const User = require('../models/User');
-const Company = require('../models/Company');
-
 const cors = require('cors');
-router.use( cors({ origin:'*'}) );
+const _data = require('../lib/data');
 
-// @route     PUT api/company/:id
-// @desc      Update company
+router.use(cors({ origin: '*' }));
+
+// ------------------------------------------------------------------
+// @route     PUT /api/companies/:id
+// @desc      Update company settings
 // @access    Private
-router.put('/:id', auth, async (req, res) => {
-  // ----------------------------------
-  console.log(`... API/COMPANY [PUT]`)
-  const {companyname, notification_emails, status, date } = req.body;
-  console.log(companyname,status,notification_emails,date)
-  // --------------------
-  // BUILD SENSOR OBJECT
-  // --------------------
-  const companyFields = {};
-  if (companyname)  companyFields.companyname = companyname;
-  // ------------------------
-  companyFields.status = status;
-  companyFields.date = date;
-  companyFields.notification_emails = notification_emails;
-  // ----------------------------------
-  try {
-    let company = await Company.findById(req.params.id);
-    if (!company) return res.status(404).json({msg: 'Company not found'});
-    // ---------------------
-    company = await Company.findByIdAndUpdate(
-      req.params.id,
-      {$set: companyFields},
-      {new: true},
-    );
-    console.log(company);
-    res.json(company);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
+// ------------------------------------------------------------------
+router.put('/:id', auth, (req, res) => {
+  const companyKey = req.params.id; // Company ID / Company Name
+  console.log(`[COMPANIES] PUT ${companyKey}`);
+
+  const { companyname, notification_emails, status, date } = req.body;
+
+  _data.read('companies', companyKey, (err, companyData) => {
+    // If not found, initialize new company object
+    const updatedCompany = companyData || {
+      id: companyKey,
+      companyname: companyname || companyKey,
+    };
+
+    if (companyname) updatedCompany.companyname = companyname;
+    if (status !== undefined) updatedCompany.status = (status === 'true' || status === true);
+    if (date) updatedCompany.date = date;
+    if (notification_emails) updatedCompany.notification_emails = notification_emails;
+
+    _data.update('companies', companyKey, updatedCompany, (err) => {
+      if (err) {
+        // Try creating if update failed because file doesn't exist
+        _data.create('companies', companyKey, updatedCompany, (err2) => {
+          if (err2) {
+            console.error('[COMPANIES] Error saving company:', err2);
+            return res.status(500).json({ msg: 'Server Error' });
+          }
+          return res.json(updatedCompany);
+        });
+      } else {
+        return res.json(updatedCompany);
+      }
+    });
+  });
 });
 
-// @route   GET api/company
-// @desc    GET all companies
-// @access  Private
-router.get('/',auth, async (req,res) => {
-  // -------------------------------------
-  // AUTH MIDDLEWARE WILL VERIFY THE TOKEN
-  // -------------------------------------
-  console.log(`..API/COMPANYSENSORS [GET]`)
-  // ----------------------------
-  try {
-    const companies = await Company.find({});
-    res.status(200).json(companies);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-})
+// ------------------------------------------------------------------
+// @route     GET /api/companies
+// @desc      Get all companies
+// @access    Private
+// ------------------------------------------------------------------
+router.get('/', auth, (req, res) => {
+  console.log('[COMPANIES] GET /');
+  _data.list('companies', (err, companyList) => {
+    if (err || !companyList || companyList.length === 0) {
+      return res.status(200).json([]);
+    }
 
+    const companies = [];
+    let count = 0;
+
+    companyList.forEach((companyKey) => {
+      _data.read('companies', companyKey, (err, companyData) => {
+        count++;
+        if (!err && companyData) {
+          companies.push(companyData);
+        }
+
+        if (count === companyList.length) {
+          res.json(companies);
+        }
+      });
+    });
+  });
+});
 
 module.exports = router;

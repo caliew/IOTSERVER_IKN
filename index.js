@@ -1,52 +1,37 @@
 /*
- * Primary file for API
+ * Primary entry point for IoT Server
  *
+ * Starts:
+ *   1. TCP Server(s)  — receive bytecode from IoT gateways
+ *   2. Express Server — REST API on port 5000
+ *   3. Workers        — background polling timers
+ *   4. CLI            — interactive terminal (last)
  */
 
-// Dependencies
-var server = require('./lib/server');
+var server       = require('./lib/server');
 var expressServer = require('./lib/expressServer');
-var workers = require('./lib/workers');
-var cli = require('./lib/cli');
-const connectDB = require('./config/db');
+var workers      = require('./lib/workers');
+var cli          = require('./lib/cli');
 
-// Declare the app
 var app = {};
 
-// Init function
 app.init = function () {
-  // ----------------
-  // Start the server
-  // ----------------
   console.log('... ... ...... .... ....');
-  console.log('... TCP SERVER INIT ....');
-  console.log('... 1. INIT TCP SERVER');
-  console.log('... 2. INIT REST API SERVER (EXPRESS SERVER)');
-  console.log('... 3. CONNECT DB');
-  console.log('... 4. INIT WORKERS');
-  // ----------
+  console.log('... 1. INIT TCP SERVER(S)');
+  console.log('... 2. INIT REST API SERVER (EXPRESS / PORT 5000)');
+  console.log('... 3. INIT BACKGROUND WORKERS');
+  console.log('... ... ...... .... ....');
+
   server.init();
   expressServer.init();
-  // -----------------
-  console.log('... ... ...... .... ....');
-  // ----------------
-  // CONNECT DATABASE
-  // ----------------
-  connectDB();
-  // -----------------
-  // Start the workers
-  // -----------------
   workers.init();
-  // Start the CLI, but make sure it starts last
+
+  // Start CLI last (after servers are ready)
   setTimeout(function () {
     cli.init();
   }, 50);
-
 };
 
-// Self executing
 app.init();
 
-
-// Export the app
 module.exports = app;

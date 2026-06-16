@@ -1,4 +1,3 @@
 {
-  "mongoURI": "mongodb://localhost:27017/iot",
-  "jwtSecret": "secret"
+  "jwtSecret": "iotserver_jwt_secret_2024"
 }

@@ -3,7 +3,6 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const {check, validationResult} = require('express-validator');
 
-const MaintEvents = require('../models/MaintEvent');
 var util = require('util');
 var debug = util.debuglog('workers');
 

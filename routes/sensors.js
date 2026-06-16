@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const { check, validationResult } = require('express-validator');
 // ------------------------------------
-const User = require('../models/User');
-const Sensor = require('../models/Sensor');
 const cors = require('cors');
-const lodash = require('lodash');
 const fs = require('fs');
 const path = require('path');
 // -------------------------
@@ -14,6 +12,7 @@ const maxLOGS = 100000;
 // -------------------------
 const _data = require("../lib/data");
 const _logs = require('../lib/logs');
+const helpers = require('../lib/helpers');
 // 
 const endpointConfigs = {  
   AEROSOFT : {
@@ -129,7 +128,7 @@ const updateSettings = async (file,body) => {
       });
     });
 
-    const mergedData = lodash.merge({}, existingData, body);
+    const mergedData = deepMerge(JSON.parse(JSON.stringify(existingData)), body);
 
     await new Promise((resolve, reject) => {
       _data.update(file, 'settings', mergedData, (err) => {
@@ -194,59 +193,114 @@ const readLogs = (fileName, nTotalLines, date0, date1) => {
 // -----
 router.use(cors({origin:'*'}));
 
+// Helper function to ensure sensors are imported from settings if empty
+function ensureSensorsImported() {
+  return new Promise((resolve) => {
+    _data.list('sensors', (err, list) => {
+      if (!err && list && list.length > 0) {
+        return resolve();
+      }
+      
+      const defaultSensorsPath = path.join(__dirname, '../.data/settings/sensors.json');
+      if (fs.existsSync(defaultSensorsPath)) {
+        try {
+          const raw = fs.readFileSync(defaultSensorsPath, 'utf8');
+          const sensors = JSON.parse(raw);
+          if (Array.isArray(sensors)) {
+            console.log(`[SENSORS] Importing ${sensors.length} sensors from settings/sensors.json...`);
+            let count = 0;
+            sensors.forEach(sensor => {
+              const sensorId = sensor.id || sensor._id?.$oid || helpers.createRandomString(20);
+              const cleanSensor = {
+                ...sensor,
+                _id: sensorId,
+                id: sensorId,
+                date: sensor.date?.$date || sensor.date || new Date().toISOString()
+              };
+              _data.create('sensors', sensorId, cleanSensor, () => {
+                count++;
+                if (count === sensors.length) {
+                  resolve();
+                }
+              });
+            });
+            return;
+          }
+        } catch (e) {
+          console.error('[SENSORS] Error importing default sensors:', e);
+        }
+      }
+      resolve();
+    });
+  });
+}
+
 // @route     GET api/sensors
-// @desc      Get all sensors
+// @desc      Get all sensors for the user's company (or all if superuser)
 // @access    Private
 router.get('/', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.query.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
-    }
-    
-    let username = user.name ?? '';
-    let companyname = user.companyname ?? '';
-    const sensors = await Sensor.find({ company: { $in: [`${companyname}`] } }).sort({
-      date: -1,
-    });
-    
-    if (sensors.length === 0) {
-      return res.status(200).json([]);
-    }
-    
-    // ✅ FIX: Add validation for query parameters
-    const totalLines = Math.min(Math.max(parseInt(req.query.totalLines) || 10, 1), 100000);
-    
-    const date0Param = req.query.date0 ? new Date(req.query.date0) : null;
-    const date1Param = req.query.date1 ? new Date(req.query.date1) : null;
-    
-    // Validate dates
-    if (date0Param && isNaN(date0Param.getTime())) {
-      return res.status(400).json({ error: 'Invalid date0 format (use ISO8601)' });
-    }
-    if (date1Param && isNaN(date1Param.getTime())) {
-      return res.status(400).json({ error: 'Invalid date1 format (use ISO8601)' });
-    }
-    
-    let date1 = date1Param ?? new Date();
-    let date0 = date0Param ?? new Date();
-    
-    // Process sensors sequentially to avoid issues
-    const updatedSensors = [];
+    await ensureSensorsImported();
 
-    for (const sensor of sensors) {
-      let key = sensor.dtuId === '-1' ? `${sensor.sensorId}` : `${sensor.dtuId}-${sensor.sensorId}`;
-      let nIndex = (user.name === 'superuser') ? 99 : sensor.company.indexOf(companyname);
-      
-      if (nIndex > -1) {
-        const logs = await readLogs(key, totalLines, date0, date1);
-        sensor.logsdata = logs;
-        updatedSensors.push(sensor);
+    const companyname = req.user.companyname || '';
+    const isSuperuser = (req.user.name && req.user.name.toLowerCase() === 'superuser') || companyname.toLowerCase() === 'admin';
+
+    _data.list('sensors', (err, sensorFiles) => {
+      if (err || !sensorFiles || sensorFiles.length === 0) {
+        return res.status(200).json([]);
       }
-    }
-    
-    res.status(200).json(updatedSensors);
-    
+
+      const sensors = [];
+      let count = 0;
+
+      sensorFiles.forEach((sensorId) => {
+        _data.read('sensors', sensorId, async (err, sensorData) => {
+          count++;
+          if (!err && sensorData) {
+            let isAllowed = isSuperuser;
+            if (!isAllowed && Array.isArray(sensorData.company)) {
+              isAllowed = sensorData.company.includes(companyname);
+            } else if (!isAllowed && typeof sensorData.company === 'string') {
+              isAllowed = sensorData.company === companyname;
+            }
+
+            if (isAllowed) {
+              sensors.push(sensorData);
+            }
+          }
+
+          if (count === sensorFiles.length) {
+            // Sort by date newest first
+            sensors.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+            const totalLines = Math.min(Math.max(parseInt(req.query.totalLines) || 10, 1), 100000);
+            const date0 = req.query.date0 ? req.query.date0 : null;
+            const date1 = req.query.date1 ? req.query.date1 : null;
+
+            const updatedSensors = [];
+            let logCount = 0;
+
+            if (sensors.length === 0) {
+              return res.status(200).json([]);
+            }
+
+            sensors.forEach(sensor => {
+              let key = sensor.dtuId === '-1' ? `${sensor.sensorId}` : `${sensor.dtuId}-${sensor.sensorId}`;
+              
+              _logs.read(key, totalLines, date0, date1, false, (err, sensorData) => {
+                logCount++;
+                sensor.logsdata = Array.isArray(sensorData) ? sensorData : [];
+                updatedSensors.push(sensor);
+
+                if (logCount === sensors.length) {
+                  res.status(200).json(updatedSensors);
+                }
+              });
+            });
+          }
+        });
+      });
+    });
   } catch (err) {
     console.error('Error in main sensor route:', err.message);
     if (!res.headersSent) {
@@ -254,6 +308,137 @@ router.get('/', auth, async (req, res) => {
     }
   }
 });
+
+// @route     POST api/sensors
+// @desc      Add new sensor
+// @access    Private
+router.post(
+  '/',
+  [
+    auth,
+    [
+      check('name', 'Please add name').not().isEmpty(),
+      check('dtuId', 'Please add DTU ID').not().isEmpty(),
+      check('sensorId', 'Please add SENSOR ID').not().isEmpty(),
+      check('type', 'Please define SENSOR TYPE').not().isEmpty()
+    ],
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, dtuId, sensorId, type, ratingMin, ratingMax, variables, limits, company } = req.body;
+    const generatedId = helpers.createRandomString(20);
+
+    const newSensor = {
+      _id: generatedId,
+      id: generatedId,
+      name,
+      dtuId,
+      sensorId,
+      type,
+      ratingMin: ratingMin || '-1',
+      ratingMax: ratingMax || '-1',
+      variables: Array.isArray(variables) ? variables : [],
+      limits: limits || {},
+      company: Array.isArray(company) ? company : [req.user.companyname],
+      date: new Date().toISOString()
+    };
+
+    _data.create('sensors', generatedId, newSensor, (err) => {
+      if (err) {
+        console.error('[SENSORS] Error saving sensor file:', err);
+        return res.status(500).json({ msg: 'Server Error' });
+      }
+      res.json(newSensor);
+    });
+  }
+);
+
+// @route     PUT api/sensors/:id
+// @desc      Update sensor
+// @access    Private
+router.put('/:id', auth, (req, res) => {
+  const sensorId = req.params.id;
+
+  const { name, dtuId, sensorId: deviceId, type, ratingMin, ratingMax, variables, limits, location, company } = req.body;
+
+  _data.read('sensors', sensorId, (err, sensorData) => {
+    if (err || !sensorData) {
+      return res.status(404).json({ msg: 'Sensor not found' });
+    }
+
+    const userCompany = req.user.companyname || '';
+    const isSuperuser = (req.user.name && req.user.name.toLowerCase() === 'superuser') || userCompany.toLowerCase() === 'admin';
+    let isAllowed = isSuperuser;
+    if (!isAllowed && Array.isArray(sensorData.company)) {
+      isAllowed = sensorData.company.includes(userCompany);
+    } else if (!isAllowed && typeof sensorData.company === 'string') {
+      isAllowed = sensorData.company === userCompany;
+    }
+
+    if (!isAllowed) {
+      return res.status(401).json({ msg: 'Not authorized' });
+    }
+
+    if (name !== undefined) sensorData.name = name;
+    if (dtuId !== undefined) sensorData.dtuId = dtuId;
+    if (deviceId !== undefined) sensorData.sensorId = deviceId;
+    if (type !== undefined) sensorData.type = type;
+    if (ratingMin !== undefined) sensorData.ratingMin = ratingMin;
+    if (ratingMax !== undefined) sensorData.ratingMax = ratingMax;
+    if (variables !== undefined) sensorData.variables = variables;
+    if (limits !== undefined) sensorData.limits = limits;
+    if (location !== undefined) sensorData.location = location;
+    if (company !== undefined) sensorData.company = Array.isArray(company) ? company : [company];
+
+    _data.update('sensors', sensorId, sensorData, (err) => {
+      if (err) {
+        console.error('[SENSORS] Error updating sensor file:', err);
+        return res.status(500).json({ msg: 'Server Error' });
+      }
+      res.json(sensorData);
+    });
+  });
+});
+
+// @route     DELETE api/sensors/:id
+// @desc      Delete sensor
+// @access    Private
+router.delete('/:id', auth, (req, res) => {
+  const sensorId = req.params.id;
+
+  _data.read('sensors', sensorId, (err, sensorData) => {
+    if (err || !sensorData) {
+      return res.status(404).json({ msg: 'Sensor not found' });
+    }
+
+    const userCompany = req.user.companyname || '';
+    const isSuperuser = (req.user.name && req.user.name.toLowerCase() === 'superuser') || userCompany.toLowerCase() === 'admin';
+    let isAllowed = isSuperuser;
+    if (!isAllowed && Array.isArray(sensorData.company)) {
+      isAllowed = sensorData.company.includes(userCompany);
+    } else if (!isAllowed && typeof sensorData.company === 'string') {
+      isAllowed = sensorData.company === userCompany;
+    }
+
+    if (!isAllowed) {
+      return res.status(401).json({ msg: 'Not authorized' });
+    }
+
+    _data.delete('sensors', sensorId, (err) => {
+      if (err) {
+        console.error('[SENSORS] Error deleting sensor file:', err);
+        return res.status(500).json({ msg: 'Server Error' });
+      }
+      res.json({ msg: 'Sensor removed' });
+    });
+  });
+});
+
+
 
 // FIXED handleRawData function
 // In your sensors.js, update the handleRawData function:
