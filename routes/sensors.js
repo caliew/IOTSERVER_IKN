@@ -36,6 +36,11 @@ const endpointConfigs = {
     logFile: '_EPSON',
     alertFile: '_EPSONALERTS',
   },
+  EPSONOSHA: {
+    settingFiles: ['EPSONOSHA'],
+    logFile: '_EPSONOSHA',
+    alertFile: '_EPSONOSHAALERTS',
+  },
   SNOWCITY: {
     settingFiles: ['SNOWCITY'],
     logFile: '_SNOWCITY',
