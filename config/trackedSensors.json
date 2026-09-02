@@ -1,0 +1,8 @@
+{
+  "_comment": "Add any sensor MAC IDs you want to track live here. Both formats work: 'B0-BC-82-C4-C4-41' or 'B0BC82C4C441'.",
+  "_trackingOutput": "Tracking logs are written to .logs/_TRACKING_<MAC-ID> as the server runs.",
+  "_columns": "Each log line is a JSON object with: timestamp, portReceivedOn, siteName, parsedValues, alertEvaluation, and optionally eventType='MESSAGING_DISPATCH' for WhatsApp/Telegram records.",
+  "TRACKED_SENSORS": [
+    "B0-BC-82-C4-C4-41"
+  ]
+}
