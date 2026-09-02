@@ -1,31 +1,13 @@
-import React, { useState,useContext } from 'react'
+import React, { useContext } from 'react'
 
 import SensorContext from '../../context/sensor/sensorContext';
-import TDK_HVAC_PlanView from '../systems/svg/TDK_HVAC_PlanView';
-import TDK_HVAC_IsoView from '../systems/svg/TDK_HVAC_IsoView';
 import TDK_HVAC_FPAGE from '../systems/svg/TDK_HVAC_FPAGE';
-import { MDBContainer,MDBCard } from 'mdbreact';
-import TDKFloorPlan from '../systems/TDKFloorPlan';
-import DataV from '../datav'
 
 const BigDATAView = ({userCompanyName="TDK"}) => {
   // -----------
   const sensorContext = useContext(SensorContext);
   const { sensorsData, wisensors } = sensorContext;
 
-  let viewBoxData = (userCompanyName === "AWC" || userCompanyName === "IKN")  ? "0 0 1542 583" : "0 0 700 534";
-  const getFloorPlan = () => {
-    let viewBoxData = (userCompanyName === "AWC" || userCompanyName === "IKN")  ? "0 0 1542 583" : "0 0 700 534";
-    return (
-      <svg viewBox={viewBoxData} preserveAspectRatio="none" >
-        <TDKFloorPlan userCompanyName={userCompanyName}/>
-      </svg>
-    )
-  }
-  const MDBRowWidth = () => {
-    let width = (userCompanyName === "AWC" || userCompanyName === "IKN") ? 1250 : 650; 
-    return width;
-  }
   // ----------------------
   return (
     <div class="container-fluid mb-4 mt-n3">

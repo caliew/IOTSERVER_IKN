@@ -1,5 +1,5 @@
-import React, { useState, Fragment } from 'react';
-import { MDBIcon } from 'mdbreact';
+import React from 'react';
+import { MDBTableBody,MDBIcon } from 'mdbreact';
 
 import {
   Sparkline,
@@ -14,7 +14,7 @@ import { allColors } from '@data-ui/theme'; // open-color colors
 
 // ----------------------
 function parseFloat(str) {
-  var float = 0, sign, order, mantissa, exp,
+  var float = 0, sign, mantissa, exp,
   int = 0, multi = 1;
   if (/^0x/.exec(str)) {
       int = parseInt(str, 16);
@@ -30,7 +30,7 @@ function parseFloat(str) {
       }
   }
   sign = (int >>> 31) ? -1 : 1;
-  exp = (int >>> 23 & 0xff) - 127;
+  exp = ((int >>> 23) & 0xff) - 127;
   mantissa = ((int & 0x7fffff) + 0x800000).toString(2);
   for (i=0; i<mantissa.length; i+=1) {
       float += parseInt(mantissa[i]) ? Math.pow(2, exp) : 0;
@@ -57,15 +57,19 @@ const sensorData = (sensor) => {
 		switch (sensor.type) {
 			case "WTRPRS(485)":
 				_reading = Number(parseFloat(`0x${_data.RCV_BYTES[0]}${_data.RCV_BYTES[1]}`).toFixed(2)/100.0);
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "AIRRH(485)":
 				_reading = Number(_data.DATAS[1])/10.0;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "WTRTEMP(485)":
 				_reading = Number(_data.DATAS[1])/10.0;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "AIRFLW(485)":
 				_reading = Number(_data.DATAS[0])/10.0;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "PWRMTR(485)":
 				let _HEXStr = _data.RCV_BYTES[0] + _data.RCV_BYTES[1];
@@ -80,15 +84,18 @@ const sensorData = (sensor) => {
 				}
 				_reading0 = _reading1;
 				_DATEIME = _dateTime;
+				if (_data.SENSORTYPE == null) _reading = null;
 				break;
 			case "WISENSOR":
 				_reading = Number(_data.Temperature);
 				break;
 			default:
+				// _reading = null;
 				break;
 		}
 		// ----------------------
 		_reading !== null && dataArray.push(_reading);
+		return null;
 		// ----------------------
 	})
 	// -------------
@@ -96,23 +103,31 @@ const sensorData = (sensor) => {
 }
 // -----------------------
 const renderLabel = d => d.toFixed(1);
+const getBATTIcon = (batt) => {
+	if (batt > 75)	return (<MDBIcon icon="battery-full" size="2x"/>)
+	if (batt > 50)	return (<MDBIcon icon="battery-three-quarters" size="2x"/>)
+	if (batt > 25)	return (<MDBIcon icon="battery-half" size="2x"/>)
+	if (batt > 5)		return (<MDBIcon icon="battery-quarter" size="2x" style={{ background: 'yellow' }}/>)
+	return (<MDBIcon icon="battery-empty" size="2x" style={{ color: 'red' }}/>)
+}
 // ------------
-const SensorList = ({companyName,sensor,index}) => {
+const SensorList = ({companyName,batt,sensor,index,toggleSparkline}) => {
 	// -------------------
 	const getDTUID = (dtuId) => `DTU ID:${dtuId}`;
 	// ------------------
 	const getTableRow = (index,sensor) => {
 		const { name,logsdata,sensorId,dtuId } = sensor
 		let reading,limits;
-		const _date = sensor.logsdata.length > 0 ? new Date(logsdata[0].TIMESTAMP) : null;
+		let nDATA = logsdata.length;
+		const _date = nDATA > 0 ? new Date(logsdata[nDATA-1].TIMESTAMP) : null;
+		const batt = nDATA > 0 ? logsdata[nDATA-1].BATT : 1;
 		let mm = _date && _date.getMonth()+1;
 		let dd = _date && _date.getDate();
-		let batt = sensor.logsdata.length > 0 ? logsdata[0].BATT : null;
-		let interval = sensor.logsdata.length > 0 ? logsdata[0].INTERVAL : null;
 		let hours = _date && ("0" + _date.getHours()).slice(-2);
 		let minutes = _date && ("0" + _date.getMinutes()).slice(-2);
 		let _timediff = _date && (new Date().getTime()  - _date.getTime());
 		_timediff = _date && _timediff/ (1000 * 60 * 60);
+		if (nDATA == 0) _timediff = 100.0;
 		// ------------------
 		switch (sensor.type)
 		{
@@ -142,19 +157,24 @@ const SensorList = ({companyName,sensor,index}) => {
 			case 'PWRMTR(485)':
 				let _HEXStr = logsdata.length > 1 ? logsdata[0].RCV_BYTES[0] + logsdata[0].RCV_BYTES[1] : '';
 				let _HEXInt = parseInt(_HEXStr,16)*0.01;
-				reading = logsdata.length > 0 ? `${Number(_HEXInt.toFixed(0))} kHh` : '- kWh';
+				reading = logsdata.length > 0 ? `${Number(_HEXInt.toFixed(0))} kWh` : '- kWh';
 				limits = '';
 				break;
 			case 'WISENSOR':
-				reading = (logsdata.length > 0 && logsdata[0].Temperature) ? `${logsdata[0].Temperature.toFixed(1)}°C`: '°C';
-				//  ${logsdata[0].Humidity.toFixed(1)}%
-				// ABSOLUTE HUMIDITY = 6.112 x ( e^((17.67xT)/(T+243.50)) ) x R H x2.1674 / (273.15+T)
-				let _Temp = Number(logsdata[0].Temperature);
-				let _RH = Number(logsdata[0].Humidity);
-				// --------
-				let absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
-				reading = ( logsdata[0].Humidity && logsdata[0].Humidity > 0) ? reading = `${reading} RH:${logsdata[0].Humidity.toFixed(1)}%  ABS:${absRH.toFixed(1)}%` : reading;
-				limits = sensor.limits ? `${sensor.limits.TEMPERATURE_MIN}°C/${sensor.limits.TEMPERATURE_MAX}°C` : `NA/NA`			
+				try {
+					let _Temp, _RH, absRH;
+					reading = (nDATA > 0 && logsdata[nDATA-1].Temperature) ? `${logsdata[nDATA-1].Temperature}°C`: '°C';
+					_Temp = (nDATA > 0) ? Number(logsdata[nDATA-1]?.Temperature): 0;
+					_RH = (nDATA > 0) ? Number(logsdata[nDATA-1]?.Humidity) : 0;
+					// --------
+					if ( _RH > 0) {
+						absRH = 6.12 * Math.exp( (17.67*_Temp)/(_Temp+243.50)) * _RH * 2.1674 / ( 273.15 + _Temp );
+						reading = `${reading} RH:${_RH.toFixed(0)}%\nABS:${absRH.toFixed(2)}g.m-3`;
+					}
+					limits = sensor.limits ? `${sensor.limits.TEMPERATURE_MIN}°C/${sensor.limits.TEMPERATURE_MAX}°C` : `NA/NA`;
+				} catch (error) {
+					console.log(error);
+				}
 				break;
 			default:
 				reading = null
@@ -163,18 +183,23 @@ const SensorList = ({companyName,sensor,index}) => {
 		// -----
 		return (
 			<tr>
-				<td>{index}</td><td>{name}<br/>SENSOR ID:{sensorId}<br/>
+				<td>{index+1}</td><td>{name}<br/>SENSOR ID:{sensorId}<br/>
 				{ dtuId > 0 && getDTUID(dtuId) }
 				</td>
 				<td>{`${dd}/${mm}`}<br/>{`${hours}:${minutes}`}</td>
 				<td>
-					{reading}<br/>
+					<div style={{whiteSpace:'pre-line'}}>
+					{reading}
+					</div>
 					{limits}<br/>
-					<MDBIcon icon="battery-full" size="2x"/>&nbsp;&nbsp;
-					<MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/>
 				</td>
 				<td>
-					{ companyName !== "IKN" && getSparkLine(sensor) }
+					{batt && getBATTIcon(batt)} <br/>
+				</td>
+				<td><MDBIcon icon={_timediff > 3 ? "unlink" : "link"} className={_timediff > 3 ? "red-text" : "green-text"} size="2x"/></td>
+				<td>
+					{/* { companyName !== "IKN" && getSparkLine(sensor) } */}
+					{ toggleSparkline && getSparkLine(sensor) }
 				</td>
 			</tr>
 		)
@@ -201,15 +226,15 @@ const SensorList = ({companyName,sensor,index}) => {
 	}	
 	// --------------	
 	return (
-		<>
-			{ sensor.type === 'AIRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'AIRFLW(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WTRPRS(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WTRTEMP(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WTRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-			{ sensor.type === 'PWRMTR(485)' && getTableRow(index+1,sensor) }
-			{ sensor.type === 'WISENSOR' && sensor.logsdata.length > 0 && getTableRow(index+1,sensor) }
-		</>
+		<MDBTableBody>
+			{ sensor.type === 'AIRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'AIRFLW(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'WTRPRS(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'WTRTEMP(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'WTRRH(485)' && sensor.logsdata.length > 0 && getTableRow(index,sensor) }
+			{ sensor.type === 'PWRMTR(485)' && getTableRow(index,sensor) }
+			{ sensor.type === 'WISENSOR' && getTableRow(index,sensor) }
+		</MDBTableBody>
 	)
 
 }

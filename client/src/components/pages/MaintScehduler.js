@@ -4,9 +4,7 @@ import "bootstrap-css-only/css/bootstrap.min.css";
 import "mdbreact/dist/css/mdb.css";
 import DateTimePicker from 'react-datetime-picker';
 import Calendar from 'react-awesome-calendar';
-import Lottie from 'react-lottie';
 import {v4 as uuidv4} from 'uuid';
-import animationData from "../../lottie/43885-laptop-working.json";
 
 import MaintEventContext from '../../context/maintEvents/maintEventContext';
 import AuthContext from '../../context/auth/authContext';
@@ -19,7 +17,6 @@ import { MDBBtn, MDBCard, MDBIcon, MDBBadge, MDBContainer, MDBRow, MDBCol} from 
 const defaultOptions = {
 	loop: true,
 	autoplay: true,
-	animationData: animationData,
 	rendererSettings: {
 		// preserveAspectRatio: "xMidYMid slice"
 	}
@@ -40,11 +37,14 @@ const MaintScehduler = () => {
   const [showHideEvent, setAddEvent] = useState(false);
   const [AddMode, setAddMode] = useState(true);
   // ---------------------
-  useEffect(()=>{ getMaintEvents(user); },[])
+  useEffect(()=>{ 
+    getMaintEvents(user);
+    //  -----------
+    // eslint-disable-next-line
+  },[])
   // -----------
   useEffect(()=> {
     setEvents(maintEvents);
-    console.log(maintEvents);
     // getMaintEvents(user);
   },[maintEvents])
   // -------------------
@@ -128,7 +128,6 @@ const MaintScehduler = () => {
   }
   const onClickEvent = (eventId) => {
     console.info(`..onClickEvent ${eventId}...`)
-    let _foundEvent = events.find(_evnt => _evnt.id === eventId);
   }
   function compareByDate(a, b) {
     var dateA = new Date(a.from); // ignore upper and lowercase
@@ -236,8 +235,6 @@ const MaintScehduler = () => {
             </h4>
             <hr />
             <h4 className="text-uppercase text-center my-3">HIGHLIGHT</h4>
-            
-              <Lottie options={defaultOptions} height={200} width={200} />
 
           </MDBCol>
         </MDBRow>

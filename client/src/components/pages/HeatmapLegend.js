@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { HeatMapGrid } from "react-grid-heatmap";
 
 const HeatmapLegend = ({index,max,min}) => {

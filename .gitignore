@@ -1,4 +1,23 @@
-/node_modules
-/.data
-/.logs
-/client/node_modules
+node_modules/
+./data/*.json
+.data/gateways
+.data/stats
+.data/tokens
+.data/DEBUG.json
+.data/sensors
+.data/uploads
+.data/users
+.data/aerosoft
+.data/mcst
+.data/nipponglass
+.data/nipponglass_transf
+.data/shinko
+.logs/
+!.logs/_app1.js
+!.logs/_app2.js
+!.data
+client/node_modules/
+client/build/
+socketArr.json
+.env
+git rm --cached restartlog.jsonrestartlog.json

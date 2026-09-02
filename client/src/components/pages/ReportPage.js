@@ -1,5 +1,5 @@
 import React, { useContext,useState,useEffect,useRef } from 'react';
-import { CSVDownload,CSVLink } from 'react-csv';
+import { CSVLink } from 'react-csv';
 import { saveAs } from 'file-saver';
 import axios from 'axios';
 import Spinner from '../layout/Spinner';
@@ -8,8 +8,6 @@ import AlertContext from '../../context/alert/alertContext';
 import { MDBCard,MDBBtn, MDBTable, MDBTableBody, MDBTableHead } from 'mdbreact';
 
 import SparklinePlots from '../data-ui/SparklinePlots';
-import HeatMap from './Heatmap';
-
 // ----------------------
 const ReportPage = () => {
 	//	-----------------
@@ -18,8 +16,6 @@ const ReportPage = () => {
   const linkRef = useRef();
   // -----------
   const [wiSensors, setWiSensor] = useState([]);
-  const [reportSensors, setReportSensors] = useState([]);
-  const [sensorStatsData, setSensorStats] = useState([]);
   const [fileName, setFileName] = useState('Clue_Mediator_Report_Async.csv');
   const [headers,setHeaders] = useState([]);
   const [reportData,setReportData] = useState([]);
@@ -37,7 +33,8 @@ const ReportPage = () => {
     if (sensors === null) getSensors(30,null,null);
     // ---------------
     abstactWiSensor();
-    // ---------------
+    //  -----------
+    // eslint-disable-next-line
   },[sensors])
   // ---------------------------
   const abstactWiSensor = () => {
@@ -64,7 +61,6 @@ const ReportPage = () => {
       })
       // ---------------------
       setWiSensor(_wiSensors);
-      setReportSensors(_sensorIDs);
       abstractSensorsStats(_wiSensors);
       // --------------------
   }
@@ -73,6 +69,7 @@ const ReportPage = () => {
     let sensorsArr = [];
     _wiSensors.map( _sensor => {
       sensorsArr.push(_sensor);
+      return null;
     })
 		// ----------------------------------------------
     AbstractSensorStats(sensorsArr,callbackSensorStats);
@@ -88,8 +85,6 @@ const ReportPage = () => {
         SensorStatsObj[_key] = _sensor[0].statsdata
       }
 		})
-		// -------------------------
-		setSensorStats(SensorStatsObj);
 		// ---------------
 	}
   // ------------------
@@ -105,7 +100,7 @@ const ReportPage = () => {
 					{label:'Temperature',key:'Temperature'},{label:'Humidity',key:'Humidity'}];
 		setHeaders(_reportHeader)
 		for (let i=0; i< logsdata.length; i++) {
-			const {modelID,modelType,TIMESTAMP,Temperature,Humidity}  = logsdata[i];
+			const {modelID,TIMESTAMP,Temperature,Humidity}  = logsdata[i];
 			const _date = new Date(TIMESTAMP);
 			let data = { date:_date.toLocaleDateString(), time:`${_date.toLocaleDateString()} ${_date.toLocaleTimeString()}`,
 						modelID:modelID,Temperature,Humidity}
@@ -113,27 +108,6 @@ const ReportPage = () => {
 		}
 		setReportData(_reportData);
 	}
-  const createAndDownloadPdf = () => {
-    let sensorsState = {
-      name : '',
-      receiptId : 0,
-      price1 : 0,
-      price2 : 0,
-      reportSensors : reportSensors
-    }
-    console.log('.. AXIOS APIS.... /CREATE-PDF')
-    try {
-      axios.post('/create-pdf',sensorsState)
-        .then(() => axios.get('/fetch-pdf', {responseType:'blob'}))
-        .then((res) => {
-          console.log('.. AXIOS APIS.... /FETCH-PDF');
-          const pdfBlob = new Blob([res.data],{type:'application/pdf'});
-          saveAs(pdfBlob,'Report.pdf');
-        })
-    }
-    catch {
-    }
-  }
   // ------
   const DownloadPdfNOV = () => {
     console.log('..AXIOS APIS.... /FETCH-PDF-NOV');
@@ -244,8 +218,7 @@ const getTableSensorInfo = (sensor) => (
   </MDBTable>)
 // ----------
 const getTableSensorData = (sensor) => {
-  let { datas,maxTempDateTime,minTempDateTime,maxHumdDateTime,minHumdDateTime,
-        maxHumd,minHumd,maxTemp,minTemp,rmsTemp } = getDatas(sensor);
+  let { datas,maxTempDateTime,minTempDateTime,maxTemp,minTemp } = getDatas(sensor);
   return (
   <MDBTable small striped style={{width:'auto'}}>
     <MDBTableHead >
@@ -273,8 +246,7 @@ const getTableSensorData = (sensor) => {
 }
 // --------------------
 function getHUMDDATA(sensor){
-  let { datas,maxTempDateTime,minTempDateTime,maxHumdDateTime,minHumdDateTime,
-    maxHumd,minHumd,maxTemp,minTemp,rmsTemp } = getDatas(sensor);
+  let { maxHumdDateTime,minHumdDateTime,maxHumd,minHumd } = getDatas(sensor);
   return (
     <tr>
       <td >HUMIDITY</td>
@@ -289,8 +261,6 @@ function getHUMDDATA(sensor){
 // -------------
 // Data Download
 // -------------
-
-// ------------
 function getDatas(sensor) {
   // console.log(sensor.logsdata);
   let datas = [];
@@ -328,7 +298,8 @@ function getDatas(sensor) {
     }
     // ----------------------------------------------
     TempData.push({y:data.Temperature,x:_timeLabel});
-    HumdData.push({y:data.Humidity,x:_timeLabel})    
+    HumdData.push({y:data.Humidity,x:_timeLabel})  
+    return null;  
   })
   datas.push(TempData)
   datas.push(HumdData)

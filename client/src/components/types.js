@@ -1,3 +1,7 @@
+//      --------------
+//      HEAT EXCHANGER
+//      --------------
+export const HEXCHANGER_TEMP    = 'HEXCHANGER_TEMP';
 //      -------------
 //      COOLING TOWER
 //      -------------

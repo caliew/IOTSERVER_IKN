@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
 import SensorList from './SensorList';
-import { MDBTable,MDBTableBody, MDBRow,MDBCard,MDBCol, MDBCardTitle, MDBCardText } from 'mdbreact';
+import { MDBTable,MDBTableBody,MDBRow,MDBCard,MDBCardTitle } from 'mdbreact';
 import axios from 'axios';
 
 // https://jpg-svg.com/#
@@ -15,18 +15,31 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
     // -----------
     const [pwrMeters, setPWRMeter] = useState([]);
     const [rawdata,setData] = useState(null);
-    // ------------
+    const [statsData,setStatsData] = useState(null);
+    const [weekDays,setWeekDay] = useState(null);
+    const [yearMonths,setYearMonth] = useState(null);
+    const [toggleSTATS,setToggleSTATS] = useState(false);
+    const [toggleSTATSWEEK,setToggleSTATSWEEK] = useState(false);
+    const [toggleListing,setToggleListing] = useState(false);
+    const [toggleGauge,setToggleGauge] = useState(false);
+    const [toggleSparkline,setToggleSparkline] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
     const { sensors,  getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
+      RELOADRAWDARA();
+      LOADSTATS();
+      //  -----------
+      // eslint-disable-next-line
+    },[])
+    useEffect(()=>{
         // ---------
         if (sensors === null) getSensors(30,null,null);
         // ------------------
         abstactELECTPWRMTR();
-        RELOADRAWDARA();
         // -------------
+        // eslint-disable-next-line        
     },[sensors])
     // ---------------------------
     const abstactELECTPWRMTR = () => {
@@ -42,13 +55,8 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           // --------------------
           if (sensor.type==='PWRMTR(485)') {
             // ------------------------------
-            let { datas } = getDatas(sensor);
             let _data = sensor.logsdata.length > 0 ? sensor.logsdata[0] : null;
             // ---------------------
-            let _dataObj = {
-              ...sensor,
-              name : getName(sensor)
-            }
             _PWRMeters.push(sensor);
             // --------------------
             let _HEXStr = _data ? _data.RCV_BYTES[0] + _data.RCV_BYTES[1] : '';
@@ -83,7 +91,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       return strTEXT;
     }
     function hexToSignedInt(hex) {
-      if (hex.length % 2 != 0) {
+      if (hex.length % 2 !== 0) {
         hex = "0" + hex;
       }
       var num = parseInt(hex, 16);
@@ -94,11 +102,42 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       return num;
     }
     // -------------------------  
+    const LOADSTATS = () => {
+      try {
+        axios.get('api/sensors/statsPWRMTRdata',{}).then(res => {
+          // ---------------------
+          setStatsData(res.data);
+          let WeeksDays = [];
+          let YearsMonths = [];
+          // ----------------
+          Object.entries(res.data).map(([index, data]) => {
+            // ---------------
+            let keys = Object.keys(data);
+            // ---------------
+            if (data['SENSORTYPE'] === "PWRMTR(485)") {
+              // ---------
+              keys.forEach(key => {
+                if ( !WeeksDays.includes(key) && key.includes('WK')) WeeksDays.push(key);
+                if ( !YearsMonths.includes(key) && key.includes('MNTH')) YearsMonths.push(key);
+              })
+            }
+            return null;
+          })
+          setWeekDay(WeeksDays);
+          setYearMonth(YearsMonths);
+          // ---------
+        }).then(res => {
+        }).catch( err => {
+        })
+      } catch (err) {
+
+      }
+    }
     const RELOADRAWDARA = () => {
       try {
         // --------------------------------
         axios.get('/api/sensors/rawsensordata', { } ).then (res => {
-          console.log('....GET API/SENSORS/RAWSENSORDATA....')
+          // --------
           let DataMap = [];
           if (res.data) {
             Object.keys(res.data).forEach(key => {
@@ -117,6 +156,7 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
           // --------------
         }).catch ( err => {
         })
+        // ------
       } catch (err) {
       }
       // ---------
@@ -181,82 +221,219 @@ function ELECTCompSysModule({ model, color, systemComponent, handleComponetSelec
       // -------------------
       return DataArr;
     };
+    function getRowsWeekDay() {
+      // ------
+      return (
+        <>
+          <tr className='text-center align-middle'>
+            <td>NAME</td><td>DTU ID</td><td>SENSOR ID</td><td>TYPES</td>
+            { toggleSTATSWEEK ? (weekDays && weekDays.map((wk,index) => <td>{wk}</td>)) : 
+                  (yearMonths && yearMonths.map((mth,index) => (index < yearMonths.length) ? <td>{mth.substring(5)}</td>:<></>))
+            }
+          </tr>
+          {
+            statsData.map((_data,index) => {
+              // ---------------
+              if ( _data['SENSORTYPE'] === 'PWRMTR(485)') {
+                return (
+                  <tr className='text-center align-middle'>
+                    <td>{_data['SENSORNAME']}</td>
+                    <td>{_data['DTUID']}</td><td>{_data['SENSORID']}</td>
+                    <td>TOTAL<br/>NETT</td>
+                    { toggleSTATSWEEK && weekDays ? 
+                      weekDays.map((wk,index) => {
+                        // -------------
+                        let _READING0 = _data[weekDays[index+1]] || _data.PWRMTR1;
+                        let _READING = _data[weekDays[index]] || 0;
+                        return (<td>{_READING}<br/>{_READING0-_READING}</td>)
+                        // ------------
+                      }) : yearMonths && yearMonths.map((mth,index) => {
+                        // -----
+                        let _READING0 = _data[yearMonths[index+1]]|| _data.PWRMTR1;
+                        let _READING = _data[yearMonths[index]]|| 0;
+                        return (<td>{_READING}<br/>{_READING0-_READING}</td>)
+                        // ------
+                      }) 
+                    }
+                  </tr>)
+              }
+              return null;
+          })}
+        </>
+      )
+    }
     // ----------
-    function getName(_sensor) {
+    function getName(_dtuID,_sensorID) {
       // --------------------
-      let sensorFound = pwrMeters.find(sensor => sensor.dtuId == _sensor.dtuid && sensor.sensorId == _sensor.sensorid);
+      let sensorFound = pwrMeters.find(sensor => (sensor.dtuId === _dtuID) && (sensor.sensorId === _sensorID));
       return sensorFound ? sensorFound.name : "";
+    }
+    // -----
+    function ToggleListing(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesListing'
+            checked={toggleListing}
+            onChange={()=>setToggleListing(!toggleListing)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesListing'>
+            <h5>{title} (LISTING)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleGauges(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesGauges'
+            checked={toggleGauge}
+            onChange={()=>setToggleGauge(!toggleGauge)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesGauges'>
+            <h5>{title} (GAUGE)</h5>
+          </label>
+        </div>  
+      )
+    }
+    // -----
+    function ToggleSTATSButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSSwitches'
+            checked={toggleSTATS}
+            onChange={()=>setToggleSTATS(!toggleSTATS)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSTATSWEEKButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSWEEKSwitches'
+            checked={toggleSTATSWEEK}
+            onChange={()=>setToggleSTATSWEEK(!toggleSTATSWEEK)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSWEEKSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSTATSMONMTHButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSWEEKSwitches'
+            checked={!toggleSTATSWEEK}
+            onChange={()=>setToggleSTATSWEEK(!toggleSTATSWEEK)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSWEEKSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+
+    }
+    function ToggleSparkline(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesSparkline'
+            checked={toggleSparkline}
+            onChange={()=>setToggleSparkline(!toggleSparkline)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesSparkline'>
+            <h5>SHOW SPARKLINE</h5>
+          </label>
+        </div>  
+      )
     }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // width="645" height="459" viewBox="0 0 645 459"
     // --------------------------------------------
     return (
+      <>
 			<MDBRow center>
+        <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
+				  <div className='d-flex'>
+            { ToggleSTATSButton('ELECTRICITY CONSUMPTION (Kwh)') }&nbsp;&nbsp;&nbsp;
+            { toggleSTATS && ToggleSTATSWEEKButton('BY WEEK') }&nbsp;&nbsp;&nbsp;
+            { toggleSTATS && ToggleSTATSMONMTHButton('BY MONTH') }
+          </div>
+          {
+            toggleSTATS && (
+            <MDBTable striped small autoWidth responsive>
+              <MDBTableBody>
+                { weekDays && getRowsWeekDay() }
+              </MDBTableBody>
+            </MDBTable>
+            )
+          }
+        </MDBCard>
+      </MDBRow>
 
-				<MDBCard className="p-3 m-2"style={{ width: "40rem" }}>
-					<MDBCardTitle>ELECTRICAL POWER METER</MDBCardTitle>
-					<MDBTable striped small>
-						<MDBTableBody>
-						{
-								pwrMeters && pwrMeters.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} />)})
-						}
-						</MDBTableBody>
-					</MDBTable>
+			<MDBRow center>
+				<MDBCard className="p-4 m-2"style={{ width: "40rem" }}>
+				  <div className='d-flex'>
+            {ToggleListing('ELECTRICAL POWER METER')}&nbsp;&nbsp;&nbsp;
+            {ToggleSparkline('ELECTRICAL POWER METER')}
+          </div>
+          {
+            toggleListing && (
+              <MDBTable striped small autoWidth responsive>
+                <MDBTableBody>
+                {
+                    pwrMeters && pwrMeters.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})
+                }
+                </MDBTableBody>
+              </MDBTable>
+            )
+          }
 				</MDBCard>
 
-				<MDBCard className="p-2 m-2" style={{ width: "46rem" }}>
-          <MDBRow>
-            { pwrMeters && rawdata && rawdata.map((sensor,index) => {
+				<MDBCard className="p-4 m-2" style={{ width: "46rem" }}>
+          <MDBCardTitle>{ToggleGauges('ELECTRICAL POWER METER')}</MDBCardTitle>
+          <MDBRow center>
+            { toggleGauge && pwrMeters && rawdata && rawdata.map((sensor,index) => {
                 return (
-                  <MDBCol md="4">
-                    { drawPWRMETER(sensor,getName(sensor)) }
-                  </MDBCol>
+                  <div className="d-flex justify-content-center">
+                    { drawPWRMETER(sensor,getName(sensor.dtuid,sensor.sensorid)) }
+                  </div>
                 )              
             }) }
           </MDBRow>
 				</MDBCard>
-            
-
-
 			</MDBRow>
+      </>
     )
 }
 // -------------
 // GET SVG MODEL
 // -------------
-function getDatas(sensor) {
-  // console.log(sensor.logsdata);
-  let datas = [];
-  let PressData = [];
-  let rmsVel = 0;
-  let maxVel = -999;
-  let minVel = 999;
-  let maxVelDateTime;
-  let minVelDateTime;
-  // -----------------
-  sensor.logsdata.map( (data,index) => {
-    let _Date = new Date(data.TIMESTAMP);
-    let _timeLabel = _Date.toLocaleDateString([], {hour12: false,hour: "2-digit",minute: "2-digit"});
-    // -------------------------------------------------
-    let _hexString = `${data.RCV_BYTES[0]+data.RCV_BYTES[1]}`
-    let _hexInt = parseInt(_hexString, 16)*0.01;
-    let pressure = Number(_hexInt).toFixed(0);
-		// -------------------
-    PressData.push({y:pressure,x:_timeLabel}); 
-  })
-  // -------------
-  // datas.push(VelData)
-  datas.push(PressData)
-  // ----------------
-  return { datas,maxVelDateTime,minVelDateTime,maxVel,minVel,rmsVel };
-}
 function drawPWRMETER(sensor,name) {
   // ------------
   let _DATE = sensor.date;
   let _TIME = sensor.time;
-  let _DTUID = sensor.dtuid;
-  let _SENSORID = sensor.sensorid;
   let _TITLE = name ? name : '';
   let ElectEnergy = Number(sensor.energy.split(' ')[0]).toFixed(0);
   // ------------
@@ -275,9 +452,9 @@ function drawPWRMETER(sensor,name) {
   let Frequency = sensor.frequency;
   // ------------------------------
   return (
-    <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="280" height="250" viewBox="0 0 280 250"  preserveAspectRatio="xMidYMid meet" >
+    <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="300" height="250" viewBox="0 0 300 250"  preserveAspectRatio="xMidYMid meet" >
       <g transform="translate(0,0) scale(0.80,0.80)" >
-        <rect width="280" height="300" rx="5" stroke="yellow" stroke-width="4" fill="black"/>
+        <rect width="300" height="300" rx="5" stroke="yellow" stroke-width="4" fill="black"/>
           <g transform="translate(5,5)" >
           <text x="10" y="20"  fill="white" font-size="1.0em" >{_DATE}</text>
           <text x="10" y="38"  fill="white" font-size="1.0em" >{_TIME}</text>

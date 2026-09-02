@@ -19,15 +19,9 @@ const NotificationState = props => {
       const params = { totalLines : 88 };
       axios.get('/api/alerts', { params } ).then (res => {
         // -------
-        dispatch({
-          type: SET_NOTIFICATION,
-          payload: res.data
-        });
+        dispatch({ type:SET_NOTIFICATION, payload: res.data });
       }).catch ( err => {
-        dispatch({
-          type: NOTIFICATION_ERROR,
-          payload: null
-        });
+        dispatch({ type:NOTIFICATION_ERROR, payload: null });
       })
       // --------------
     } catch (err) {

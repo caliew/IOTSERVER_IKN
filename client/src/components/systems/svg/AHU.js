@@ -1,19 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React from 'react'
 
 import { 
-  AHU_A_TEMP1,AHU_A_TEMP2,AHU_A_FLOWRATE,AHU_A_ELECTPWR, 
-  AHU_B_TEMP1,AHU_B_TEMP2,AHU_B_FLOWRATE,AHU_B_ELECTPWR
+  AHU_A_TEMP1,AHU_A_TEMP2,
+  AHU_B_TEMP1,AHU_B_TEMP2
 } from '../../types';
 
 // REFERENCE SVG DATA FROM 
 // '../components/svg/TDK_ISOVIEW.svg'
 
 function AHU({ color, sensorsData, handleComponetSelection }) {
-    // --------------
-    function handleClick (event) {
-        let sysName = event.target.id;
-        if (handleComponetSelection !== null) handleComponetSelection(sysName);
-    }
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'
     // --------------------------------------------

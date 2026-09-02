@@ -1,0 +1,11 @@
+git branch
+git reflog    // GET ALL GIT LOGS
+git cherry-pick xxxxx1..xxxxx2
+git cherry-pick xxxxx2
+git status
+git restore --staged .
+git add .
+git reset --HARD
+
+
+

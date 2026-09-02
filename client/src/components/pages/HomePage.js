@@ -1,6 +1,7 @@
 import React, { useContext,useEffect,useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import NotificationBoard from '../notification/NotificationBoard';
+import OverView from './OverView'
 import { MDBContainer,MDBIcon,MDBCardGroup,MDBCard,MDBCardBody,MDBCardFooter } from 'mdbreact';
 	
 import AuthContext from '../../context/auth/authContext';
@@ -21,43 +22,52 @@ const HomePage = () => {
   const history = useHistory();
 	// --------------------------
   const authContext = useContext(AuthContext);
-  const { isAuthenticated, user, addTimer, getAllCompanies } = authContext;
+  const { isAuthenticated, user, getAllCompanies } = authContext;
 	// ------------------------
 	const notificationContext = useContext(NotificationContext);
 	const { getNotification } = notificationContext;
 	// ---------------------------------------------
 	const sensorContext = useContext(SensorContext);
-  const { filterSensors, sensorsData, getSensors } = sensorContext;
+	const { filterSensors, sensorsData, getSensors } = sensorContext;
 	// ---------------------
+	const [timerFlag, setTimerFlag] = useState(false);
 	const [selection,setSelection] = useState(null);
   const [systemComponent, setSystemComponent] = useState(null);
-  const [dataHeatMap,setHeatMap] = useState([]);
-	const [mTimer,setTimer] = useState(null);
 	// --------------
 	useEffect(()=> {
 		// -----------
-		user && user.companyname == "Nippon Glass" && history.push('/NipponGlass')
-		!isAuthenticated && history.push('/login');
-		// -----------
+		console.log('...HOMEPAGE USEEFFECT....',isAuthenticated,user?.name);
 		if (isAuthenticated)  {
 			// ----------
-			getSensors(30,null,null);
+			// isAuthenticated && loadUser();
+			user && user.companyname === "Nippon Glass" && history.push('/NipponGlass')
+			// getSensors(30,null,null);
 			getNotification();
 			getAllCompanies();
 			// ---------
 			// SET TIMER
 			// ---------
-			if (mTimer === null) {
-				const _mTimer = setInterval(handleTimer, 1000*60*1);
-				addTimer(_mTimer);
+			if (typeof(user._id) !== 'undefined' && !timerFlag) {
+				console.log('...HOMEPAGE... SET TIMER..')
+				setTimerFlag(true)
+				handleTimer();
 			}
+			//	----------
+		} else  {
+			// !isAuthenticated && history.push('/login');
+			console.log('..HOMEPAGE ... HISTORY PUSH /LOGIN')
+			history.push('/login')
 		}
-	},[user])
+		//  -----------
+		// eslint-disable-next-line
+	},[user]);
   // --------------------------------------------
 	const handleTimer = () => {
 		// ----------
-		getSensors(30,null,null);
+		getSensors(10,null,null);
 		getNotification();
+		console.log('...HOMEPAGE... SETTIMEOUT 5 MIN...')
+		setTimeout(handleTimer,1000*60*5);
 	}
   const handleComponetSelection = (sysName) => {
 		// --------------------------
@@ -67,8 +77,12 @@ const HomePage = () => {
   }
 	// -----
 	return (
-    <main size="sm" style={{ marginTop: '2rem' }}>
-			<NotificationBoard />
+    <main className='clearfix"' style={{ marginTop: '2rem' }}>
+
+			{ isAuthenticated && <NotificationBoard />} 
+
+			{ isAuthenticated && user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && <OverView /> }
+
 			<MDBContainer className="my-3">
 					<MDBCardGroup >
 
@@ -79,54 +93,43 @@ const HomePage = () => {
 							<MDBCardFooter small muted></MDBCardFooter>
 						</MDBCard>
 
-						{ user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && (
+						{ user && (user.companyname !== "AWC" && user.companyname !== "IKN" && user.companyname !== "Nippon Glass") && (
+							<>
 								<MDBCard onClick={()=>setSelection('AHU_AFLW')} className={selection==='AHU_AFLW' && 'grey lighten-2'}>
 									<MDBIcon fas icon="wind" size='4x' className="d-flex pt-4 justify-content-center"/>
 									{/* <MDBCardImage src="https://mdbootstrap.com/img/Photos/Others/images/49.jpg" alt="MDBCard image cap" top hover overlay="white-strong" />								 */}
 									<MDBCardBody tag="h5">HVAC DUCT AIRFLOW</MDBCardBody>
 									<MDBCardFooter small muted></MDBCardFooter>
 								</MDBCard>
-						)}
-						{ user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && (
 								<MDBCard onClick={()=>setSelection('AHU_ATMP')} className={selection==='AHU_ATMP' && 'grey lighten-2'}>
 									<MDBIcon icon='thermometer-half' size="4x" className="d-flex pt-4 justify-content-center" />
 									{/* <MDBCardImage src="https://mdbootstrap.com/img/Photos/Others/images/49.jpg" alt="MDBCard image cap" top hover overlay="white-strong" />								 */}
 									<MDBCardBody tag="h5">AHU DUCT TEMP.</MDBCardBody>
 									<MDBCardFooter small muted></MDBCardFooter>
 								</MDBCard>
-						)}
-						{ user && (user.companyname != "AWC" && user.companyname != "IKN" && user.companyname != "Nippon Glass") && (
-							<MDBCard onClick={()=>setSelection('SYS_AIR_COMPR')} className={selection==='SYS_AIR_COMPR' && 'grey lighten-2'}>
-								{/* <MDBIcon fas icon="wind" size='2x' className="d-flex pt-4 justify-content-center"/> */}
-								<MDBIcon fas icon="tachometer-alt" size="4x" className="d-flex pt-4 justify-content-center" />
-								{/* <MDBCardImage src="https://mdbootstrap.com/img/Photos/Others/images/49.jpg" alt="MDBCard image cap" top hover overlay="white-strong" />								 */}
-								<MDBCardBody tag="h5">AIR CMPSR</MDBCardBody>
-								<MDBCardFooter small muted></MDBCardFooter>
-							</MDBCard>
-						)}
-
-						{ user && (user.companyname != "AWC" && user.companyname != "IKN" ) && (
-							<MDBCard onClick={()=>setSelection('SYS_PIPE_TEMP')} className={selection==='SYS_PIPE_TEMP' && 'grey lighten-2'}>
-								<MDBIcon icon="water" size="4x" className="d-flex pt-4 justify-content-center" />
-									<MDBCardBody tag="h5">WATER PIPE TEMP</MDBCardBody>
+								<MDBCard onClick={()=>setSelection('SYS_AIR_COMPR')} className={selection==='SYS_AIR_COMPR' && 'grey lighten-2'}>
+									{/* <MDBIcon fas icon="wind" size='2x' className="d-flex pt-4 justify-content-center"/> */}
+									<MDBIcon fas icon="tachometer-alt" size="4x" className="d-flex pt-4 justify-content-center" />
+									{/* <MDBCardImage src="https://mdbootstrap.com/img/Photos/Others/images/49.jpg" alt="MDBCard image cap" top hover overlay="white-strong" />								 */}
+									<MDBCardBody tag="h5">AIR CMPSR</MDBCardBody>
 									<MDBCardFooter small muted></MDBCardFooter>
-							</MDBCard>
-						)}
-
-						{ user && (user.companyname != "AWC" && user.companyname != "IKN" ) && (
-							<MDBCard onClick={()=>setSelection('SYS_ELECT')} className={selection==='SYS_ELECT' && 'grey lighten-2'}>
-								<MDBIcon far icon="lightbulb" size="4x" className="d-flex pt-4 justify-content-center" />
-									<MDBCardBody tag="h5">ELECT SYSTEM</MDBCardBody>
-									<MDBCardFooter small muted></MDBCardFooter>
-							</MDBCard>
-						)}
-
-						{ user && (user.companyname != "AWC" && user.companyname != "IKN" ) && (
-							<MDBCard onClick={()=>setSelection('SYS_PERF')} className={selection==='SYS_PERF' && 'grey lighten-2'}>
-								<MDBIcon far icon="snowflake" size="4x" className="d-flex pt-4 justify-content-center" />
-									<MDBCardBody tag="h5">SYSTEM PERF</MDBCardBody>
-									<MDBCardFooter small muted></MDBCardFooter>
-							</MDBCard>
+								</MDBCard>
+								<MDBCard onClick={()=>setSelection('SYS_PIPE_TEMP')} className={selection==='SYS_PIPE_TEMP' && 'grey lighten-2'}>
+									<MDBIcon icon="water" size="4x" className="d-flex pt-4 justify-content-center" />
+										<MDBCardBody tag="h5">WATER PIPE TEMP</MDBCardBody>
+										<MDBCardFooter small muted></MDBCardFooter>
+								</MDBCard>
+								<MDBCard onClick={()=>setSelection('SYS_ELECT')} className={selection==='SYS_ELECT' && 'grey lighten-2'}>
+									<MDBIcon far icon="lightbulb" size="4x" className="d-flex pt-4 justify-content-center" />
+										<MDBCardBody tag="h5">ELECT SYSTEM</MDBCardBody>
+										<MDBCardFooter small muted></MDBCardFooter>
+								</MDBCard>
+								<MDBCard onClick={()=>setSelection('SYS_PERF')} className={selection==='SYS_PERF' && 'grey lighten-2'}>
+									<MDBIcon far icon="snowflake" size="4x" className="d-flex pt-4 justify-content-center" />
+										<MDBCardBody tag="h5">SYSTEM PERF</MDBCardBody>
+										<MDBCardFooter small muted></MDBCardFooter>
+								</MDBCard>
+							</>
 						)}
 
 						{ 
@@ -153,6 +156,7 @@ const HomePage = () => {
 					{ selection === 'SYS_ELECT' && <ELECTCompSysModule /> }
 					{ selection === 'SYS_PERF' && <SYSTEMPERFModule sensorsData={sensorsData} /> }
 					{ selection === 'SYS_HVAC1' && 
+							// eslint-disable-next-line react/jsx-pascal-case
 							<TDK_HVAC_PlanView model='4' color='black' 
 								sensorsData={sensorsData} 
 								handleComponetSelection={handleComponetSelection} 

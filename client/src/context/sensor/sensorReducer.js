@@ -1,7 +1,9 @@
 import {
+  SET_FETCH_DATETIME,
   SET_SENSORS,
   SET_PLOTSENSORDATA,
   CLEAR_PLOTSENSORDATA,
+  FETCH_SENSORSDATA,
   SET_RAWSENSORS,
   SENSOR_ERROR,
   ADD_SENSOR,
@@ -26,7 +28,7 @@ function randomExtend(minNum, maxNum) {
 }
 */
 function parseFloat(str) {
-  var float = 0, sign, order, mantissa, exp,
+  var float = 0, sign, mantissa, exp,
   int = 0, multi = 1;
   if (/^0x/.exec(str)) {
       int = parseInt(str, 16);
@@ -42,7 +44,7 @@ function parseFloat(str) {
       }
   }
   sign = (int >>> 31) ? -1 : 1;
-  exp = (int >>> 23 & 0xff) - 127;
+  exp = ((int >>> 23) & 0xff) - 127;
   mantissa = ((int & 0x7fffff) + 0x800000).toString(2);
   for (i=0; i<mantissa.length; i+=1) {
       float += parseInt(mantissa[i]) ? Math.pow(2, exp) : 0;
@@ -51,7 +53,7 @@ function parseFloat(str) {
   return float*sign;
 }
 function hexToSignedInt(hex) {
-  if (hex.length % 2 != 0) {
+  if (hex.length % 2 !== 0) {
     hex = "0" + hex;
   }
   var num = parseInt(hex, 16);
@@ -102,7 +104,7 @@ function getReading(sensor) {
   return Obj;
 }
 function findSensor(sensors,dtuId,sensorId) {
-  let sensor = sensors.find(sensor => (sensor.dtuId == dtuId && sensor.sensorId == sensorId));
+  let sensor = sensors.find(sensor => (Number(sensor.dtuId) === dtuId && Number(sensor.sensorId) === sensorId));
   return sensor ? getReading(sensor) : '0';
 }
 // --------------
@@ -113,6 +115,7 @@ function createData(sensors) {
   }
   //  ----------
   return {
+    HEXCHANGER_TEMP : findSensor(sensors,202,14),
     CTW_A_TEMP1 : findSensor(sensors,201,4),
     CTW_A_TEMP2 : findSensor(sensors,201,36),
     CTW_A_FLOWRATE : findSensor(sensors,0,0),
@@ -148,7 +151,7 @@ function createData(sensors) {
     WCPU_B_CWR_PRESS : findSensor(sensors,215,43),
 
     AHU_A_TEMP1 : findSensor(sensors,202,52), // HEAT EXCHANGER
-    AHU_A_TEMP2 : findSensor(sensors,202,52), //  14=>52 (FAULTY SENSOR TO BE REPLACED... CURRENTLY MAP SENSOR 52)
+    AHU_A_TEMP2 : findSensor(sensors,202,14), //  14=>52 (FAULTY SENSOR TO BE REPLACED... CURRENTLY MAP SENSOR 52)
     AHU_A_FLOWRATE : findSensor(sensors,0,0),
     AHU_A_ELECTPWR : findSensor(sensors,0,0),
     AHU_A_CHR_PRESS1 : findSensor(sensors,202,9),
@@ -256,9 +259,14 @@ function createData(sensors) {
   // -------
 }
 // -------
-export default (state, action) => {
+const sensorReducer = (state, action) => {
   // ----------------
   switch (action.type) {
+    case SET_FETCH_DATETIME :
+      return { 
+        ...state,
+        fetchDateTime : action.payload
+      };
     case SET_SENSORS:
       let _mapSensorType = action.payload.reduce((map,sensor) => { 
         if (map[sensor.type] === undefined) {
@@ -304,6 +312,15 @@ export default (state, action) => {
         plotSensorMap : _plotsensormap,
         loading: false
       };
+    case FETCH_SENSORSDATA:
+      console.log('..FETCH SENSORSDATA...')
+      return {
+        ...state,
+        sensors:null,
+        wisensors:null,
+        rawsensors:null,
+        loading: true
+      };      
     case SET_RAWSENSORS:
       return {
         ...state,
@@ -311,8 +328,6 @@ export default (state, action) => {
         loading: false
       };
     case ADD_SENSOR:
-      console.log(`... REDUCER ADD SENSOR...`)
-      console.log(action.payload)
       return {
         ...state,
         sensors: [action.payload, ...state.sensors],
@@ -389,3 +404,5 @@ export default (state, action) => {
       return state;
   }
 };
+
+export default sensorReducer;

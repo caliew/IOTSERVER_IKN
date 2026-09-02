@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
-import { MDBTable,MDBTableBody,MDBRow,MDBCard, MDBCardTitle, MDBCardText } from 'mdbreact';
+import { MDBRow } from 'mdbreact';
 
-import TDK_PlanView from './svg/TDK_HVAC_PlanView';
 import TDK_AHU from './svg/AHU';
 import TDK_AHU_PUMP from './svg/AHU_PUMP';
 import TDK_CHILLER from './svg/CHILLER';
@@ -42,7 +41,6 @@ import {
   CHILLER_B_CWS_PRESS1, CHILLER_B_CWS_PRESS2, CHILLER_B_CWR_PRESS,
 
   PUMP_AHU_1_ELECTPWR, PUMP_AHU_2_ELECTPWR, PUMP_AHU_3_ELECTPWR,
-  PUMP_CHILLER_1_ELECTPWR, PUMP_CHILLER_2_ELECTPWR, PUMP_CHILLER_3_ELECTPWR,
   PUMP_CTW_1_ELECTPWR, PUMP_CTW_2_ELECTPWR, PUMP_CTW_3_ELECTPWR
 } from '../types';
 

@@ -7,9 +7,9 @@ const Notification = () => {
 	// ---------------------------
   const notificationContext = useContext(NotificationContext);	
   const { notifications } = notificationContext;
-	const [userNotifications,setNotifications] = useState(null)
-	// const [userNotificationsMap,setNotificationsMap] = useState(null)
-	// const [userSensors,setUserSensors] = useState([]);
+	const [userNotifications,setNotifications] = useState(null);
+	const [toggleListing,setToggleListing] = useState(false); 
+	const [toggleTODAYListing,setToggleTODAYListing] = useState(true);
 	// ---------------------------------------------
 	const sensorContext = useContext(SensorContext);
   const { sensors } = sensorContext;
@@ -21,6 +21,7 @@ const Notification = () => {
 			sensors.map(sensor => {
 				let key = `${sensor.dtuId}:${sensor.sensorId}`;
 				sensorsArr.push(key)
+				return null;
 			})
 			// setUserSensors(sensorsArr);
 		}
@@ -33,7 +34,7 @@ const Notification = () => {
 				let key = `${notice.dtuId}:${notice.sensorId}`;
 				if(sensorsArr.includes(key)) {
 					let _date = new Date(notice.date);
-					if (_date.getMonth() == new Date().getMonth()) userNotificationArr.push(notice);
+					if (_date.getMonth() === new Date().getMonth()) userNotificationArr.push(notice);
 				}
 			})
 			// -------------
@@ -56,7 +57,6 @@ const Notification = () => {
 			});
 			// --------------------
 			setNotifications(userNotificationArr.sort(compareByDate));
-			// setNotificationsMap(noticeMap);
 		}
 	},[notifications,sensors]);
 	// -------------------------
@@ -80,39 +80,84 @@ const Notification = () => {
 	// let arrNotice = value[0]
 	// console.log(arrNotice)
 	// });
-	const getAlertText = (name,sensorId,reading,limit) => {
+	const getAlertText = (name,sensorId,type,sensorType,reading,limit) => {
 		let strAlert = '';
-		if (reading > limit) strAlert = ` ${name} [${sensorId}] ... ${reading}C > ${limit}C` 
-		if (reading < limit) strAlert = ` ${name} [${sensorId}] ... ${reading}C < ${limit}C` 
+		if (reading >= limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}>${limit}` 
+		if (reading <= limit) strAlert = ` ${name} [${sensorId}] ...${sensorType} ${reading}<${limit}` 
 		return strAlert;
 	}
+	const isToday = (someDate) => {
+		const today = new Date()
+		return someDate.getDate() === today.getDate() &&
+			someDate.getMonth() === today.getMonth() &&
+			someDate.getFullYear() === today.getFullYear()
+	}	
 	const getALERTEVENTS = () => {
 		// ----------
+		if (userNotifications.length === 0) return <h5>.. SEARCHING ALERT MESSAGES ...</h5>
 		let _alertDatas = userNotifications.map((note) => {
+			// ------
 			let color = note.type;
-			return (
-				<h6 className="my-0">
-					<MDBListGroupItem color={color}>{getTimeDateLabel(note.date)}<span>&nbsp;&nbsp;&nbsp;</span>
-						<MDBBadge color={color}>{color.toUpperCase()}</MDBBadge> &nbsp;&nbsp;
-						<i class="far fa-bell" />{note.Flag} &nbsp;&nbsp;
-						{getAlertText(note.name,note.sensorId,note.reading,note.limit)}
-					</MDBListGroupItem>
-				</h6>
-			)
+			let dateTime = new Date(note.date);
+			let flag = toggleTODAYListing ? isToday(dateTime) : true;
+			if (flag) {
+				return (
+					<h6 className="my-0">
+						<MDBListGroupItem color={color}>{getTimeDateLabel(note.date)}<span>&nbsp;&nbsp;&nbsp;</span>
+							<MDBBadge color={color}>{color.toUpperCase()}</MDBBadge> &nbsp;&nbsp;
+							<i class="far fa-bell" />{note.Flag} &nbsp;&nbsp;
+							{getAlertText(note.name,note.sensorId,note.type,note.sensorType,note.reading,note.limit)}
+						</MDBListGroupItem>
+					</h6>
+				);
+			}
+			return null;
 		});
-		if (userNotifications.length === 0) _alertDatas = <h5>.. SEARCHING ALERT MESSAGES ...</h5>
 		return _alertDatas;
+	}
+	function ToggleListing(title) {
+		return (
+			<div className='custom-control custom-switch'>
+				<input
+					type='checkbox'
+					className='custom-control-input'
+					id='customSwitchesNotificationListing'
+					checked={toggleListing}
+					onChange={()=>setToggleListing(!toggleListing)}
+				/>
+				<label className='custom-control-label' htmlFor='customSwitchesNotificationListing'>
+					<h5>{title} (LISTING CURRENT MONTH)</h5>
+				</label>
+			</div>  
+		)
+	}
+	function ToggleTODAYListing(title) {
+		return (
+			<div className='custom-control custom-switch'>
+				<input
+					type='checkbox'
+					className='custom-control-input'
+					id='customSwitchesTODAYNotificationListing'
+					checked={toggleTODAYListing}
+					onChange={()=>setToggleTODAYListing(!toggleTODAYListing)}
+				/>
+				<label className='custom-control-label' htmlFor='customSwitchesTODAYNotificationListing'>
+					<h5>{title}</h5>
+				</label>
+			</div>  
+		)
 	}
 	// --------
 	return (
 		<MDBContainer style={{width: "auto",position: "relative",marginTop: '2rem'}} >
 			<MDBJumbotron className="p-4">
-
-	      <h3>NOTIFICATION MANAGEMENT</h3>
-
+				<div className='d-flex'>
+					<div>{ ToggleListing('NOTIFICATION BOARD')}</div>&nbsp;&nbsp;&nbsp;&nbsp;
+					<div>{ toggleListing && ToggleTODAYListing('TODAY ONLY ')}</div>
+				</div>
 				<MDBListGroup className="my-1 mx-1" >
 					{
-						userNotifications === null ?  <h5>.. DATA LOADING ..</h5> : getALERTEVENTS()
+						userNotifications === null ?  <h5>.. DATA LOADING ..</h5> : (toggleListing && getALERTEVENTS())
 					}
 				</MDBListGroup>
 			</MDBJumbotron>

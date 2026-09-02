@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
-import { MDBContainer,MDBCard,MDBCardTitle,MDBCardText,MDBRow,MDBCardBody,  } from 'mdbreact';
+import React from 'react';
+import { MDBContainer,MDBCard,MDBCardTitle,MDBCardText,MDBRow } from 'mdbreact';
 import {
   CTW_A_TEMP1,CTW_A_TEMP2,CTW_B_TEMP1,CTW_B_TEMP2,
   CTW_A_CWS_PRESS1,CTW_A_CWS_PRESS2,CTW_A_CWR_PRESS,
@@ -19,21 +19,18 @@ import {
   CHILLER_B_CHS_PRESS1,CHILLER_B_CHS_PRESS2,CHILLER_B_CHR_PRESS,CHILLER_B_CWS_PRESS1,CHILLER_B_CWS_PRESS2,
 
 	AIR_COMPRESSOR1,AIR_COMPRESSOR2,AIR_COMPRESSOR3,
-	AIRFLOW_RH1,AIRFLOW_RH2,AIRFLOW_RH3,
-	AIRFLW_VEL1,AIRFLW_VEL2,AIRFLW_VEL3,AIRFLW_VEL4,AIRFLW_VEL5,
-	AIRFLW_VEL6,AIRFLW_VEL7,AIRFLW_VEL8,AIRFLW_VEL9,AIRFLW_VEL10,
-	PWRMTR_01,PWRMTR_02,PWRMTR_03,PWRMTR_04,PWRMTR_05,PWRMTR_06,PWRMTR_07,PWRMTR_08,PWRMTR_09,PWRMTR_10,
-	PWRMTR_11,PWRMTR_12,PWRMTR_13,PWRMTR_14,PWRMTR_15,PWRMTR_16,PWRMTR_17,PWRMTR_18,PWRMTR_19,PWRMTR_20,
-	PWRMTR_21,PWRMTR_22,PWRMTR_23,PWRMTR_24,PWRMTR_25,PWRMTR_26,PWRMTR_27,PWRMTR_28,PWRMTR_29,PWRMTR_30
+	PWRMTR_04,PWRMTR_05,PWRMTR_06,PWRMTR_09,PWRMTR_10,
+	PWRMTR_11,PWRMTR_12,PWRMTR_13,PWRMTR_14,PWRMTR_15,PWRMTR_16,PWRMTR_17,PWRMTR_18
 } from '../types';
 
 function SYSTEMPERFModule ( { sensorsData} ) {
   // -----
   const getReading = (sensor) => {
     let _label = ""
-    if (sensor !== null) _label = `${sensor.reading}bar <${sensor.dtuId}#${sensor.sensorId}>`;
+    if (sensor !== null) _label = `${sensor.reading}bar`;
     return _label;
   }
+  // --------
   return (
     <MDBRow center>
 
@@ -294,7 +291,8 @@ function SYSTEMPERFModule ( { sensorsData} ) {
     </MDBRow>
   )
 }
-SYSTEMPERFModule .defaultProps = {
+// -------------
+SYSTEMPERFModule.defaultProps = {
     color: "black",
     handleComponetSelection: null,
     title:'PRODUCTION FLOOR PLAN'

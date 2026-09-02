@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import SensorContext from '../../context/sensor/sensorContext';
-import { MDBRow,MDBCard, MDBTable, MDBTableBody, MDBCardTitle,MDBCol, MDBCardText } from 'mdbreact';
+import { MDBRow,MDBCard, MDBTable, MDBTableBody, MDBCardTitle,MDBCol } from 'mdbreact';
 
-import SparklinePlots from '../data-ui/SparklinePlots';
 import SensorList from './SensorList';
+import Page from './StatsComp';
 
 import Chart from "react-google-charts";
-import Thermometer from './Thermometer';
-import TDKFloorPlan from './TDKFloorPlan';
 
 // https://jpg-svg.com/#
 // https://imageresizer.com/transparent-background
@@ -19,17 +17,22 @@ import TDKFloorPlan from './TDKFloorPlan';
 function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSelection, title, type }) {
     // -----------
     const [airFlowSensors, setAFSensor] = useState([]);
+    const [sensorType,setSensorType] = useState();
     const [airFlowData, setAFlowData] = useState([]);
+    const [toggleListing,setToggleListing] = useState(false);
+    const [toggleGauge,setToggleGauge] = useState(false);
+    const [toggleSparkline,setToggleSparkline] = useState(false);
+    const [toggleOverview,setOverview] = useState(false);
 		// -------------------------------------------
     const sensorContext = useContext(SensorContext);
-    const [showHide, setShowHide] = useState(true);
-    const { sensors, getSensors } = sensorContext;
+    const { loading,sensors, getSensors } = sensorContext;
     // --------------
     useEffect(()=>{
-        if (sensors === null) getSensors(30,null,null);
-        // ------------------
-        abstactAIRFLOWSensor();
-        //  ---------------
+      if (sensors === null) getSensors(30,null,null);
+      // ------------------
+      abstactAIRFLOWSensor();
+      //  -----------
+      // eslint-disable-next-line
     },[sensors])
     // ---------------------------
     const abstactAIRFLOWSensor = () => {
@@ -42,7 +45,7 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
         let _airflowDatas = [];
         sensors.map( sensor => {
           // -----------
-					if (sensor.type === 'AIRFLW(485)' && sensor.location !== 'AIRCOMP') {
+					if (sensor.type === 'AIRFLW(485)' && sensor.logsdata && sensor.logsdata.length>1 && sensor.location !== 'AIRCOMP') {
             // --------
 						_AFSensors.push(sensor);
             let _objSensor = {
@@ -53,44 +56,147 @@ function AHUAirflowSysModule({ model, color, systemComponent, handleComponetSele
             }
 						sensor.logsdata[0] && _airflowDatas.push(_objSensor);
 					}
+          return null;
         })
         // ------------------------
-        setAFSensor(_AFSensors.sort(compareByName));
-        setAFlowData(_airflowDatas.sort(compareByName));
+        if ( _AFSensors && _AFSensors.length > 1 && _AFSensors[0].type) {
+          setSensorType(_AFSensors[0].type);
+          setAFSensor(_AFSensors.sort(compareByName));
+          setAFlowData(_airflowDatas.sort(compareByName));
+        }
         // ----------------------
     }
+    // ----
+    function ToggleListing(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesListing'
+            checked={toggleListing}
+            onChange={()=>setToggleListing(!toggleListing)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesListing'>
+            <h5>{title} (LISTING)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleGauges(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesGauges'
+            checked={toggleGauge}
+            onChange={()=>setToggleGauge(!toggleGauge)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesGauges'>
+            <h5>{title} (GAUGE)</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSparkline(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSwitchesSparkline'
+            checked={toggleSparkline}
+            onChange={()=>setToggleSparkline(!toggleSparkline)}
+          />
+          <label className='custom-control-label' htmlFor='customSwitchesSparkline'>
+            <h5>SHOW SPARKLINE</h5>
+          </label>
+        </div>  
+      )
+    }
+    function ToggleSTATSButton(title) {
+      return (
+        <div className='custom-control custom-switch'>
+          <input
+            type='checkbox'
+            className='custom-control-input'
+            id='customSTATSSwitches'
+            checked={toggleOverview}
+            onChange={()=>setOverview(!toggleOverview)}
+          />
+          <label className='custom-control-label' htmlFor='customSTATSSwitches'>
+            <h5>{title}</h5>
+          </label>
+        </div>  
+      )
+    }
+    const getairFlowSENSORSList = () => {
+      if (airFlowSensors.length === 0) {
+        return (
+        <div>
+          <h5>.. NO SENSOR DATA AVAILABLE ..</h5>
+          { loading && <h5>LOADING DATA...</h5>}
+        </div>)
+      } else {
+        return airFlowSensors.map( (sensor,index) => { 
+          return (
+            <SensorList 
+              batt={true} companyName={''} 
+              sensor={sensor} index={index} toggleSparkline={toggleSparkline}
+            />)
+          })
+      }
+    }    
     // ------
     return (
-			<MDBRow center>
+      <>
+        <MDBRow center>
+          <MDBCard className="p-4 m-2"style={{ width: "70rem" }}>
+            <div className='d-flex'>{ ToggleSTATSButton('OVERVIEW') }</div>
+            { toggleOverview && airFlowData && airFlowData.length > 0&& <Page title="AIRFLOW METER" data={airFlowData} type={sensorType} /> }
+          </MDBCard>
+        </MDBRow>
+        <MDBRow center>
+            <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+              <div className='d-flex'>
+                {ToggleListing('AHU DUCT AIRFLOW')}&nbsp;&nbsp;&nbsp;
+                {ToggleSparkline('AHU DUCT AIRFLOW')}
+              </div>
+              {
+                toggleListing && (
+                  <MDBTable striped small autoWidth responsive>
+                    <MDBTableBody>
+                      {
+                        airFlowSensors == null ? <h4>LOADING</h4> : getairFlowSENSORSList()
+                        // && airFlowSensors.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} toggleSparkline={toggleSparkline}/>)})
+                        // wiSensors === null ? <h4>LOADING</h4> : getWISENSORSList()
 
-					<MDBCard className="p-3 m-2" style={{ width: "40rem" }}>
-						<MDBCardTitle>AHU DUCT AIRFLOW</MDBCardTitle>
-							<MDBTable striped small>
-								<MDBTableBody>
-									{
-										airFlowSensors && airFlowSensors.map( (sensor,index) => { return (<SensorList sensor={sensor} index={index} />)})
-									}
-							</MDBTableBody>
-						</MDBTable>
-					</MDBCard>
+                      }
+                    </MDBTableBody>
+                  </MDBTable>
+                )
+              }
+            </MDBCard>
 
-          <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
-					{ showHide && getDialGauge( { 
-									title : 'FLOW RATE', 
-									data : airFlowData, 
-									redFrom: 90, redTo: 100, yellowFrom: 75, yellowTo: 90, minorTicks: 5})}
-					</MDBCard>
-          
-			</MDBRow>
+            <MDBCard className="p-4 m-2" style={{ width: "40rem" }}>
+            <MDBCardTitle>{ToggleGauges('AHU DUCT AIRFLOW')}</MDBCardTitle>
+            { toggleGauge && getDialGauge( { 
+                    title : 'FLOW RATE', 
+                    data : airFlowData, 
+                    redFrom: 90, redTo: 100, yellowFrom: 75, yellowTo: 90, minorTicks: 5})}
+            </MDBCard>
+            
+        </MDBRow>
+      </>
     )
 }
-
 // -------------
 // GET SVG MODEL
 // -------------
 const getDialGauge = ({data}) => {
   return (
-    <MDBRow >
+    <MDBRow center className="p-2 m-2 text-center">
 			{
 				data.map( (sensor,index) => {
 					let _gauge = [];
@@ -134,45 +240,6 @@ function compareByName(a, b) {
   // names must be equal
   return 0;
 }
-function getDatas(sensor) {
-  // console.log(sensor.logsdata);
-  let datas = [];
-  let VelData = [];
-  let rmsVel = 0;
-  let maxVel = -999;
-  let minVel = 999;
-  let maxVelDateTime;
-  let minVelDateTime;
-  sensor.logsdata.map( (data,index) => {
-    let _Date = new Date(data.TIMESTAMP);
-    let _timeLabel = _Date.toLocaleDateString([], {hour12: false,hour: "2-digit",minute: "2-digit"});
-    // -------------------------------------------------
-		let velocity = Number(data.DATAS[0])/10.0;
-		// -------------------
-    if (velocity > maxVel) {
-      maxVel = velocity;
-      maxVelDateTime = _timeLabel;
-    }
-    // -------------------------
-    if (velocity < minVel) {
-      minVel = velocity;
-      minVelDateTime = _timeLabel;
-    }
-    // ----------------------------------------------
-    VelData.push({y:velocity,x:_timeLabel}); 
-  })
-  datas.push(VelData)
-  return { datas,maxVelDateTime,minVelDateTime,maxVel,minVel,rmsVel };
-}
-//  -----------
-//  RANDOM DATA
-//  -----------
-const randomData = n =>
-  Array.range(n).map((_, i) => ({
-    y: Math.random() * (Math.random() > 0.2 ? 1 : 2),
-    x: `${i + 1}`,
-  }));
-// Set default props
 AHUAirflowSysModule.defaultProps = {
   color: "black",
   handleComponetSelection: null,

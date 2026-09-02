@@ -1,0 +1,79 @@
+{
+  "_from": "buffer-factory@1.0.8",
+  "_id": "buffer-factory@1.0.8",
+  "_inBundle": false,
+  "_integrity": "sha512-EkUcaWsg7Vw+bfpGrpqzDIV4u3FksbHy0I0x9IZogqtCh9rZ5IHPTs/1QtZNNm/8BOeznUKTXIA72sVXEmFREQ==",
+  "_location": "/buffer-factory",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "buffer-factory@1.0.8",
+    "name": "buffer-factory",
+    "escapedName": "buffer-factory",
+    "rawSpec": "1.0.8",
+    "saveSpec": null,
+    "fetchSpec": "1.0.8"
+  },
+  "_requiredBy": [
+    "/node-crc16"
+  ],
+  "_resolved": "https://registry.npmjs.org/buffer-factory/-/buffer-factory-1.0.8.tgz",
+  "_shasum": "c862688639d9a7210c0bf9f5df8a7beced1eb381",
+  "_spec": "buffer-factory@1.0.8",
+  "_where": "C:\\_PROGRAMMING\\IOTSERVER\\FINAL\\node_modules\\node-crc16",
+  "author": {
+    "name": "imnemo",
+    "email": "oncoding1988@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/imnemo/buffer-factory/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {},
+  "deprecated": false,
+  "description": "Make it no pain to create a Buffer object by encapsulate Buffer.from an new Buffer().",
+  "devDependencies": {
+    "@types/node": "14.6.0",
+    "chai": "4.1.2",
+    "coveralls": "2.13.1",
+    "mocha": "4.1.0",
+    "nyc": "11.1.0"
+  },
+  "engines": {},
+  "files": [
+    "example",
+    "test",
+    "index.js",
+    "index.d.ts",
+    "package.json",
+    "package-lock.json",
+    "README.md",
+    "README-zh.md",
+    "LICENSE"
+  ],
+  "homepage": "https://github.com/imnemo/buffer-factory#readme",
+  "keywords": [
+    "buffer",
+    "factory",
+    "new Buffer()",
+    "Buffer.from",
+    "addon",
+    "nodejs",
+    "npm",
+    "node-module"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "buffer-factory",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imnemo/buffer-factory.git"
+  },
+  "runkitExampleFilename": "example/runkit.js",
+  "scripts": {
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "nyc ./node_modules/.bin/mocha --reporter spec"
+  },
+  "version": "1.0.8"
+}

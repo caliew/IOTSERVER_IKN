@@ -215,7 +215,6 @@ const plot6 = (data,title,limits) => {
   let _MIN;
   let _MAX;
   if (limits) {
-    const keys = Object.keys(limits);
     const values = Object.values(limits);
     _MIN = values[0];
     _MAX = values[1];
@@ -231,7 +230,7 @@ const plot6 = (data,title,limits) => {
             <BandLine fill="url(#band_pattern_hash)" stroke={color.grays[5]} band={{ from: {}, to: {} }} />
             <HorizontalReferenceLine stroke={color.grays[8]} strokeWidth={1} strokeDasharray="4 4" reference="median" />
 
-            <HorizontalReferenceLine stroke={color.darken} stroke="#FF0000" strokeWidth={2} strokeDasharray="1 1" reference={_MAX} />
+            <HorizontalReferenceLine stroke="#FF0000" strokeWidth={2} strokeDasharray="1 1" reference={_MAX} />
             
             <BandLine fill="#f2f549" band={{ from: { y: _MIN }, to: { y: _MAX } }} />
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 
 // REFERENCE SVG DATA FROM 
 // '../components/svg/TDK_ISOVIEW.svg'
@@ -31,10 +31,6 @@ function CHILLER({ color, handleComponetSelection }) {
         return () => clearInterval(timer)
     }, [])
     // --------------
-    function handleClick (event) {
-        let sysName = event.target.id;
-        if (handleComponetSelection !== null) handleComponetSelection(sysName);
-    }
     const mEfficiency = '123,293'
     // --------------------------------------------
     // fill='green' stroke='black' stroke-width='1'

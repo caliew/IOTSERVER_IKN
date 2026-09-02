@@ -9,6 +9,9 @@ const {check, validationResult} = require('express-validator');
 
 const User = require('../models/User');
 
+const cors = require('cors');
+router.use( cors({origin:'*'}) );
+
 // @route     GET api/auth
 // @desc      Get logged in user
 // @access    Private
@@ -16,7 +19,6 @@ router.get('/', auth, async (req, res) => {
   try {
     // -----------
     const user = await User.findById(req.user.id.toUpperCase()).select('-password');
-    console.log(`.. <${'AUTH.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]  USER ID <${req.user.id.toUpperCase().yellow}> USER NAME <${user.name.toUpperCase().green}>`)
     res.json(user);
     // ------------
   } catch (err) {
@@ -49,7 +51,6 @@ router.post('/',
       // ---------------
       let _email = email.toUpperCase();
       let user = await User.findOne({ email: _email });
-      console.log(`.. <${'AUTH.JS'.magenta}> ..${req.originalUrl.toUpperCase().yellow} [${req.method.green}]  EMAIL <${req.body.email.toUpperCase().yellow}> PASSWORD <${req.body.password.green}>`)
       if (!user) {
         console.log('...INVALID LOGIN...')
         return res.status(400).json({msg: 'Invalid Login'});
@@ -73,7 +74,7 @@ router.post('/',
         payload,
         config.get('jwtSecret'),
         {
-          expiresIn: 360000,
+          expiresIn: '365d',
         },
         (err, token) => {
           if (err) throw err;

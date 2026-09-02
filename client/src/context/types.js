@@ -38,6 +38,8 @@ export const LOGOUT                 = 'LOGOUT';
 
 export const CLEAR_ERRORS           = 'CLEAR_ERRORS';
 
+export const SET_FETCH_DATETIME     = 'SET_FETCH_DATETIME'
+export const FETCH_SENSORSDATA      = 'FETCH_SENSORSDATA';
 export const SET_SENSORS            = 'SET_SENSORS';
 export const SET_PLOTSENSORDATA     = 'SET_PLOTSENSORDATA';
 export const CLEAR_PLOTSENSORDATA   = 'CLEAR_PLOTSENSORDATA';

@@ -17,13 +17,16 @@ const AlertSchema = mongoose.Schema({
     type: String
   },
   type: {
-    type: String,
+    type: String
+  },
+  sensorType : {
+    type: String
   },
   reading: {
-    type: Number,
+    type: Number
   },
   limit: {
-    type: Number,
+    type: Number
   },
   readFlag: {
     type: Boolean,
