@@ -3,7 +3,7 @@
   "_trackingOutput": "Tracking logs are written to .logs/_TRACKING_<MAC-ID> as the server runs.",
   "_columns": "Each log line is a JSON object with: timestamp, portReceivedOn, siteName, parsedValues, alertEvaluation, and optionally eventType='MESSAGING_DISPATCH' for WhatsApp/Telegram records.",
   "TRACKED_SENSORS": [
-    "BA-92-D1-B4-B5-3A",
-    "ikn_hospital/B0-BC-82-C4-C4-41"
+    "ikn_hospital/B0-BC-82-C4-C4-41",
+    "ikn_hospital/BA-92-D1-B4-B5-3A"
   ]
 }
