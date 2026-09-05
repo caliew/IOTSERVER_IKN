@@ -17,6 +17,7 @@ node_modules/
 .data/nipponglass_boiler
 .data/nipponglass_transf
 .data/shinko
+.data/rawData
 .logs/
 !.logs/_app1.js
 !.logs/_app2.js
