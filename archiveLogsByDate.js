@@ -5,9 +5,9 @@
  *   node archiveLogsByDate.js <DD-MM-YYYY> [optional_log_filename]
  *
  * Examples:
- *   node archiveLogsByDate.js 01-03          # Splits all *.log files: lines earlier than 1st March -> *.log.archive, remaining -> *.log
- *   node archiveLogsByDate.js 01-03-2026     # Explicit year 2026
+ *   node archiveLogsByDate.js 01-03          # Splits all *.log files: lines earlier than 1st March -> *.log.archive
  *   node archiveLogsByDate.js 01-03 _EPSON   # Run specifically on _EPSON.log
+ *   node archiveLogsByDate.js 01-03 _aerosoft # Case-insensitive match for _Aerosoft.log
  */
 
 const fs = require('fs');
@@ -42,7 +42,7 @@ function extractLineDate(line) {
   if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
     try {
       const obj = JSON.parse(trimmed);
-      const ts = obj.TIMESTAMP || obj.timestamp || obj.datetime || obj.DATE0 || obj.TIMESTAMP_ISO || obj.date;
+      const ts = obj.TIMESTAMP || obj.timestamp || obj.datetime || obj.DATE0 || obj.TIMESTAMP_ISO || obj.date || obj.time;
       if (ts) {
         const d = new Date(ts);
         if (!isNaN(d.getTime())) return d;
@@ -64,6 +64,14 @@ function extractLineDate(line) {
     if (!isNaN(d.getTime())) return d;
   }
 
+  // 4. Epoch Timestamp (milliseconds or seconds)
+  const epochMatch = trimmed.match(/"TIMESTAMP"\s*:\s*(\d{10,13})/i);
+  if (epochMatch) {
+    const epoch = Number(epochMatch[1]);
+    const d = new Date(epoch > 1e11 ? epoch : epoch * 1000);
+    if (!isNaN(d.getTime())) return d;
+  }
+
   return null;
 }
 
@@ -79,7 +87,7 @@ function formatBytes(bytes) {
 
 async function processLogFile(filePath, cutoffDate) {
   const fileName = path.basename(filePath);
-  const baseName = fileName.replace(/\.log$/, '');
+  const baseName = fileName.replace(/\.log$/i, '');
   const archivePath = path.join(LOGS_DIR, `${baseName}.log.archive`);
   const tempPath = path.join(LOGS_DIR, `${baseName}.log.tmp`);
 
@@ -94,7 +102,7 @@ async function processLogFile(filePath, cutoffDate) {
   const fileStream = fs.createReadStream(filePath, { encoding: 'utf8' });
   const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
 
-  const archiveStream = fs.createWriteStream(archivePath, { flags: 'a', encoding: 'utf8' });
+  let archiveStream = null;
   const tempStream = fs.createWriteStream(tempPath, { flags: 'w', encoding: 'utf8' });
 
   for await (const line of rl) {
@@ -102,6 +110,9 @@ async function processLogFile(filePath, cutoffDate) {
     const lineDate = extractLineDate(line);
 
     if (lineDate && lineDate < cutoffDate) {
+      if (!archiveStream) {
+        archiveStream = fs.createWriteStream(archivePath, { flags: 'a', encoding: 'utf8' });
+      }
       archiveStream.write(line + '\n');
       archivedLines++;
     } else {
@@ -111,11 +122,21 @@ async function processLogFile(filePath, cutoffDate) {
     }
   }
 
-  await new Promise((resolve) => archiveStream.end(resolve));
+  if (archiveStream) {
+    await new Promise((resolve) => archiveStream.end(resolve));
+  }
   await new Promise((resolve) => tempStream.end(resolve));
 
   // Atomic swap: Replace original .log with .log.tmp
   fs.renameSync(tempPath, filePath);
+
+  // If 0 lines were archived and an empty archive file exists, clean it up
+  if (archivedLines === 0 && fs.existsSync(archivePath)) {
+    try {
+      const aStats = fs.statSync(archivePath);
+      if (aStats.size === 0) fs.unlinkSync(archivePath);
+    } catch (e) { /* ignore */ }
+  }
 
   const newLogStats = fs.statSync(filePath);
   const archiveStats = fs.existsSync(archivePath) ? fs.statSync(archivePath) : { size: 0 };
@@ -124,7 +145,7 @@ async function processLogFile(filePath, cutoffDate) {
     fileName,
     initialSize: formatBytes(initialSizeBytes),
     newLogSize: formatBytes(newLogStats.size),
-    archiveSize: formatBytes(archiveStats.size),
+    archiveSize: archivedLines > 0 ? formatBytes(archiveStats.size) : 'None (No archived data)',
     totalLines,
     archivedLines,
     retainedLines,
@@ -149,7 +170,7 @@ async function main() {
     console.log('  node archiveLogsByDate.js <DD-MM-YYYY> [optional_log_filename]\n');
     console.log('Examples:');
     console.log('  node archiveLogsByDate.js 01-03          # Move lines earlier than 1st March to *.log.archive');
-    console.log('  node archiveLogsByDate.js 01-03 _EPSON   # Run only on _EPSON.log');
+    console.log('  node archiveLogsByDate.js 01-03 _Aerosoft # Case-insensitive match for _Aerosoft.log');
     process.exit(1);
   }
 
@@ -168,19 +189,34 @@ async function main() {
     process.exit(1);
   }
 
+  const allFiles = fs.readdirSync(LOGS_DIR);
   let filesToProcess = [];
+
   if (targetFileArg) {
-    const cleanName = targetFileArg.replace(/\.log$/, '') + '.log';
-    const fullPath = path.join(LOGS_DIR, cleanName);
-    if (!fs.existsSync(fullPath)) {
-      console.error(`ERROR: Target log file "${fullPath}" not found.`);
+    const rawTarget = targetFileArg.trim().toLowerCase().replace(/\.log$/i, '');
+    const matchedFiles = allFiles.filter((f) => {
+      const lower = f.toLowerCase();
+      if (!lower.endsWith('.log') || lower.endsWith('.archive') || lower.endsWith('.tmp')) return false;
+      const baseLower = lower.replace(/\.log$/i, '');
+      return (
+        baseLower === rawTarget ||
+        baseLower === '_' + rawTarget ||
+        baseLower.replace(/^_/, '') === rawTarget
+      );
+    });
+
+    if (matchedFiles.length > 0) {
+      filesToProcess = matchedFiles.map((f) => path.join(LOGS_DIR, f));
+    } else {
+      console.error(`ERROR: No matching log file found for "${targetFileArg}" in "${LOGS_DIR}".`);
       process.exit(1);
     }
-    filesToProcess.push(fullPath);
   } else {
-    const allFiles = fs.readdirSync(LOGS_DIR);
     filesToProcess = allFiles
-      .filter((f) => f.endsWith('.log') && !f.endsWith('.archive'))
+      .filter((f) => {
+        const lower = f.toLowerCase();
+        return lower.endsWith('.log') && !lower.endsWith('.archive') && !lower.endsWith('.tmp');
+      })
       .map((f) => path.join(LOGS_DIR, f));
   }
 
@@ -195,11 +231,11 @@ async function main() {
     console.log(`Processing: ${path.basename(filePath)} ...`);
     const res = await processLogFile(filePath, cutoffDate);
 
-    console.log(`  └─ Total Lines    : ${res.totalLines}`);
+    console.log(`  └─ Total Lines     : ${res.totalLines}`);
     console.log(`  └─ Moved to Archive: ${res.archivedLines} (${res.archiveSize})`);
-    console.log(`  └─ Retained in Log: ${res.retainedLines} (${res.newLogSize})`);
+    console.log(`  └─ Retained in Log : ${res.retainedLines} (${res.newLogSize})`);
     if (res.unparsedLines > 0) {
-      console.log(`  └─ Note           : ${res.unparsedLines} lines without parseable date retained in .log`);
+      console.log(`  └─ Note            : ${res.unparsedLines} lines without parseable date retained in .log`);
     }
     console.log('');
   }
