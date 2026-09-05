@@ -83,6 +83,38 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
+async function safeReplaceFile(srcPath, destPath, maxRetries = 8) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // Strategy: copy temp -> dest, then delete temp
+      // This avoids rename EPERM when dest is held open by another process
+      fs.copyFileSync(srcPath, destPath);
+      try { fs.unlinkSync(srcPath); } catch (e) { /* temp cleanup, ignore */ }
+      return;
+    } catch (err) {
+      if (err.code === 'EPERM' || err.code === 'EBUSY' || err.code === 'EACCES') {
+        if (attempt === maxRetries) {
+          // Clean up temp file before throwing
+          try { fs.unlinkSync(srcPath); } catch (e) { /* ignore */ }
+          throw new Error(
+            `[EPERM] Cannot write to "${path.basename(destPath)}" - the file is locked by another process (e.g. the IoT server).\n` +
+            `  => Stop the server before running archiveLogsByDate.js, or archive only files not currently being written.\n` +
+            `  => Original error: ${err.message}`
+          );
+        }
+        // Exponential back-off: 200ms, 400ms, 800ms ...
+        const delay = 200 * Math.pow(2, attempt - 1);
+        console.warn(`  [WARN] File locked, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        // Non-lock error: fail immediately
+        try { fs.unlinkSync(srcPath); } catch (e) { /* ignore */ }
+        throw err;
+      }
+    }
+  }
+}
+
 // ─── File Processing Function ───────────────────────────────────────────────
 
 async function processLogFile(filePath, cutoffDate) {
@@ -122,13 +154,26 @@ async function processLogFile(filePath, cutoffDate) {
     }
   }
 
+  // Close interface & stream handles explicitly
+  rl.close();
+
+  // Wait for fileStream to fully close before releasing the OS handle
+  await new Promise((resolve) => {
+    if (fileStream.destroyed) return resolve();
+    fileStream.once('close', resolve);
+    fileStream.destroy();
+  });
+
   if (archiveStream) {
     await new Promise((resolve) => archiveStream.end(resolve));
   }
   await new Promise((resolve) => tempStream.end(resolve));
 
-  // Atomic swap: Replace original .log with .log.tmp
-  fs.renameSync(tempPath, filePath);
+  // Allow OS time to flush and release all handles (important on Windows)
+  await new Promise((resolve) => setTimeout(resolve, 250));
+
+  // Safe file replacement for Windows filesystem
+  await safeReplaceFile(tempPath, filePath);
 
   // If 0 lines were archived and an empty archive file exists, clean it up
   if (archivedLines === 0 && fs.existsSync(archivePath)) {
@@ -246,6 +291,9 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('Fatal error during log archiving:', err);
+  console.error('\n================================================================');
+  console.error('  Fatal error during archiving:');
+  console.error(`  ${err.message}`);
+  console.error('================================================================\n');
   process.exit(1);
 });
