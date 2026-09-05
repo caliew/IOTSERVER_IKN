@@ -9,7 +9,12 @@ node_modules/
 .data/users
 .data/aerosoft
 .data/mcst
+.data/mre
+.data/epson
+.data/ikn_oproom
+.data/ikn_hospital
 .data/nipponglass
+.data/nipponglass_boiler
 .data/nipponglass_transf
 .data/shinko
 .logs/
@@ -20,4 +25,4 @@ client/node_modules/
 client/build/
 socketArr.json
 .env
-git rm --cached restartlog.jsonrestartlog.json
+restartlog.json

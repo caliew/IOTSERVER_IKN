@@ -3,11 +3,13 @@
   "_trackingOutput": "Tracking logs are written to .logs/_TRACKING_<MAC-ID> as the server runs.",
   "_columns": "Each log line is a JSON object with: timestamp, portReceivedOn, siteName, parsedValues, alertEvaluation, and optionally eventType='MESSAGING_DISPATCH' for WhatsApp/Telegram records.",
   "TRACKED_SENSORS": [
-    "ikn_hospital/B0-BC-82-C4-C4-41",
     "ikn_hospital/BA-92-D1-B4-B5-3A",
+    "ikn_oproom/4371",
+    "ikn_oproom/6938",
+    "epson/3389",
     "nipponglass/270",
-    "nipponglass/364",
-    "nipponglass/552",
-    "ikn_hospital/3553"
+    "nipponglass/269",
+    "nipponglass_boiler/364",
+    "nipponglass_boiler/552"
   ]
 }
