@@ -81,7 +81,7 @@
     "3389": {
       "1": {
         "TYPE": "AIR PRESSURE",
-        "NAME": " CHILLED WATER PRESSURE ",
+        "NAME": "CHILLED WATER PRESSURE ",
         "GROUP": "PHASE 1 ROOF TOP",
         "PRESS_MIN": "2.00",
         "PRESS_MAX": "6.50",
