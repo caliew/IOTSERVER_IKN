@@ -56,7 +56,7 @@ const endpointConfigs = {
     logFile: '_IKN_HOSPITAL',
     alertFile: '_IKN_HOSPITALALERTS',
   },
-  SHINKO: {
+  SHINKO_REMOVED: {
     settingFiles: ['SHINKO'],
     logFile: '_SHINKO',
     alertFile: '_SHINKOALERTS',

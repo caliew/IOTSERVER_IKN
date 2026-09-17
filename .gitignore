@@ -18,6 +18,8 @@ node_modules/
 .data/nipponglass_transf
 .data/shinko
 .data/rawData
+.data/epson
+.data/ikn_hospital
 .logs/
 !.logs/_app1.js
 !.logs/_app2.js
