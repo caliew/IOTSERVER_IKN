@@ -20,6 +20,8 @@ node_modules/
 .data/rawData
 .data/epson
 .data/ikn_hospital
+.data/fileStores
+.data/powerTracker.json
 .logs/
 !.logs/_app1.js
 !.logs/_app2.js
