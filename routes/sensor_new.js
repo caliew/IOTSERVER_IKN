@@ -49,6 +49,11 @@ const endpointConfigs = {
     logFile: '_IKN_HOSPITAL',
     alertFile: '_IKN_HOSPITALALERTS',
   },
+  IKNPATHOLOGY: {
+    settingFiles: ['IKN_PATHOLOGY'],
+    logFile: '_IKN_PATHOLOGY',
+    alertFile: '_IKN_PATHOLOGYALERTS',
+  },
   SHINKO: {
     settingFiles: ['SHINKO'],
     logFile: '_SHINKO',
