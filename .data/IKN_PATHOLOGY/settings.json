@@ -1,0 +1,105 @@
+{
+  "IOT_SENSORS": {
+    "BA-73-4C-26-D9-5A": {
+      "1": {
+        "TYPE": "WISENSOR",
+        "NAME": "F26",
+        "TEMP_MIN": 2,
+        "TEMP_MAX": 8,
+        "GROUP": "PATHOLOGY",
+        "ALERT": true,
+        "ALERTFLAG": 1,
+        "ALERTGROUP": "L4 PATALOGY DEPT",
+        "UNITSYSTEM": "C"
+      }
+    },
+    "BA-82-D1-99-71-79": {
+      "1": {
+        "TYPE": "WISENSOR",
+        "NAME": "F27",
+        "TEMP_MIN": -85,
+        "TEMP_MAX": "-65",
+        "GROUP": "PATHOLOGY",
+        "SUBGROUP": "L4",
+        "ALERT": false,
+        "ALERTFLAG": "2",
+        "ALERTGROUP": "L4 PATALOGY DEPT",
+        "UNITSYSTEM": "C"
+      }
+    },
+    "BA-62-C8-4B-01-E5": {
+      "1": {
+        "TYPE": "WISENSOR",
+        "NAME": "F25",
+        "TEMP_MIN": -20,
+        "TEMP_MAX": -10,
+        "GROUP": "PATHOLOGY",
+        "SUBGROUP": "L4",
+        "ALERT": true,
+        "ALERTFLAG": 1,
+        "ALERTGROUP": "L4 PATALOGY DEPT",
+        "UNITSYSTEM": "C"
+      }
+    },
+    "BA-1E-DE-89-47-EC": {
+      "1": {
+        "TYPE": "WISENSOR",
+        "NAME": "F23",
+        "TEMP_MIN": 2,
+        "TEMP_MAX": 8,
+        "GROUP": "PATHOLOGY",
+        "SUBGROUP": "L4",
+        "ALERT": true,
+        "ALERTFLAG": 1,
+        "ALERTGROUP": "L4 PATALOGY DEPT",
+        "UNITSYSTEM": "C"
+      }
+    },
+    "BA-98-D5-61-50-B9": {
+      "1": {
+        "TYPE": "WISENSOR",
+        "NAME": "F24",
+        "TEMP_MIN": -20,
+        "TEMP_MAX": "-10",
+        "GROUP": "PATHOLOGY",
+        "SUBGROUP": "L4",
+        "ALERT": true,
+        "ALERTFLAG": 1,
+        "ALERTGROUP": "L4 PATALOGY DEPT",
+        "UNITSYSTEM": "C"
+      }
+    },
+    "BA-92-D1-B4-B5-3A": {
+      "1": {
+        "TYPE": "WISENSOR",
+        "NAME": "CYTOTOXIC FRIDGE CARD",
+        "TEMP_MIN": 2,
+        "TEMP_MAX": 8,
+        "GROUP": "MEDICAL STORE",
+        "SUBGROUP": "L1",
+        "ALERT": true,
+        "ALERTGROUP": "L1 Medical Store",
+        "UNITSYSTEM": "C",
+        "ALERTFLAG": 0
+      }
+    },
+    "GPIO": {
+      "1": {
+        "TYPE": "GPIO",
+        "PORT": 1,
+        "NAME": "SIREN 1",
+        "STATUS": false,
+        "DTUID": 101,
+        "ALERT_PORT": true
+      },
+      "2": {
+        "TYPE": "GPIO",
+        "PORT": 2,
+        "NAME": "SIREN 2",
+        "STATUS": false,
+        "DTUID": 101,
+        "ALERT_PORT": true
+      }
+    }
+  }
+}
