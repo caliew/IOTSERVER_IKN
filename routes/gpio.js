@@ -2,18 +2,22 @@
 /*
  * GPIO CONTROL ENDPOINT
  *
- * Wraps AT-command writes over the active TCP socket connections.
+ * Supports both:
+ *   1. Modbus RTU Binary Frames with 0xFD Byte-Escaping (from DTU_MODBUS_SERVER)
+ *   2. AT-command writes (F8L10ST DTU ASCII Mode)
+ *
+ * MODBUS REFERENCE (Coil Write Function 0x05):
+ *   Port 1 ON  : 01 05 00 01 FF 00 DD FA (Escaped over socket)
+ *   Port 1 OFF : 01 05 00 01 00 00 9C 0A (Escaped over socket)
  *
  * AT-COMMAND REFERENCE (F8L10ST DTU):
  *   SET GPIO state  : AT+NS1={DTUID},{GPIO},{STATE}\r\n
- *                       STATE: 1 = ON,  0 = OFF
  *   GET GPIO status : AT+NV1={DTUID}\r\n
- *                       Returns current state of all GPIO ports on the DTU
  *
  * ROUTES:
- *   POST /api/gpio/control  - Set a GPIO port ON or OFF
+ *   POST /api/gpio/control  - Set a GPIO port ON or OFF (protocol: 'modbus' | 'at')
  *   POST /api/gpio/alert    - Internal: auto-trigger GPIO ON when alert fires
- *   GET  /api/gpio/status   - Query current GPIO state from DTU
+ *   GET  /api/gpio/status   - Query current GPIO state / supported frames
  */
 
 const express = require('express');
@@ -21,6 +25,67 @@ const router  = express.Router();
 const cors    = require('cors');
 const auth    = require('../middleware/auth');
 const _logs   = require('../lib/logs');
+
+/* ============================================================== 
+ * Protocol Constants & Escaping (DTU_MODBUS_SERVER)
+ * ============================================================== */
+const PROTOCOL = {
+  ESCAPE_MARKER: 0xFD,
+  ESCAPE_SEQUENCES: {
+    0xFD: 0xED,
+    0xFE: 0xEE
+  },
+
+  unescape(buf) {
+    const out = [];
+    for (let i = 0; i < buf.length; i++) {
+      if (buf[i] === this.ESCAPE_MARKER && i + 1 < buf.length) {
+        const nextByte = buf[i + 1];
+        if (nextByte === this.ESCAPE_SEQUENCES[0xFD]) {
+          out.push(0xFD);
+          i++;
+        } else if (nextByte === this.ESCAPE_SEQUENCES[0xFE]) {
+          out.push(0xFE);
+          i++;
+        } else {
+          out.push(buf[i]);
+        }
+      } else {
+        out.push(buf[i]);
+      }
+    }
+    return Buffer.from(out);
+  },
+
+  escape(buf) {
+    const out = [];
+    for (const b of buf) {
+      if (b === this.ESCAPE_MARKER) {
+        out.push(this.ESCAPE_MARKER, this.ESCAPE_SEQUENCES[0xFD]);
+      } else if (b === 0xFE) {
+        out.push(this.ESCAPE_MARKER, this.ESCAPE_SEQUENCES[0xFE]);
+      } else {
+        out.push(b);
+      }
+    }
+    return Buffer.from(out);
+  }
+};
+
+/* ============================================================== 
+ * Pre-defined Modbus Binary Frames
+ * ============================================================== */
+const GPIO_FRAMES = {
+  "1": {
+    on: Buffer.from([0x01, 0x05, 0x00, 0x01, 0xFF, 0x00, 0xDD, 0xFA]),
+    off: Buffer.from([0x01, 0x05, 0x00, 0x01, 0x00, 0x00, 0x9C, 0x0A])
+  }
+};
+
+function formatHex(buffer) {
+  if (!buffer || !Buffer.isBuffer(buffer)) return '';
+  return buffer.toString('hex').toUpperCase().match(/.{1,2}/g)?.join(' ') || '';
+}
 
 // ----------------------------------------------------------------
 // server module is required lazily so circular-dependency is safe.
@@ -44,9 +109,6 @@ function findSockets(siteName, portId) {
   const arr = getSocketArr();
   if (!arr || arr.length === 0) return [];
   if (siteName) {
-    // Match by the TCP port's FileName tag stored in the gatewayData
-    // server.socketArr entries: { PORT, GATEWAYID, ADDRESS, TIMESTAMP, SOCKET }
-    // PORT here is the TCP listen port number, not the GPIO port number
     return arr.filter(
       (s) => s.SOCKET && typeof s.SOCKET.write === 'function'
     );
@@ -55,8 +117,7 @@ function findSockets(siteName, portId) {
 }
 
 // ---------------------------------------------------------------
-// Helper: write an AT command to ONE or ALL matching sockets
-// Returns an array of results: [ { GATEWAYID, command, sent } ]
+// Helper: write an AT command to matching sockets
 // ---------------------------------------------------------------
 function writeATCommand(sockets, atCommand) {
   const results = [];
@@ -65,13 +126,52 @@ function writeATCommand(sockets, atCommand) {
       s.SOCKET.write(atCommand);
       results.push({ GATEWAYID: s.GATEWAYID, command: atCommand.trim(), sent: true });
       console.log(
-        `[GPIO.JS] ✅ SENT => GATEWAY=${s.GATEWAYID} CMD=[${atCommand.trim()}]`
+        `[GPIO.JS] ✅ SENT AT => GATEWAY=${s.GATEWAYID} CMD=[${atCommand.trim()}]`
       );
-      _logs.append('_GPIO', `[GPIO.JS] SENT GATEWAY=${s.GATEWAYID} CMD=${atCommand.trim()}`, () => {});
+      _logs.append('_GPIO', `[GPIO.JS] SENT AT GATEWAY=${s.GATEWAYID} CMD=${atCommand.trim()}`, () => {});
     } catch (err) {
       results.push({ GATEWAYID: s.GATEWAYID, command: atCommand.trim(), sent: false, error: err.message });
-      console.error(`[GPIO.JS] ❌ FAILED => GATEWAY=${s.GATEWAYID}`, err.message);
-      _logs.append('_GPIO', `[GPIO.JS] FAILED GATEWAY=${s.GATEWAYID} CMD=${atCommand.trim()} ERR=${err.message}`, () => {});
+      console.error(`[GPIO.JS] ❌ FAILED AT => GATEWAY=${s.GATEWAYID}`, err.message);
+      _logs.append('_GPIO', `[GPIO.JS] FAILED AT GATEWAY=${s.GATEWAYID} CMD=${atCommand.trim()} ERR=${err.message}`, () => {});
+    }
+  });
+  return results;
+}
+
+// ---------------------------------------------------------------
+// Helper: write escaped Modbus binary frame to matching sockets
+// ---------------------------------------------------------------
+function writeModbusCommand(sockets, frame, description) {
+  const results = [];
+  const escaped = PROTOCOL.escape(frame);
+  const hexRaw = formatHex(frame);
+  const hexEscaped = formatHex(escaped);
+
+  sockets.forEach((s) => {
+    try {
+      s.SOCKET.write(escaped);
+      results.push({
+        GATEWAYID: s.GATEWAYID,
+        description,
+        hexRaw,
+        hexEscaped,
+        sent: true
+      });
+      console.log(
+        `[GPIO.JS] ✅ SENT MODBUS => GW=${s.GATEWAYID} DESC=[${description}] RAW=[${hexRaw}] ESCAPED=[${hexEscaped}]`
+      );
+      _logs.append('_GPIO', `[GPIO.JS] SENT MODBUS GW=${s.GATEWAYID} DESC=${description} HEX=${hexRaw}`, () => {});
+    } catch (err) {
+      results.push({
+        GATEWAYID: s.GATEWAYID,
+        description,
+        hexRaw,
+        hexEscaped,
+        sent: false,
+        error: err.message
+      });
+      console.error(`[GPIO.JS] ❌ FAILED MODBUS => GW=${s.GATEWAYID}`, err.message);
+      _logs.append('_GPIO', `[GPIO.JS] FAILED MODBUS GW=${s.GATEWAYID} DESC=${description} ERR=${err.message}`, () => {});
     }
   });
   return results;
@@ -79,16 +179,16 @@ function writeATCommand(sockets, atCommand) {
 
 // ==============================================================
 // POST /api/gpio/control
-// Body: { dtuid, portId, state, siteName }
-//   dtuid    : number  – DTU ID of the gateway device
-//   portId   : number  – GPIO port number (1, 2, 3 …)
-//   state    : boolean – true = ON, false = OFF
-//   siteName : string  – optional, e.g. "IKN_OPROOM"
-//
-// Writes: AT+NS1={dtuid},{portId},{0|1}\r\n
+// Body: { dtuid, portId, state, siteName, protocol, customFrameHex }
+//   dtuid          : number  – DTU ID of the gateway device
+//   portId         : number  – GPIO port number (1, 2 …)
+//   state          : boolean – true = ON, false = OFF
+//   siteName       : string  – optional, e.g. "IKN_OPROOM"
+//   protocol       : string  – "modbus" (default) or "at"
+//   customFrameHex : string  – optional hex string if overriding standard Modbus frame
 // ==============================================================
 router.post('/control', auth, (req, res) => {
-  const { dtuid, portId, state, siteName } = req.body;
+  const { dtuid, portId, state, siteName, protocol, customFrameHex } = req.body;
 
   if (dtuid === undefined || portId === undefined || state === undefined) {
     return res.status(400).json({
@@ -96,111 +196,182 @@ router.post('/control', auth, (req, res) => {
     });
   }
 
-  const stateVal = state ? 1 : 0;
-  // AT+NS1={DTUID},{GPIO},{STATE}\r\n
-  const atCommand = `AT+NS1=${dtuid},${portId},${stateVal}\r\n`;
-
   const sockets = findSockets(siteName);
   if (sockets.length === 0) {
     console.warn(`[GPIO.JS] ⚠️ No active sockets found (siteName=${siteName})`);
     return res.status(503).json({
       error: 'No active gateway sockets available',
-      atCommand: atCommand.trim(),
     });
   }
 
-  const results = writeATCommand(sockets, atCommand);
-  const anySent  = results.some((r) => r.sent);
+  const useModbus = protocol === 'modbus' || protocol === undefined || customFrameHex;
 
-  return res.status(anySent ? 200 : 502).json({
-    success : anySent,
-    command : atCommand.trim(),
-    dtuid,
-    portId,
-    state   : stateVal,
-    sockets : results,
-  });
+  if (useModbus) {
+    const portKey = String(portId);
+    let frame = null;
+
+    if (customFrameHex) {
+      frame = Buffer.from(customFrameHex.replace(/\s+/g, ''), 'hex');
+    } else {
+      const frameSet = GPIO_FRAMES[portKey];
+      if (!frameSet) {
+        return res.status(400).json({
+          error: `No pre-defined Modbus frame for port ${portId}. Provide customFrameHex or use protocol='at'`,
+          availablePorts: Object.keys(GPIO_FRAMES)
+        });
+      }
+      frame = state ? frameSet.on : frameSet.off;
+    }
+
+    const description = `GPIO Port ${portId} ${state ? 'ON' : 'OFF'}`;
+    const results = writeModbusCommand(sockets, frame, description);
+    const anySent = results.some((r) => r.sent);
+
+    return res.status(anySent ? 200 : 502).json({
+      success    : anySent,
+      protocol   : 'modbus',
+      description,
+      dtuid,
+      portId,
+      state      : Boolean(state),
+      hexRaw     : formatHex(frame),
+      hexEscaped : formatHex(PROTOCOL.escape(frame)),
+      sockets    : results,
+    });
+  } else {
+    // Standard AT-Command Mode
+    const stateVal = state ? 1 : 0;
+    const atCommand = `AT+NS1=${dtuid},${portId},${stateVal}\r\n`;
+
+    const results = writeATCommand(sockets, atCommand);
+    const anySent = results.some((r) => r.sent);
+
+    return res.status(anySent ? 200 : 502).json({
+      success  : anySent,
+      protocol : 'at',
+      command  : atCommand.trim(),
+      dtuid,
+      portId,
+      state    : stateVal,
+      sockets  : results,
+    });
+  }
 });
 
 // ==============================================================
 // GET /api/gpio/status
-// Query: ?dtuid=102&siteName=IKN_OPROOM
-//
-// Sends: AT+NV1={dtuid}\r\n
-// (Queries the DTU for current GPIO state of all ports)
-// The DTU will respond asynchronously over the TCP data channel.
-// This endpoint just fires the AT command and returns immediately.
+// Query: ?dtuid=102&siteName=IKN_OPROOM&protocol=at
 // ==============================================================
 router.get('/status', auth, (req, res) => {
-  const { dtuid, siteName } = req.query;
+  const { dtuid, siteName, protocol } = req.query;
 
   if (!dtuid) {
     return res.status(400).json({ error: 'Missing required query param: dtuid' });
   }
 
-  // AT+NV1={DTUID}\r\n  – note: NV1, not NS1
-  const atCommand = `AT+NV1=${dtuid}\r\n`;
-
   const sockets = findSockets(siteName);
   if (sockets.length === 0) {
     return res.status(503).json({
       error: 'No active gateway sockets available',
-      atCommand: atCommand.trim(),
     });
   }
 
-  const results = writeATCommand(sockets, atCommand);
-  const anySent  = results.some((r) => r.sent);
+  if (protocol === 'at') {
+    const atCommand = `AT+NV1=${dtuid}\r\n`;
+    const results = writeATCommand(sockets, atCommand);
+    const anySent = results.some((r) => r.sent);
 
-  return res.status(anySent ? 200 : 502).json({
-    success  : anySent,
-    command  : atCommand.trim(),
-    dtuid,
-    note     : 'GPIO state will be returned asynchronously via the TCP data channel',
-    sockets  : results,
+    return res.status(anySent ? 200 : 502).json({
+      success  : anySent,
+      protocol : 'at',
+      command  : atCommand.trim(),
+      dtuid,
+      note     : 'GPIO state will be returned asynchronously via the TCP data channel',
+      sockets  : results,
+    });
+  }
+
+  // Default Modbus status info
+  return res.status(200).json({
+    success         : true,
+    protocol        : 'modbus',
+    activeSockets   : sockets.length,
+    supportedPorts  : Object.keys(GPIO_FRAMES),
+    dtuid
   });
 });
 
 // ==============================================================
 // POST /api/gpio/alert
 // INTERNAL endpoint — called by DISPATCH_ALERT in server.js
-// when an alert is triggered, to turn the physical alarm ON.
-//
-// Body: { dtuid, portId, siteName }
-//   Uses state = 1 (ON) always — alert fires = GPIO ON
-//
-// Also used to turn OFF: body includes { state: false }
+// Body: { dtuid, portId, siteName, state, protocol }
 // ==============================================================
 router.post('/alert', (req, res) => {
-  const { dtuid, portId, siteName, state } = req.body;
+  const { dtuid, portId, siteName, state, protocol } = req.body;
 
   if (dtuid === undefined || portId === undefined) {
     return res.status(400).json({ error: 'Missing required fields: dtuid, portId' });
   }
-
-  const stateVal  = (state === false || state === 0) ? 0 : 1;
-  const atCommand = `AT+NS1=${dtuid},${portId},${stateVal}\r\n`;
 
   const sockets = findSockets(siteName);
   if (sockets.length === 0) {
     console.warn(`[GPIO.JS] ⚠️ /alert: No active sockets (siteName=${siteName})`);
     return res.status(503).json({
       error: 'No active gateway sockets',
-      atCommand: atCommand.trim(),
     });
   }
 
-  const results = writeATCommand(sockets, atCommand);
-  const anySent  = results.some((r) => r.sent);
+  const stateBool = (state === false || state === 0) ? false : true;
+  const useModbus = protocol === 'modbus' || protocol === undefined;
 
-  return res.status(anySent ? 200 : 502).json({
-    success: anySent,
-    command: atCommand.trim(),
-    dtuid,
-    portId,
-    state  : stateVal,
-    sockets: results,
-  });
+  if (useModbus) {
+    const portKey = String(portId);
+    const frameSet = GPIO_FRAMES[portKey];
+    if (!frameSet) {
+      // Fallback to AT command if Modbus frame not defined for port
+      const atCommand = `AT+NS1=${dtuid},${portId},${stateBool ? 1 : 0}\r\n`;
+      const results = writeATCommand(sockets, atCommand);
+      return res.status(results.some((r) => r.sent) ? 200 : 502).json({
+        success: results.some((r) => r.sent),
+        protocol: 'at_fallback',
+        command: atCommand.trim(),
+        dtuid,
+        portId,
+        sockets: results,
+      });
+    }
+
+    const frame = stateBool ? frameSet.on : frameSet.off;
+    const description = `ALERT GPIO Port ${portId} ${stateBool ? 'ON' : 'OFF'}`;
+    const results = writeModbusCommand(sockets, frame, description);
+    const anySent = results.some((r) => r.sent);
+
+    return res.status(anySent ? 200 : 502).json({
+      success    : anySent,
+      protocol   : 'modbus',
+      description,
+      dtuid,
+      portId,
+      state      : stateBool,
+      hexRaw     : formatHex(frame),
+      hexEscaped : formatHex(PROTOCOL.escape(frame)),
+      sockets    : results,
+    });
+  } else {
+    const atCommand = `AT+NS1=${dtuid},${portId},${stateBool ? 1 : 0}\r\n`;
+    const results = writeATCommand(sockets, atCommand);
+    const anySent = results.some((r) => r.sent);
+
+    return res.status(anySent ? 200 : 502).json({
+      success  : anySent,
+      protocol : 'at',
+      command  : atCommand.trim(),
+      dtuid,
+      portId,
+      sockets  : results,
+    });
+  }
 });
 
 module.exports = router;
+
