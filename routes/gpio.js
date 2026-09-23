@@ -73,14 +73,52 @@ const PROTOCOL = {
 };
 
 /* ============================================================== 
- * Pre-defined Modbus Binary Frames
+ * Pre-defined Modbus Binary Frames & Dynamic Generator
  * ============================================================== */
+function calcCRC16(buf) {
+  let crc = 0xFFFF;
+  for (let pos = 0; pos < buf.length; pos++) {
+    crc ^= buf[pos];
+    for (let i = 8; i !== 0; i--) {
+      if ((crc & 0x0001) !== 0) {
+        crc >>= 1;
+        crc ^= 0xA001;
+      } else {
+        crc >>= 1;
+      }
+    }
+  }
+  return crc;
+}
+
+function buildModbusCoilFrame(portId, state, slaveId = 1) {
+  const p = Number(portId) || 1;
+  const valHigh = state ? 0xFF : 0x00;
+  const head = Buffer.from([slaveId, 0x05, (p >> 8) & 0xFF, p & 0xFF, valHigh, 0x00]);
+  const crc = calcCRC16(head);
+  const lowByte = crc & 0xFF;
+  const highByte = (crc >> 8) & 0xFF;
+  return Buffer.concat([head, Buffer.from([lowByte, highByte])]);
+}
+
 const GPIO_FRAMES = {
   "1": {
     on: Buffer.from([0x01, 0x05, 0x00, 0x01, 0xFF, 0x00, 0xDD, 0xFA]),
     off: Buffer.from([0x01, 0x05, 0x00, 0x01, 0x00, 0x00, 0x9C, 0x0A])
+  },
+  "2": {
+    on: Buffer.from([0x01, 0x05, 0x00, 0x02, 0xFF, 0x00, 0x2D, 0xFA]),
+    off: Buffer.from([0x01, 0x05, 0x00, 0x02, 0x00, 0x00, 0x6C, 0x0A])
   }
 };
+
+function getModbusFrame(portId, state, slaveId = 1) {
+  const portKey = String(portId);
+  if (GPIO_FRAMES[portKey]) {
+    return state ? GPIO_FRAMES[portKey].on : GPIO_FRAMES[portKey].off;
+  }
+  return buildModbusCoilFrame(portId, state, slaveId);
+}
 
 function formatHex(buffer) {
   if (!buffer || !Buffer.isBuffer(buffer)) return '';
@@ -179,16 +217,17 @@ function writeModbusCommand(sockets, frame, description) {
 
 // ==============================================================
 // POST /api/gpio/control
-// Body: { dtuid, portId, state, siteName, protocol, customFrameHex }
+// Body: { dtuid, portId, state, siteName, protocol, customFrameHex, slaveId }
 //   dtuid          : number  – DTU ID of the gateway device
 //   portId         : number  – GPIO port number (1, 2 …)
 //   state          : boolean – true = ON, false = OFF
 //   siteName       : string  – optional, e.g. "IKN_OPROOM"
 //   protocol       : string  – "modbus" (default) or "at"
 //   customFrameHex : string  – optional hex string if overriding standard Modbus frame
+//   slaveId        : number  – optional Modbus slave ID (default 1)
 // ==============================================================
 router.post('/control', auth, (req, res) => {
-  const { dtuid, portId, state, siteName, protocol, customFrameHex } = req.body;
+  const { dtuid, portId, state, siteName, protocol, customFrameHex, slaveId } = req.body;
 
   if (dtuid === undefined || portId === undefined || state === undefined) {
     return res.status(400).json({
@@ -207,20 +246,12 @@ router.post('/control', auth, (req, res) => {
   const useModbus = protocol === 'modbus' || protocol === undefined || customFrameHex;
 
   if (useModbus) {
-    const portKey = String(portId);
     let frame = null;
 
     if (customFrameHex) {
       frame = Buffer.from(customFrameHex.replace(/\s+/g, ''), 'hex');
     } else {
-      const frameSet = GPIO_FRAMES[portKey];
-      if (!frameSet) {
-        return res.status(400).json({
-          error: `No pre-defined Modbus frame for port ${portId}. Provide customFrameHex or use protocol='at'`,
-          availablePorts: Object.keys(GPIO_FRAMES)
-        });
-      }
-      frame = state ? frameSet.on : frameSet.off;
+      frame = getModbusFrame(portId, Boolean(state), Number(slaveId) || 1);
     }
 
     const description = `GPIO Port ${portId} ${state ? 'ON' : 'OFF'}`;
