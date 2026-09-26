@@ -140,18 +140,26 @@ function getSocketArr() {
 router.use(cors({ origin: '*' }));
 
 // ---------------------------------------------------------------
-// Helper: find all active sockets for a given site / portId
-// siteName matches the FileName used in startTCPServer(FileName, …)
+// Helper: find all active sockets for GPIO control
+// Bypasses filtering and uses socket connected to port 2001 (4G DTU)
 // ---------------------------------------------------------------
-function findSockets(siteName, portId) {
+function findSockets(siteName, dtuid) {
   const arr = getSocketArr();
   if (!arr || arr.length === 0) return [];
-  if (siteName) {
-    return arr.filter(
-      (s) => s.SOCKET && typeof s.SOCKET.write === 'function'
-    );
+  
+  const activeSockets = arr.filter(
+    (s) => s.SOCKET && typeof s.SOCKET.write === 'function'
+  );
+  if (activeSockets.length === 0) return [];
+
+  // Directly target 4G DTU sockets connected on port 2001
+  const sockets2001 = activeSockets.filter((s) => s.PORT === 2001);
+  if (sockets2001.length > 0) {
+    return sockets2001;
   }
-  return arr.filter((s) => s.SOCKET && typeof s.SOCKET.write === 'function');
+
+  // Fallback to active sockets if port 2001 is not connected yet
+  return activeSockets;
 }
 
 // ---------------------------------------------------------------
@@ -218,10 +226,10 @@ function writeModbusCommand(sockets, frame, description) {
 // ==============================================================
 // POST /api/gpio/control
 // Body: { dtuid, portId, state, siteName, protocol, customFrameHex, slaveId }
-//   dtuid          : number  – DTU ID of the gateway device
+//   dtuid          : number|string – optional DTU ID or port (defaults to 2001 or matching socket)
 //   portId         : number  – GPIO port number (1, 2 …)
 //   state          : boolean – true = ON, false = OFF
-//   siteName       : string  – optional, e.g. "IKN_OPROOM"
+//   siteName       : string  – optional, e.g. "AEROSOFT", "IKN_OPROOM"
 //   protocol       : string  – "modbus" (default) or "at"
 //   customFrameHex : string  – optional hex string if overriding standard Modbus frame
 //   slaveId        : number  – optional Modbus slave ID (default 1)
@@ -229,15 +237,16 @@ function writeModbusCommand(sockets, frame, description) {
 router.post('/control', auth, (req, res) => {
   const { dtuid, portId, state, siteName, protocol, customFrameHex, slaveId } = req.body;
 
-  if (dtuid === undefined || portId === undefined || state === undefined) {
+  if (portId === undefined || state === undefined) {
     return res.status(400).json({
-      error: 'Missing required fields: dtuid, portId, state',
+      error: 'Missing required fields: portId, state',
     });
   }
 
-  const sockets = findSockets(siteName);
+  const effectiveDtuid = dtuid !== undefined ? dtuid : 2001;
+  const sockets = findSockets(siteName, effectiveDtuid);
   if (sockets.length === 0) {
-    console.warn(`[GPIO.JS] ⚠️ No active sockets found (siteName=${siteName})`);
+    console.warn(`[GPIO.JS] ⚠️ No active sockets found (siteName=${siteName}, dtuid=${effectiveDtuid})`);
     return res.status(503).json({
       error: 'No active gateway sockets available',
     });
@@ -300,7 +309,7 @@ router.get('/status', auth, (req, res) => {
     return res.status(400).json({ error: 'Missing required query param: dtuid' });
   }
 
-  const sockets = findSockets(siteName);
+  const sockets = findSockets(siteName, dtuid);
   if (sockets.length === 0) {
     return res.status(503).json({
       error: 'No active gateway sockets available',
@@ -344,7 +353,7 @@ router.post('/alert', (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: dtuid, portId' });
   }
 
-  const sockets = findSockets(siteName);
+  const sockets = findSockets(siteName, dtuid);
   if (sockets.length === 0) {
     console.warn(`[GPIO.JS] ⚠️ /alert: No active sockets (siteName=${siteName})`);
     return res.status(503).json({
