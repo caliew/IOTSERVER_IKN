@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const _debugENDPOINT = false;
 
-module.exports = function(req, res, next) {
+const authMiddleware = function(req, res, next) {
   // ========== GLOBAL BYPASS SWITCH ==========
   // Set this to true to bypass ALL JWT checks
   const BYPASS_ALL_JWT = false;  // ← CHANGE THIS TO true/false
@@ -26,21 +26,52 @@ module.exports = function(req, res, next) {
   }
   // ========== END BYPASS ==========
   
-  // Get token from header
+  // Get token from header (supports x-auth-token and Authorization: Bearer <token>)
   let token = req.header('x-auth-token');
-  
+  if (!token && req.header('Authorization')) {
+    const authHeader = req.header('Authorization');
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7).trim();
+    } else {
+      token = authHeader.trim();
+    }
+  }
+
   if (!token) {
     _debugENDPOINT && console.log('🔐 AUTH: No token provided');
-    return res.status(401).json({ msg: 'No token, authorization denied' });
+    return res.status(401).json({ success: false, msg: 'No token, authorization denied', error: 'No token provided' });
   }
 
   try {
-    const decoded = jwt.verify(token, config.get('jwtSecret'));
+    const secret = config.has('jwtSecret') ? config.get('jwtSecret') : 'secret';
+    const decoded = jwt.verify(token, secret);
     req.user = decoded.user;
-    _debugENDPOINT && console.log(`🔐 AUTH: Token valid for user ${decoded.user.id}`);
+    _debugENDPOINT && console.log(`🔐 AUTH: Token valid for user ${decoded.user.id || decoded.user.username}`);
     next();
   } catch (err) {
     _debugENDPOINT && console.log(`🔐 AUTH: Token verification failed: ${err.message}`);
-    return res.status(401).json({ msg: 'Token is not valid' });
+    return res.status(401).json({ success: false, msg: 'Token is not valid', error: 'Token is not valid' });
   }
 };
+
+// Helper middleware for role-based authorization
+authMiddleware.requireRole = function(...allowedRoles) {
+  return function(req, res, next) {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: No user found in request token' });
+    }
+    const userRole = (req.user.role || req.user.usertype || '').toUpperCase();
+    const normalizedAllowed = allowedRoles.map(r => r.toUpperCase());
+
+    if (userRole === 'ADMIN' || userRole === 'ADMINISTRATOR' || normalizedAllowed.includes(userRole)) {
+      return next();
+    }
+
+    return res.status(403).json({
+      success: false,
+      error: `Access denied. Requires one of roles: [${allowedRoles.join(', ')}], user has '${userRole}'`
+    });
+  };
+};
+
+module.exports = authMiddleware;

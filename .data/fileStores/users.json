@@ -1,0 +1,26 @@
+[
+  {
+    "id": "usr_110",
+    "name": "checker_john",
+    "username": "checker_john",
+    "email": "CHECKER_JOHN@IKNHOSPITAL.COM",
+    "password": "$2b$10$S0F32ZsE6YnRCO8i1nxHCOViWqZR2gz66ucvRBPwwTz.PlF.KSjmW",
+    "status": true,
+    "usertype": "checker",
+    "role": "CHECKER",
+    "companyname": "IKNHOSPITAL",
+    "phone": 0
+  },
+  {
+    "id": "usr_148",
+    "name": "verifier_mary",
+    "username": "verifier_mary",
+    "email": "VERIFIER_MARY@IKNHOSPITAL.COM",
+    "password": "$2b$10$qJPp.KUPtykTdLVpX1uOKew/HGWxe1sfYCQ0dmngVdqlUo77KmfuC",
+    "status": true,
+    "usertype": "verifier",
+    "role": "VERIFIER",
+    "companyname": "IKNHOSPITAL",
+    "phone": 0
+  }
+]

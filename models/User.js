@@ -5,6 +5,9 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  username: {
+    type: String
+  },
   email: {
     type: String,
     required: true,
@@ -23,6 +26,11 @@ const UserSchema = mongoose.Schema({
   usertype: {
     type: String,
     default: 'user'
+  },
+  role: {
+    type: String,
+    enum: ['CHECKER', 'VERIFIER', 'ADMIN', 'USER'],
+    default: 'CHECKER'
   },
   status: {
     type: Boolean,

@@ -9,13 +9,11 @@ const connectDB = async () => {
       useCreateIndex: true,
       useFindAndModify: false,
       useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 2000
     });
-    // ---------------------------------
-    // console.log(`[${'DB.JS'.red}] ...MongoDB Connected...`);
-    // ---------------------------------
+    console.log('[DB.JS] MongoDB Connected');
   } catch (err) {
-    console.error(err.message);
-    process.exit(1);
+    console.warn('[DB.JS] MongoDB connection skipped/failed:', err.message);
   }
 };
 
