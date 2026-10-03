@@ -67,6 +67,58 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
   }
 });
 
+// @route     GET api/telemetry/clearance/list
+// @desc      List all clearance records for a site (optionally filtered by year)
+// @access    Private
+// @query     site  {string} required - site name (e.g. IKNPATHOLOGY)
+// @query     year  {number} optional - 4-digit year to filter (e.g. 2026)
+router.get('/clearance/list', auth, async (req, res) => {
+  try {
+    const site = req.query.site || req.user?.site || 'IKNHOSPITAL';
+    const year = req.query.year ? parseInt(req.query.year, 10) : null;
+
+    // Read the flat clearances store for this site
+    const path = require('path');
+    const fs = require('fs');
+    const sanitize = (s) => String(s || '').replace(/[^a-zA-Z0-9_\-]/g, '').toUpperCase();
+    const siteDir = path.join(fileStores.baseDir, sanitize(site));
+    const filePath = path.join(siteDir, 'clearances.json');
+
+    let clearances = [];
+    if (fs.existsSync(filePath)) {
+      try {
+        clearances = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (!Array.isArray(clearances)) clearances = [];
+      } catch (e) {
+        clearances = [];
+      }
+    }
+
+    // Filter by year if provided (match against dateStr field: "YYYY-MM-DD")
+    if (year) {
+      clearances = clearances.filter(c => {
+        if (c.dateStr && c.dateStr.startsWith(String(year))) return true;
+        if (c.cleared_at && new Date(c.cleared_at).getFullYear() === year) return true;
+        return false;
+      });
+    }
+
+    // Sort newest-first by cleared_at
+    clearances.sort((a, b) => new Date(b.cleared_at || 0) - new Date(a.cleared_at || 0));
+
+    return res.status(200).json({
+      success: true,
+      site,
+      year: year || 'all',
+      total: clearances.length,
+      clearances
+    });
+  } catch (err) {
+    console.error('Error in GET /api/telemetry/clearance/list:', err);
+    return res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
 // @route     GET api/telemetry/clearance
 // @desc      Get telemetry clearance status
 // @access    Private
