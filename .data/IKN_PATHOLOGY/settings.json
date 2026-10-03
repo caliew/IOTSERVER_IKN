@@ -69,20 +69,6 @@
         "UNITSYSTEM": "C"
       }
     },
-    "BA-92-D1-B4-B5-3A": {
-      "1": {
-        "TYPE": "WISENSOR",
-        "NAME": "CYTOTOXIC FRIDGE CARD",
-        "TEMP_MIN": 2,
-        "TEMP_MAX": 8,
-        "GROUP": "MEDICAL STORE",
-        "SUBGROUP": "L1",
-        "ALERT": true,
-        "ALERTGROUP": "L1 Medical Store",
-        "UNITSYSTEM": "C",
-        "ALERTFLAG": 0
-      }
-    },
     "GPIO": {
       "1": {
         "TYPE": "GPIO",

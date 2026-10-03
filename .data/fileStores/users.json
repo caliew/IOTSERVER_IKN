@@ -1,10 +1,22 @@
 [
   {
     "id": "usr_110",
+    "name": "James Lee",
+    "username": "JamesLee",
+    "email": "JAMESLEE@AFFLUENCEENGINEERING.COM",
+    "password": "$2a$10$LgdDgNwKHXqcVU5fboAepOXQRuP3Q20oYaG04/FzfiYA3zocqvNJ6",
+    "status": true,
+    "usertype": "checker",
+    "role": "CHECKER",
+    "companyname": "IKNHOSPITAL",
+    "phone": 0
+  },
+  {
+    "id": "usr_110",
     "name": "checker_john",
-    "username": "checker_john",
+    "username": "checker1",
     "email": "CHECKER_JOHN@IKNHOSPITAL.COM",
-    "password": "$2b$10$S0F32ZsE6YnRCO8i1nxHCOViWqZR2gz66ucvRBPwwTz.PlF.KSjmW",
+    "password": "$2a$10$Oen8wEqUbWSN.QBvjH5v4u4mF3xPx4/H3wPmmZOzBtm9.8lwtK0De",
     "status": true,
     "usertype": "checker",
     "role": "CHECKER",
@@ -14,9 +26,9 @@
   {
     "id": "usr_148",
     "name": "verifier_mary",
-    "username": "verifier_mary",
+    "username": "verifier1",
     "email": "VERIFIER_MARY@IKNHOSPITAL.COM",
-    "password": "$2b$10$qJPp.KUPtykTdLVpX1uOKew/HGWxe1sfYCQ0dmngVdqlUo77KmfuC",
+    "password": "$2a$10$iQc1EWB6mRdOiehD72Cjl.4Dxxi1ELKrBKimgJr/7IWUGZeYNj3CW",
     "status": true,
     "usertype": "verifier",
     "role": "VERIFIER",

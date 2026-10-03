@@ -18,8 +18,6 @@ node_modules/
 .data/nipponglass_transf
 .data/shinko
 .data/rawData
-.data/epson
-.data/ikn_hospital
 .data/fileStores
 !.data/fileStores/users.json
 .data/powerTracker.json
