@@ -11,8 +11,10 @@ node_modules/
 .data/mcst
 .data/mre
 .data/epson
+.data/epsonosha
 .data/ikn_oproom
 .data/ikn_hospital
+.data/ikn_pathology
 .data/nipponglass
 .data/nipponglass_boiler
 .data/nipponglass_transf
