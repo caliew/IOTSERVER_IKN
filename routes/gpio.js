@@ -7,8 +7,8 @@
  *   2. AT-command writes (F8L10ST DTU ASCII Mode)
  *
  * MODBUS REFERENCE (Coil Write Function 0x05):
- *   Port 1 ON  : 01 05 00 01 FF 00 DD FA (Escaped over socket)
- *   Port 1 OFF : 01 05 00 01 00 00 9C 0A (Escaped over socket)
+ *   Port 1 ON  : 01 05 00 01 FF 00 DD FA & 01 05 00 00 FF 00 8C 3A (Escaped over socket)
+ *   Port 1 OFF : 01 05 00 01 00 00 9C 0A & 01 05 00 00 00 00 CD CA (Escaped over socket)
  *
  * AT-COMMAND REFERENCE (F8L10ST DTU):
  *   SET GPIO state  : AT+NS1={DTUID},{GPIO},{STATE}\r\n
@@ -103,8 +103,14 @@ function buildModbusCoilFrame(portId, state, slaveId = 1) {
 
 const GPIO_FRAMES = {
   "1": {
-    on: Buffer.from([0x01, 0x05, 0x00, 0x01, 0xFF, 0x00, 0xDD, 0xFA]),
-    off: Buffer.from([0x01, 0x05, 0x00, 0x01, 0x00, 0x00, 0x9C, 0x0A])
+    on: [
+      Buffer.from([0x01, 0x05, 0x00, 0x01, 0xFF, 0x00, 0xDD, 0xFA]),
+      Buffer.from([0x01, 0x05, 0x00, 0x00, 0xFF, 0x00, 0x8C, 0x3A])
+    ],
+    off: [
+      Buffer.from([0x01, 0x05, 0x00, 0x01, 0x00, 0x00, 0x9C, 0x0A]),
+      Buffer.from([0x01, 0x05, 0x00, 0x00, 0x00, 0x00, 0xCD, 0xCA])
+    ]
   },
   "2": {
     on: Buffer.from([0x01, 0x05, 0x00, 0x02, 0xFF, 0x00, 0x2D, 0xFA]),
@@ -185,40 +191,45 @@ function writeATCommand(sockets, atCommand) {
 }
 
 // ---------------------------------------------------------------
-// Helper: write escaped Modbus binary frame to matching sockets
+// Helper: write escaped Modbus binary frame(s) to matching sockets
 // ---------------------------------------------------------------
-function writeModbusCommand(sockets, frame, description) {
+function writeModbusCommand(sockets, frames, description) {
   const results = [];
-  const escaped = PROTOCOL.escape(frame);
-  const hexRaw = formatHex(frame);
-  const hexEscaped = formatHex(escaped);
+  const frameList = Array.isArray(frames) ? frames : [frames];
 
   sockets.forEach((s) => {
-    try {
-      s.SOCKET.write(escaped);
-      results.push({
-        GATEWAYID: s.GATEWAYID,
-        description,
-        hexRaw,
-        hexEscaped,
-        sent: true
-      });
-      console.log(
-        `[GPIO.JS] ✅ SENT MODBUS => GW=${s.GATEWAYID} DESC=[${description}] RAW=[${hexRaw}] ESCAPED=[${hexEscaped}]`
-      );
-      _logs.append('_GPIO', `[GPIO.JS] SENT MODBUS GW=${s.GATEWAYID} DESC=${description} HEX=${hexRaw}`, () => {});
-    } catch (err) {
-      results.push({
-        GATEWAYID: s.GATEWAYID,
-        description,
-        hexRaw,
-        hexEscaped,
-        sent: false,
-        error: err.message
-      });
-      console.error(`[GPIO.JS] ❌ FAILED MODBUS => GW=${s.GATEWAYID}`, err.message);
-      _logs.append('_GPIO', `[GPIO.JS] FAILED MODBUS GW=${s.GATEWAYID} DESC=${description} ERR=${err.message}`, () => {});
-    }
+    frameList.forEach((frame, idx) => {
+      const escaped = PROTOCOL.escape(frame);
+      const hexRaw = formatHex(frame);
+      const hexEscaped = formatHex(escaped);
+      const subDesc = frameList.length > 1 ? `${description} (Cmd ${idx + 1}/${frameList.length})` : description;
+
+      try {
+        s.SOCKET.write(escaped);
+        results.push({
+          GATEWAYID: s.GATEWAYID,
+          description: subDesc,
+          hexRaw,
+          hexEscaped,
+          sent: true
+        });
+        console.log(
+          `[GPIO.JS] ✅ SENT MODBUS => GW=${s.GATEWAYID} DESC=[${subDesc}] RAW=[${hexRaw}] ESCAPED=[${hexEscaped}]`
+        );
+        _logs.append('_GPIO', `[GPIO.JS] SENT MODBUS GW=${s.GATEWAYID} DESC=${subDesc} HEX=${hexRaw}`, () => {});
+      } catch (err) {
+        results.push({
+          GATEWAYID: s.GATEWAYID,
+          description: subDesc,
+          hexRaw,
+          hexEscaped,
+          sent: false,
+          error: err.message
+        });
+        console.error(`[GPIO.JS] ❌ FAILED MODBUS => GW=${s.GATEWAYID}`, err.message);
+        _logs.append('_GPIO', `[GPIO.JS] FAILED MODBUS GW=${s.GATEWAYID} DESC=${subDesc} ERR=${err.message}`, () => {});
+      }
+    });
   });
   return results;
 }
@@ -267,6 +278,10 @@ router.post('/control', auth, (req, res) => {
     const results = writeModbusCommand(sockets, frame, description);
     const anySent = results.some((r) => r.sent);
 
+    const frameList = Array.isArray(frame) ? frame : [frame];
+    const hexRawStr = frameList.map((f) => formatHex(f)).join(' | ');
+    const hexEscapedStr = frameList.map((f) => formatHex(PROTOCOL.escape(f))).join(' | ');
+
     return res.status(anySent ? 200 : 502).json({
       success    : anySent,
       protocol   : 'modbus',
@@ -274,8 +289,8 @@ router.post('/control', auth, (req, res) => {
       dtuid,
       portId,
       state      : Boolean(state),
-      hexRaw     : formatHex(frame),
-      hexEscaped : formatHex(PROTOCOL.escape(frame)),
+      hexRaw     : hexRawStr,
+      hexEscaped : hexEscapedStr,
       sockets    : results,
     });
   } else {
@@ -386,6 +401,10 @@ router.post('/alert', (req, res) => {
     const results = writeModbusCommand(sockets, frame, description);
     const anySent = results.some((r) => r.sent);
 
+    const frameList = Array.isArray(frame) ? frame : [frame];
+    const hexRawStr = frameList.map((f) => formatHex(f)).join(' | ');
+    const hexEscapedStr = frameList.map((f) => formatHex(PROTOCOL.escape(f))).join(' | ');
+
     return res.status(anySent ? 200 : 502).json({
       success    : anySent,
       protocol   : 'modbus',
@@ -393,8 +412,8 @@ router.post('/alert', (req, res) => {
       dtuid,
       portId,
       state      : stateBool,
-      hexRaw     : formatHex(frame),
-      hexEscaped : formatHex(PROTOCOL.escape(frame)),
+      hexRaw     : hexRawStr,
+      hexEscaped : hexEscapedStr,
       sockets    : results,
     });
   } else {
