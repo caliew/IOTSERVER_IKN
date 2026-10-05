@@ -1,0 +1,21 @@
+{
+  "IKN_PATHOLOGY": {
+    "enabled": true,
+    "tcpPort": 2001,
+    "description": "IKN Pathology Department - WISENSOR Temp sensors with siren alert",
+    "ports": [
+      {
+        "port": 1,
+        "name": "SIREN 1",
+        "onAlert": true,
+        "onClear": true
+      },
+      {
+        "port": 2,
+        "name": "SIREN 2",
+        "onAlert": true,
+        "onClear": true
+      }
+    ]
+  }
+}
