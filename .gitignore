@@ -30,6 +30,7 @@ node_modules/
 client/node_modules/
 client/build/
 config/
+!config/trackedSensors.json
 socketArr.json
 .env
 restartlog.json

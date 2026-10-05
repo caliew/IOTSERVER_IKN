@@ -1,0 +1,9 @@
+{
+  "TRACKED_SENSORS": [
+    { "site": "IKN_PATHOLOGY", "macId": "BA-73-4C-26-D9-5A" },
+    { "site": "IKN_PATHOLOGY", "macId": "BA-62-C8-4B-01-E5" },
+    { "site": "IKN_PATHOLOGY", "macId": "BA-1E-DE-89-47-EC" },
+    { "site": "IKN_PATHOLOGY", "macId": "BA-98-D5-61-50-B9" },
+    { "site": "IKN_PATHOLOGY", "macId": "BA-82-D1-99-71-79" }
+  ]
+}
