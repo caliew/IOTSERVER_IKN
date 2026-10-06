@@ -205,7 +205,9 @@ router.post('/login', async (req, res) => {
     }
 
     const userId = user.id || `usr_${Math.floor(100 + Math.random() * 900)}`;
-    const finalRole = (user.role || (user.usertype === 'administrator' ? 'ADMIN' : 'CHECKER')).toUpperCase();
+    const finalRole = Array.isArray(user.role)
+      ? user.role.map(r => String(r).toUpperCase())
+      : (user.role ? [String(user.role).toUpperCase()] : (user.usertype === 'administrator' ? ['ADMIN'] : ['CHECKER']));
     const finalUsername = user.username || user.name || _username;
 
     const payload = {
@@ -314,7 +316,9 @@ router.post('/setup-password', async (req, res) => {
     }
 
     const userId = user.id || `usr_${Math.floor(100 + Math.random() * 900)}`;
-    const finalRole = (user.role || (user.usertype === 'administrator' ? 'ADMIN' : 'CHECKER')).toUpperCase();
+    const finalRole = Array.isArray(user.role)
+      ? user.role.map(r => String(r).toUpperCase())
+      : (user.role ? [String(user.role).toUpperCase()] : (user.usertype === 'administrator' ? ['ADMIN'] : ['CHECKER']));
     const finalUsername = user.username || user.name || _username;
 
     const payload = {

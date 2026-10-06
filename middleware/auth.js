@@ -60,16 +60,24 @@ authMiddleware.requireRole = function(...allowedRoles) {
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'Unauthorized: No user found in request token' });
     }
-    const userRole = (req.user.role || req.user.usertype || '').toUpperCase();
+    let userRoles = [];
+    if (Array.isArray(req.user.role)) {
+      userRoles = req.user.role.map(r => String(r).toUpperCase());
+    } else if (typeof req.user.role === 'string' && req.user.role) {
+      userRoles = [req.user.role.toUpperCase()];
+    } else if (typeof req.user.usertype === 'string' && req.user.usertype) {
+      userRoles = [req.user.usertype.toUpperCase()];
+    }
+
     const normalizedAllowed = allowedRoles.map(r => r.toUpperCase());
 
-    if (userRole === 'ADMIN' || userRole === 'ADMINISTRATOR' || normalizedAllowed.includes(userRole)) {
+    if (userRoles.includes('ADMIN') || userRoles.includes('ADMINISTRATOR') || normalizedAllowed.some(r => userRoles.includes(r))) {
       return next();
     }
 
     return res.status(403).json({
       success: false,
-      error: `Access denied. Requires one of roles: [${allowedRoles.join(', ')}], user has '${userRole}'`
+      error: `Access denied. Requires one of roles: [${allowedRoles.join(', ')}], user has [${userRoles.join(', ')}]`
     });
   };
 };
