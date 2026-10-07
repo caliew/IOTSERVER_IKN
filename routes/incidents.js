@@ -39,8 +39,17 @@ router.post('/verify', auth, auth.requireRole('VERIFIER'), async (req, res) => {
       });
     }
 
-    const verified_by = req.user.id || req.user.username || 'usr_102';
-    const verified_at = new Date().toISOString();
+    const verified_by =
+      req.body?.verified_by ||
+      req.body?.verifiedBy ||
+      req.body?.username ||
+      req.user?.name ||
+      req.user?.username ||
+      (req.user?.id && !String(req.user.id).startsWith('usr_') ? req.user.id : null) ||
+      req.user?.username ||
+      req.user?.id ||
+      'usr_102';
+    const verified_at = req.body?.verified_at || req.body?.verifiedAt || new Date().toISOString();
 
     const verificationData = {
       incidentId,

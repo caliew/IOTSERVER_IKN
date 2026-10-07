@@ -24,8 +24,18 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
 
     const formattedHour = String(hourStr).padStart(2, '0');
     const telemetryKey = `${macId}_${dateStr}_${formattedHour}`;
-    const cleared_by = req.user.id || req.user.username || 'usr_101';
-    const cleared_at = new Date().toISOString();
+    const cleared_by =
+      req.body?.checkedBy ||
+      req.body?.clearedBy ||
+      req.body?.cleared_by ||
+      req.body?.username ||
+      req.user?.name ||
+      req.user?.username ||
+      (req.user?.id && !String(req.user.id).startsWith('usr_') ? req.user.id : null) ||
+      req.user?.username ||
+      req.user?.id ||
+      'usr_101';
+    const cleared_at = req.body?.checkedAt || req.body?.clearedAt || req.body?.cleared_at || new Date().toISOString();
 
     const clearanceData = {
       telemetryKey,
