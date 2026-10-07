@@ -1,0 +1,7 @@
+{
+  "blockedGroups": [
+    "MRE IOT Monitoring System"
+  ],
+  "blockedGateways": [],
+  "loggingEnabled": true
+}
