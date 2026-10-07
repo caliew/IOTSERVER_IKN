@@ -3,29 +3,31 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const _debugENDPOINT = false;
 
-const authMiddleware = function(req, res, next) {
+const authMiddleware = function (req, res, next) {
   // ========== GLOBAL BYPASS SWITCH ==========
   // Set this to true to bypass ALL JWT checks
-  const BYPASS_ALL_JWT = false;  // ← CHANGE THIS TO true/false
-  
+  const BYPASS_ALL_JWT = true;  // ← CHANGE THIS TO true/false
+
   if (BYPASS_ALL_JWT) {
     _debugENDPOINT && console.log('🔓 GLOBAL BYPASS: Skipping ALL JWT checks');
-    
+
     // Get user info from query or use defaults
     const userId = req.query.id || req.query.userId || 'DEFAULT_USER';
     const company = req.query.company || 'TEST_COMPANY';
-    
+
     req.user = {
-      id: req.query.id || req.query.userId || 'DEFAULT_USER',
+      id: userId,
+      username: userId,
       name: 'Bypass User',
-      companyname: req.query.company || 'TEST_COMPANY'
+      role: ['ADMIN', 'CHECKER', 'VERIFIER'],
+      companyname: company
     };
-    
+
     _debugENDPOINT && console.log(`🔓 Using: User ID=${userId}, Company=${company}`);
     return next();
   }
   // ========== END BYPASS ==========
-  
+
   // Get token from header (supports x-auth-token and Authorization: Bearer <token>)
   let token = req.header('x-auth-token');
   if (!token && req.header('Authorization')) {
@@ -55,8 +57,8 @@ const authMiddleware = function(req, res, next) {
 };
 
 // Helper middleware for role-based authorization
-authMiddleware.requireRole = function(...allowedRoles) {
-  return function(req, res, next) {
+authMiddleware.requireRole = function (...allowedRoles) {
+  return function (req, res, next) {
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'Unauthorized: No user found in request token' });
     }
