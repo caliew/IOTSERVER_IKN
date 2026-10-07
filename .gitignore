@@ -23,6 +23,7 @@ node_modules/
 .data/fileStores
 .data/fileStores/users.json
 .data/powerTracker.json
+.data/settings/
 .logs/
 !.logs/_app1.js
 !.logs/_app2.js
