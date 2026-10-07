@@ -24,17 +24,23 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
 
     const formattedHour = String(hourStr).padStart(2, '0');
     const telemetryKey = `${macId}_${dateStr}_${formattedHour}`;
-    const cleared_by =
+    const reqUsername =
       req.body?.checkedBy ||
       req.body?.clearedBy ||
       req.body?.cleared_by ||
-      req.body?.username ||
-      req.user?.name ||
-      req.user?.username ||
-      (req.user?.id && !String(req.user.id).startsWith('usr_') ? req.user.id : null) ||
+      req.body?.username;
+    const jwtUsername = req.user?.username && req.user.username !== 'DEFAULT_USER' ? req.user.username : null;
+    const jwtName = req.user?.name && req.user.name !== 'Bypass User' ? req.user.name : null;
+
+    const cleared_by = String(
+      reqUsername ||
+      jwtUsername ||
+      jwtName ||
+      (req.user?.id && !String(req.user.id).startsWith('usr_') && req.user.id !== 'DEFAULT_USER' ? req.user.id : null) ||
       req.user?.username ||
       req.user?.id ||
-      'usr_101';
+      'usr_101'
+    );
     const cleared_at = req.body?.checkedAt || req.body?.clearedAt || req.body?.cleared_at || new Date().toISOString();
 
     const clearanceData = {
