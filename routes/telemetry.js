@@ -8,7 +8,7 @@ const TelemetryClearance = require('../models/TelemetryClearance');
 router.use(cors({ origin: '*' }));
 
 // @route     POST api/telemetry/clearance
-// @desc      Clearance endpoint for Checker
+// @desc      Clearance endpoint for Checker; also accepts verifiedBy/verifiedAt from Verifier path
 // @access    Private (CHECKER or ADMIN role)
 router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) => {
   try {
@@ -24,16 +24,18 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
 
     const formattedHour = String(hourStr).padStart(2, '0');
     const telemetryKey = `${macId}_${dateStr}_${formattedHour}`;
-    const reqUsername =
+
+    // --- CHECKER identity ---
+    // Priority: explicit checkedBy in body > JWT username > fallback
+    const reqCheckedBy =
       req.body?.checkedBy ||
       req.body?.clearedBy ||
-      req.body?.cleared_by ||
-      req.body?.username;
+      req.body?.cleared_by;
     const jwtUsername = req.user?.username && req.user.username !== 'DEFAULT_USER' ? req.user.username : null;
     const jwtName = req.user?.name && req.user.name !== 'Bypass User' ? req.user.name : null;
 
-    const cleared_by = String(
-      reqUsername ||
+    const checkedBy = String(
+      reqCheckedBy ||
       jwtUsername ||
       jwtName ||
       (req.user?.id && !String(req.user.id).startsWith('usr_') && req.user.id !== 'DEFAULT_USER' ? req.user.id : null) ||
@@ -41,7 +43,12 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
       req.user?.id ||
       'usr_101'
     );
-    const cleared_at = req.body?.checkedAt || req.body?.clearedAt || req.body?.cleared_at || new Date().toISOString();
+    const checkedAt = req.body?.checkedAt || req.body?.clearedAt || req.body?.cleared_at || new Date().toISOString();
+
+    // --- VERIFIER identity (distinct from Checker) ---
+    // Only present when this clearance update is triggered from the Verifier path
+    const verifiedBy = req.body?.verifiedBy || req.body?.verified_by || null;
+    const verifiedAt = req.body?.verifiedAt || req.body?.verified_at || null;
 
     const clearanceData = {
       telemetryKey,
@@ -50,8 +57,12 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
       hourStr: formattedHour,
       reason: reason || '',
       notes: notes || '',
-      cleared_by,
-      cleared_at,
+      // Checker fields
+      checkedBy,
+      checkedAt,
+      // Verifier fields (null when called from pure Checker path)
+      verifiedBy,
+      verifiedAt,
       site,
       status: 'CLEARED'
     };
@@ -65,7 +76,7 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
       try {
         await TelemetryClearance.findOneAndUpdate(
           { telemetryKey },
-          { ...clearanceData, cleared_at: new Date(cleared_at) },
+          { ...clearanceData, checkedAt: new Date(checkedAt) },
           { upsert: true, new: true }
         );
       } catch (e) {
@@ -82,6 +93,7 @@ router.post('/clearance', auth, auth.requireRole('CHECKER'), async (req, res) =>
     return res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
 
 // @route     GET api/telemetry/clearance/list
 // @desc      List all clearance records for a site (optionally filtered by year)
@@ -119,15 +131,50 @@ router.get('/clearance/list', auth, async (req, res) => {
       });
     }
 
-    // Sort newest-first by cleared_at
-    clearances.sort((a, b) => new Date(b.cleared_at || 0) - new Date(a.cleared_at || 0));
+    // Sort newest-first by checkedAt
+    clearances.sort((a, b) => new Date(b.checkedAt || b.cleared_at || 0) - new Date(a.checkedAt || a.cleared_at || 0));
+
+    // Normalise: ensure canonical camelCase fields for the frontend.
+    // Records stored by saveTelemetryClearance now use checkedBy/checkedAt/verifiedBy/verifiedAt.
+    // Older records may have snake_case cleared_by/cleared_at and no verifiedBy — bridge those here.
+    const normalizedClearances = clearances.map(c => {
+      // --- Checker fields ---
+      const checkedBy = c.checkedBy || c.cleared_by || null;
+      const checkedAt = c.checkedAt || c.cleared_at || null;
+
+      // --- Verifier fields ---
+      // Try the stored field first; fall back to parsing from notes/reason for old records
+      let verifiedBy = c.verifiedBy || c.verified_by || null;
+      let verifiedAt = c.verifiedAt || c.verified_at || null;
+
+      if (!verifiedBy) {
+        // Pattern 1: notes = "...Verified & Closed by Verifier {username} ..."
+        if (c.notes) {
+          const m = String(c.notes).match(/by\s+Verifier\s+(\S+)/i);
+          if (m) verifiedBy = m[1];
+        }
+        // Pattern 2: reason = "Verified ({username})"
+        if (!verifiedBy && c.reason) {
+          const m = String(c.reason).match(/^Verified\s+\((\S+)\)$/i);
+          if (m) verifiedBy = m[1];
+        }
+      }
+
+      return {
+        ...c,
+        checkedBy,
+        checkedAt,
+        verifiedBy,
+        verifiedAt,
+      };
+    });
 
     return res.status(200).json({
       success: true,
       site,
       year: year || 'all',
-      total: clearances.length,
-      clearances
+      total: normalizedClearances.length,
+      clearances: normalizedClearances
     });
   } catch (err) {
     console.error('Error in GET /api/telemetry/clearance/list:', err);

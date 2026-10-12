@@ -166,4 +166,31 @@ router.put('/', (req, res) => {
   }
 });
 
+// @route     GET api/incidents/verifications
+// @desc      Get all verification records for a site from verifications.json
+// @desc      Used by AuditReport to show authoritative verifiedBy / verifiedAt per incident
+// @access    Private
+// @query     site  {string} required  — site name (e.g. IKNPATHOLOGY)
+// @query     year  {number} optional  — 4-digit year filter
+router.get(['/verifications', '/verification'], auth, (req, res) => {
+  try {
+    const site = req.query.site || req.user?.site;
+    if (!site) {
+      return res.status(400).json({ success: false, error: 'Missing required query parameter: site' });
+    }
+    const year = req.query.year ? parseInt(req.query.year, 10) : null;
+    const verifications = fileStores.getVerificationsBySite(site, year);
+    return res.status(200).json({
+      success: true,
+      site,
+      year: year || 'all',
+      total: verifications.length,
+      verifications,
+    });
+  } catch (err) {
+    console.error('Error in GET /api/incidents/verifications:', err);
+    return res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
 module.exports = router;
