@@ -135,12 +135,12 @@ function formatHex(buffer) {
 // server module is required lazily so circular-dependency is safe.
 // gpio.js is mounted after server is fully initialised.
 // ----------------------------------------------------------------
+function getServer() {
+  try { return require('../lib/server'); } catch (_) { return null; }
+}
 function getSocketArr() {
-  try {
-    return require('../lib/server').socketArr || [];
-  } catch (_) {
-    return [];
-  }
+  const srv = getServer();
+  return (srv && srv.socketArr) || [];
 }
 
 router.use(cors({ origin: '*' }));
@@ -257,9 +257,22 @@ router.post('/control', auth, (req, res) => {
   const effectiveDtuid = dtuid !== undefined ? dtuid : 2001;
   const sockets = findSockets(siteName, effectiveDtuid);
   if (sockets.length === 0) {
-    console.warn(`[GPIO.JS] ⚠️ No active sockets found (siteName=${siteName}, dtuid=${effectiveDtuid})`);
+    console.warn(`[GPIO.JS] ⚠️ No active sockets found (siteName=${siteName}, dtuid=${effectiveDtuid}) — attempting port 2001 restart`);
+    _logs.append('_GPIO', `[GPIO.JS] No active sockets found — triggering restartModbus2001`, () => {});
+
+    // Attempt to restart the port-2001 TCP server so the DTU can reconnect
+    const srv = getServer();
+    const restarted = srv && typeof srv.restartModbus2001 === 'function'
+      ? srv.restartModbus2001()
+      : false;
+
     return res.status(503).json({
-      error: 'No active gateway sockets available',
+      error       : 'No active gateway sockets available',
+      action      : restarted ? 'port_2001_restarting' : 'no_restart_available',
+      retryAfterMs: restarted ? 5000 : null,
+      hint        : restarted
+        ? 'Port 2001 is restarting. Please retry in ~5 seconds.'
+        : 'Port 2001 restart not available. Check server state.',
     });
   }
 
