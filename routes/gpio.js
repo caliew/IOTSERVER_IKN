@@ -153,8 +153,9 @@ function findSockets(siteName, dtuid) {
   const arr = getSocketArr();
   if (!arr || arr.length === 0) return [];
   
+  // FIX: also exclude destroyed sockets — write() exists on dead sockets but silently fails
   const activeSockets = arr.filter(
-    (s) => s.SOCKET && typeof s.SOCKET.write === 'function'
+    (s) => s.SOCKET && typeof s.SOCKET.write === 'function' && !s.SOCKET.destroyed
   );
   if (activeSockets.length === 0) return [];
 
